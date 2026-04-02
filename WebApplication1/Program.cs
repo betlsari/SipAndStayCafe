@@ -14,7 +14,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 //ece
-
+//salak ece
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
