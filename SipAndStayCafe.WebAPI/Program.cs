@@ -1,8 +1,9 @@
-using SipAndStayCafe.Infrastructure;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
+using SipAndStayCafe.Infrastructure;
+using SipAndStayCafe.WebAPI.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,8 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 
 // Configure the HTTP request pipeline.
 
