@@ -44,10 +44,10 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
     // -----------------------------------------------------------------------
 
     /// <summary>Physical tables inside the cafe, each linked to a unique QR code.</summary>
-    public DbSet<Table> Tables => Set<Table>();
+    public DbSet<Domain.Entities.Table> Tables => Set<Domain.Entities.Table>();
 
     /// <summary>Items available on the menu, grouped by category.</summary>
-    public DbSet<MenuItem> MenuItems => Set<MenuItem>();
+    public DbSet<Domain.Entities.MenuItem> MenuItems => Set<Domain.Entities.MenuItem>();
 
     /// <summary>Groups of modifiers attached to a menu item (e.g. "Milk Type", "Extra Toppings").</summary>
     public DbSet<ModifierGroup> ModifierGroups => Set<ModifierGroup>();
@@ -56,7 +56,7 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Modifier> Modifiers => Set<Modifier>();
 
     /// <summary>Customer orders submitted from a table, containing one or more order items.</summary>
-    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<Domain.Entities.Order> Orders => Set<Domain.Entities.Order>();
 
     /// <summary>A single line in an order, referencing a menu item and its selected modifiers.</summary>
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
@@ -89,6 +89,9 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
         // Add a Configurations/ folder and implement one class per entity —
         // this method will pick them all up without any changes here.
         builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        // Configure OrderItemModifier to be stored as a JSON column inside OrderItem
+        builder.Entity<OrderItem>().OwnsMany(o => o.SelectedModifiers, b => b.ToJson());
 
         // Global convention: map all DateTime properties to UTC timestamp columns.
         // This prevents Npgsql's "timestamp with time zone" mismatch warnings.

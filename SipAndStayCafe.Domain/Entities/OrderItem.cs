@@ -1,4 +1,5 @@
 ﻿using SipAndStayCafe.Domain.Common;
+using SipAndStayCafe.Domain.ValueObjects;
 
 namespace SipAndStayCafe.Domain.Entities;
 

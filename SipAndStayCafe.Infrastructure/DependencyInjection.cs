@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Infrastructure.Persistence;
 using System;
 using System.Collections.Generic;
@@ -104,7 +105,7 @@ namespace SipAndStayCafe.Infrastructure
             //     o.UsePostgreSqlStorage(connectionString));
             //
             // services.AddScoped<IOrderRepository, OrderRepository>();
-            // services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;
         }
