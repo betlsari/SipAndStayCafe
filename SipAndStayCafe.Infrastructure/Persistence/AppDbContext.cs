@@ -34,7 +34,7 @@ namespace SipAndStayCafe.Infrastructure.Persistence;
 /// so this file stays clean as the model grows.
 /// </para>
 /// </remarks>
-public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
+public sealed class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -51,6 +51,8 @@ public sealed class AppDbContext : IdentityDbContext<ApplicationUser>
 
     /// <summary>Groups of modifiers attached to a menu item (e.g. "Milk Type", "Extra Toppings").</summary>
     public DbSet<ModifierGroup> ModifierGroups => Set<ModifierGroup>();
+    public DbSet<Category> Categories => Set<Category>();
+
 
     /// <summary>Individual modifier options inside a group (e.g. "Oat Milk", "Extra Avocado").</summary>
     public DbSet<Modifier> Modifiers => Set<Modifier>();
