@@ -3,6 +3,8 @@ using SipAndStayCafe.Application;
 using SipAndStayCafe.Infrastructure;
 using SipAndStayCafe.Infrastructure.Seed;
 using SipAndStayCafe.WebAPI.Middleware;
+using Microsoft.EntityFrameworkCore;
+using SipAndStayCafe.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,8 +94,14 @@ var app = builder.Build();
 // Seed roles and initial owner account
 // Runs BEFORE the app starts accepting requests.
 // Safe to run on every startup — idempotent.
+// RoleSeeder.SeedAsync(app)'den önce :
+//using (var scope = app.Services.CreateScope())
+//{
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    await db.Database.MigrateAsync();
+//}
 // ────────────────────────────────────────────────────────────────────────────
-await RoleSeeder.SeedAsync(app);
+// await RoleSeeder.SeedAsync(app);
 
 // ────────────────────────────────────────────────────────────────────────────
 // MIDDLEWARE PIPELINE

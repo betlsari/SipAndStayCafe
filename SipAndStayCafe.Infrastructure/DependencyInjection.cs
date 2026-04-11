@@ -118,8 +118,12 @@ public static class DependencyInjection
         var redisConnectionString = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrWhiteSpace(redisConnectionString))
         {
-            services.AddSingleton<IConnectionMultiplexer>(
-                ConnectionMultiplexer.Connect(redisConnectionString));
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+            {
+                var config = ConfigurationOptions.Parse(redisConnectionString);
+                config.AbortOnConnectFail = false;
+                return ConnectionMultiplexer.Connect(config);
+            });
             services.AddStackExchangeRedisCache(opts =>
                 opts.Configuration = redisConnectionString);
         }

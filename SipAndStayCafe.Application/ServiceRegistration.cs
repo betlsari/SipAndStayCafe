@@ -22,8 +22,8 @@ public static class ServiceRegistration
             cfg.RegisterServicesFromAssembly(assembly);
 
             // Pipeline behaviors run in registration order (outermost first)
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         });
 
         // FluentValidation — scans this assembly for AbstractValidator<T> implementations
