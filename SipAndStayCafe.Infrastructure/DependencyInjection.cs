@@ -1,113 +1,141 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using SipAndStayCafe.Application.Features.Auth;
 using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Infrastructure.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using SipAndStayCafe.Infrastructure.Services;
+using StackExchange.Redis;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SipAndStayCafe.Infrastructure
+namespace SipAndStayCafe.Infrastructure;
+
+public static class DependencyInjection
 {
-
-    /// <summary>
-    /// Extension method that registers all Infrastructure-layer services
-    /// (EF Core, repositories, Redis, Hangfire, etc.) into the DI container.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// <b>Why a single entry point?</b> Keeping all infrastructure wiring behind
-    /// <c>AddInfrastructure</c> means <c>Program.cs</c> in the API layer stays
-    /// decoupled from the concrete libraries used in the Infrastructure layer.
-    /// Switching databases or caching providers is a single-file change here,
-    /// invisible to the API project.
-    /// </para>
-    /// </remarks>
-    public static class DependencyInjection
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        /// <summary>
-        /// Registers Infrastructure services: PostgreSQL via Npgsql EF Core provider,
-        /// ASP.NET Core Identity, and (in future iterations) Redis, Hangfire, etc.
-        /// </summary>
-        /// <param name="services">The application's service collection.</param>
-        /// <param name="configuration">
-        ///     The merged configuration root (appsettings.json + environment variables).
-        ///     Must contain a <c>ConnectionStrings:DefaultConnection</c> entry.
-        /// </param>
-        /// <returns>The same <see cref="IServiceCollection"/> for chaining.</returns>
-        public static IServiceCollection AddInfrastructure(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        // ──────────────────────────────────────────────────────────────────
+        // 1. PostgreSQL
+        // ──────────────────────────────────────────────────────────────────
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is missing.");
+
+        services.AddDbContext<AppDbContext>(options =>
         {
-            // ------------------------------------------------------------------
-            // 1. PostgreSQL — Npgsql EF Core provider
-            // ------------------------------------------------------------------
-            var connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException(
-                    "Connection string 'DefaultConnection' is missing from configuration. " +
-                    "Add it to appsettings.json or as an environment variable " +
-                    "(ConnectionStrings__DefaultConnection).");
-
-            services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString, npgsql =>
             {
-                options.UseNpgsql(
-                    connectionString,
-                    npgsql =>
-                    {
-                        // Keep migrations assembly in Infrastructure so the API project
-                        // never needs a direct EF Core reference beyond design-time tools.
-                        npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
-
-                        // Automatically retry on transient PostgreSQL failures
-                        // (network blips, brief unavailability during deployments).
-                        npgsql.EnableRetryOnFailure(
-                            maxRetryCount: 5,
-                            maxRetryDelay: TimeSpan.FromSeconds(10),
-                            errorCodesToAdd: null);
-                    });
-
-                // In development, log the generated SQL and enable sensitive data logging
-                // so parameter values appear in query logs for easier debugging.
-                // Both are OFF in production (controlled via ASPNETCORE_ENVIRONMENT).
+                npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+            });
 #if DEBUG
-                options.EnableSensitiveDataLogging();
-                options.EnableDetailedErrors();
+            options.EnableSensitiveDataLogging();
+            options.EnableDetailedErrors();
 #endif
+        });
+
+        // ──────────────────────────────────────────────────────────────────
+        // 2. ASP.NET Core Identity
+        // ──────────────────────────────────────────────────────────────────
+        services
+            .AddIdentityCore<ApplicationUser>(opts =>
+            {
+                opts.Password.RequireDigit = true;
+                opts.Password.RequiredLength = 8;
+                opts.Password.RequireUppercase = false;
+                opts.Password.RequireNonAlphanumeric = false;
+                opts.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<ApplicationRole>()
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
+
+        // ──────────────────────────────────────────────────────────────────
+        // 3. JWT Bearer Authentication
+        // ──────────────────────────────────────────────────────────────────
+        var jwtSecretKey = configuration["Jwt:SecretKey"]
+            ?? throw new InvalidOperationException("Jwt:SecretKey is missing.");
+
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidAudience = configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                                                  Encoding.UTF8.GetBytes(jwtSecretKey)),
+                    ClockSkew = TimeSpan.Zero,
+                };
+
+                // SignalR: token via query string for WebSocket connections
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = ctx =>
+                    {
+                        var token = ctx.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(token) &&
+                            ctx.HttpContext.Request.Path.StartsWithSegments("/hubs"))
+                            ctx.Token = token;
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
-            // ------------------------------------------------------------------
-            // 2. ASP.NET Core Identity
-            // (ApplicationUser and roles stored in the same PostgreSQL database)
-            // ------------------------------------------------------------------
-            services
-                .AddIdentityCore<ApplicationUser>(identityOptions =>
-                {
-                    // Relax defaults slightly for a staff-only back-office scenario.
-                    // Tighten these when exposing a public sign-up flow.
-                    identityOptions.Password.RequireDigit = true;
-                    identityOptions.Password.RequiredLength = 8;
-                    identityOptions.Password.RequireUppercase = false;
-                    identityOptions.Password.RequireNonAlphanumeric = false;
-                    identityOptions.User.RequireUniqueEmail = true;
-                })
-                .AddRoles<ApplicationRole>()
-                .AddEntityFrameworkStores<AppDbContext>();
+        services.AddAuthorization();
 
-            // ------------------------------------------------------------------
-            // 3. Future infrastructure registrations (uncomment as implemented)
-            // ------------------------------------------------------------------
-            // services.AddStackExchangeRedisCache(o =>
-            //     o.Configuration = configuration.GetConnectionString("Redis"));
-            //
-            // services.AddHangfire(o =>
-            //     o.UsePostgreSqlStorage(connectionString));
-            //
-            // services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+        // ──────────────────────────────────────────────────────────────────
+        // 4. Application-layer service implementations
+        // ──────────────────────────────────────────────────────────────────
+        services.AddScoped<ITokenService, JwtTokenService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<AuthService>();
 
-            return services;
+        // ──────────────────────────────────────────────────────────────────
+        // 5. Unit of Work
+        // ──────────────────────────────────────────────────────────────────
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // ──────────────────────────────────────────────────────────────────
+        // 6. Redis
+        // ──────────────────────────────────────────────────────────────────
+        var redisConnectionString = configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            services.AddSingleton<IConnectionMultiplexer>(
+                ConnectionMultiplexer.Connect(redisConnectionString));
+            services.AddStackExchangeRedisCache(opts =>
+                opts.Configuration = redisConnectionString);
         }
+
+        // ──────────────────────────────────────────────────────────────────
+        // 7. Hangfire
+        // ──────────────────────────────────────────────────────────────────
+        services.AddHangfire(cfg => cfg
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(opts =>
+                opts.UseNpgsqlConnection(connectionString)));
+
+        services.AddHangfireServer();
+
+        return services;
     }
 }

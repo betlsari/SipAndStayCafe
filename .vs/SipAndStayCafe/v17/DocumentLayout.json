@@ -1,7 +1,36 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\Error.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\Result.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\BaseEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -22,6 +51,97 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
+              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADMAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:14:59.569Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SipAndStayCafe.Infrastructure.csproj",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-11T15:14:57.91Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "DependencyInjection.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:12:10.63Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Error.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Error.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs",
+              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\Error.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:12:07.708Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Result.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Result.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs",
+              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\Result.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:12:02.691Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "BaseEntity.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
+              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:11:56.381Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "SipAndStayCafe.Domain.csproj",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
+              "RelativeToolTip": "SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-11T15:11:52.317Z",
+              "EditorCaption": ""
             }
           ]
         }
