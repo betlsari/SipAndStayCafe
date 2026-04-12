@@ -118,15 +118,29 @@ public static class DependencyInjection
         var redisConnectionString = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrWhiteSpace(redisConnectionString))
         {
-            services.AddSingleton<IConnectionMultiplexer>(_ =>
+            try
             {
-                var config = ConfigurationOptions.Parse(redisConnectionString);
-                config.AbortOnConnectFail = false;
-                return ConnectionMultiplexer.Connect(config);
-            });
-            services.AddStackExchangeRedisCache(opts =>
-                opts.Configuration = redisConnectionString);
+                services.AddSingleton<IConnectionMultiplexer>(_ =>
+                {
+                    var config = ConfigurationOptions.Parse(redisConnectionString);
+                    config.AbortOnConnectFail = false;
+                    return ConnectionMultiplexer.Connect(config);
+                });
+                services.AddStackExchangeRedisCache(opts =>
+                    opts.Configuration = redisConnectionString);
+                services.AddScoped<IMenuCacheService, MenuCacheService>();
+            }
+            catch
+            {
+                services.AddScoped<IMenuCacheService, NullMenuCacheService>();
+            }
         }
+        else
+        {
+            services.AddScoped<IMenuCacheService, NullMenuCacheService>();
+        }
+        // Redis yoksa:
+        // services.AddScoped<IMenuCacheService, NullMenuCacheService>();
 
         // ──────────────────────────────────────────────────────────────────
         // 7. Hangfire

@@ -101,7 +101,7 @@ var app = builder.Build();
 //    await db.Database.MigrateAsync();
 //}
 // ────────────────────────────────────────────────────────────────────────────
-// await RoleSeeder.SeedAsync(app);
+await RoleSeeder.SeedAsync(app);
 
 // ────────────────────────────────────────────────────────────────────────────
 // MIDDLEWARE PIPELINE

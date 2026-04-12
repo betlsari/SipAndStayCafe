@@ -3,16 +3,100 @@
   "WorkspaceRootPath": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\ServiceRegistration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\ServiceRegistration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\ITokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\ITokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Entities\\RefreshToken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Exceptions\\ValidationException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -38,7 +122,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,46 +138,319 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Program.cs",
-              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADMAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:14:59.569Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "SipAndStayCafe.Infrastructure.csproj",
-              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-04-11T15:14:57.91Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "AppDbContextModelSnapshot.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T17:03:01.175Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "AppDbContextFactory.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T16:56:48.999Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ITokenService.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAwCIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:57:59.066Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ServiceRegistration.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\ServiceRegistration.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\ServiceRegistration.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\ServiceRegistration.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\ServiceRegistration.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwBkAAABaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:19:15.948Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "DependencyInjection.cs",
               "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
               "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
               "RelativeToolTip": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAowH0AAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-11T15:12:10.63Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "RefreshTokenRepository.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAAwCAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:54:24.65Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SipAndStayCafe.Infrastructure.csproj",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAIAwwBMAAABFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-11T15:14:57.91Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\appsettings.json",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json",
+              "RelativeToolTip": "SipAndStayCafe.WebAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-04-11T15:40:19.112Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Program.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
+              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Program.cs",
+              "ViewState": "AgIAAE4AAAAAAAAAAAAqwGQAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:14:59.569Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IIdentityService.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAwB8AAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:53:02.067Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAAAGUAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:34:43.504Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "IdentityService.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
+              "ViewState": "AgIAADUAAAAAAAAAAAAAwE4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:54:04.592Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "IRefreshTokenRepository.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:53:34.276Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAAAIMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:39:20.199Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "JwtTokenService.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
+              "ViewState": "AgIAAEYAAAAAAAAAAAAAAGMAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:36:39.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:33:05.142Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "RoleSeeder.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
+              "ViewState": "AgIAAH8AAAAAAAAAAAAAAJwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:37:39.704Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "RefreshTokenConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
+              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:35:30.488Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "RefreshToken.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
+              "RelativeToolTip": "SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAAADkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:33:57.501Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "AuthValidators.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAAADQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:32:28.137Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "LoggingBehaviour.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAAAEYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:24:29.302Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "AuthDtos.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAAABkAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:26:05.32Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "ValidationBehaviour.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
+              "ViewState": "AgIAACMAAAAAAAAAAAAAADoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:23:14.574Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "ValidationException.cs",
+              "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
+              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
+              "ToolTip": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
+              "RelativeToolTip": "SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-11T15:21:02.147Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
               "Title": "Error.cs",
               "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Error.cs",
@@ -106,7 +463,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 25,
               "Title": "Result.cs",
               "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Result.cs",
@@ -119,7 +476,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 26,
               "Title": "BaseEntity.cs",
               "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
@@ -132,7 +489,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 27,
               "Title": "SipAndStayCafe.Domain.csproj",
               "DocumentMoniker": "C:\\Users\\betls\\source\\repos\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
               "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
