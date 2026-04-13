@@ -28,6 +28,13 @@ public sealed class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
         builder.Property(m => m.ImageUrl)
             .HasMaxLength(500);
 
+        // PostgreSQL xmin system column — her UPDATE'de otomatik artar
+        builder.Property(m => m.RowVersion)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .ValueGeneratedOnAddOrUpdate()
+            .IsConcurrencyToken();
+
         builder.HasMany(m => m.ModifierGroups)
             .WithOne(g => g.MenuItem)
             .HasForeignKey(g => g.MenuItemId)
@@ -37,5 +44,7 @@ public sealed class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
             .WithOne(s => s.MenuItem)
             .HasForeignKey(s => s.MenuItemId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        
     }
 }

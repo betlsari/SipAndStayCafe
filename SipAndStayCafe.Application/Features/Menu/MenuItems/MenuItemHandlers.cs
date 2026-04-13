@@ -3,6 +3,7 @@ using MediatR;
 using SipAndStayCafe.Application.DTOs.Menu;
 using SipAndStayCafe.Application.Exceptions;
 using SipAndStayCafe.Application.Interfaces;
+using SipAndStayCafe.Domain.Common;
 using SipAndStayCafe.Domain.Entities;
 
 namespace SipAndStayCafe.Application.Features.Menu.MenuItems;
@@ -34,22 +35,11 @@ public sealed class GetPublicMenuHandler
     public async Task<IReadOnlyList<MenuCategoryDto>> Handle(
         GetPublicMenuQuery request, CancellationToken cancellationToken)
     {
-        // 1. Cache hit
         var cached = await _cache.GetPublicMenuAsync(cancellationToken);
         if (cached is not null) return cached;
 
-        // 2. Cache miss — fetch from DB
         var categories = await _uow.Repository<Category>()
             .FindAsync(c => c.IsActive, cancellationToken);
-
-        // We need to eager-load MenuItems → ModifierGroups → Modifiers.
-        // GenericRepository doesn't expose Include so we build the result via navigation
-        // properties loaded separately (or use the queryable approach below).
-        // Since GenericRepository wraps DbSet, we use FindAsync with the simple predicate
-        // and rely on the fact that the IUnitOfWork can also return an IQueryable via
-        // the repository's DbSet. For includes we'll add a small extension approach:
-        // We load all active items + their groups here using separate queries and join in-memory,
-        // which is fine for a cafe-scale menu (< 200 items).
 
         var menuItems = await _uow.Repository<MenuItem>()
             .FindAsync(m => m.IsAvailable, cancellationToken);
@@ -60,7 +50,6 @@ public sealed class GetPublicMenuHandler
         var modifiers = await _uow.Repository<Modifier>()
             .FindAsync(m => m.IsActive, cancellationToken);
 
-        // Wire up in-memory (avoids N+1 without needing IQueryable.Include here)
         var modifiersByGroup = modifiers
             .GroupBy(m => m.ModifierGroupId)
             .ToDictionary(g => g.Key, g => g.ToList());
@@ -104,7 +93,7 @@ public sealed class GetPublicMenuHandler
                 return new MenuCategoryDto(cat.Id, cat.Name, cat.DisplayOrder,
                     items.AsReadOnly());
             })
-            .Where(c => c.Items.Count > 0)   // hide empty categories
+            .Where(c => c.Items.Count > 0)
             .ToList()
             .AsReadOnly();
 
@@ -320,9 +309,9 @@ public sealed class DeleteMenuItemHandler : IRequestHandler<DeleteMenuItemComman
 // ────────────────────────────────────────────────────────────────────────────
 
 public sealed record UpdateStockCommand(Guid MenuItemId, UpdateStockRequest Dto)
-    : IRequest;
+    : IRequest<Result<bool>>;
 
-public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand>
+public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand, Result<bool>>
 {
     private readonly IUnitOfWork _uow;
     private readonly IMenuCacheService _cache;
@@ -333,13 +322,14 @@ public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand>
         _cache = cache;
     }
 
-    public async Task Handle(UpdateStockCommand request, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(
+        UpdateStockCommand request,
+        CancellationToken cancellationToken)
     {
         var item = await _uow.Repository<MenuItem>()
             .GetByIdAsync(request.MenuItemId, cancellationToken)
             ?? throw new NotFoundException(nameof(MenuItem), request.MenuItemId);
 
-        // Upsert today's StockUpdate record
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
         var existing = await _uow.Repository<StockUpdate>()
@@ -365,11 +355,12 @@ public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand>
             _uow.Repository<StockUpdate>().Update(existing);
         }
 
-        // Sync the live flag on MenuItem too — this is what the customer menu checks
         item.IsAvailable = request.Dto.IsAvailable;
         _uow.Repository<MenuItem>().Update(item);
 
         await _uow.SaveChangesAsync(cancellationToken);
         await _cache.InvalidateMenuAsync(cancellationToken);
+
+        return Result.Success(true);
     }
 }

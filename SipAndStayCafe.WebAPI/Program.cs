@@ -1,10 +1,9 @@
 ﻿using Hangfire;
 using SipAndStayCafe.Application;
 using SipAndStayCafe.Infrastructure;
+using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Seed;
 using SipAndStayCafe.WebAPI.Middleware;
-using Microsoft.EntityFrameworkCore;
-using SipAndStayCafe.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +24,6 @@ builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
     {
-        // Serialize enum values as strings in JSON responses (e.g. "Received" not 0)
         opts.JsonSerializerOptions.Converters.Add(
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
@@ -38,7 +36,6 @@ builder.Services.AddSwaggerGen(opts =>
 {
     opts.SwaggerDoc("v1", new() { Title = "SipAndStay Cafe API", Version = "v1" });
 
-    // Add JWT Bearer support to Swagger UI
     opts.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -71,17 +68,17 @@ builder.Services.AddSwaggerGen(opts =>
 builder.Services.AddSignalR();
 
 // ────────────────────────────────────────────────────────────────────────────
-// 6. CORS — allow React dev server in development
+// 6. CORS
 // ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowReactDev", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173") // Vite default port
+            .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); // required for SignalR
+            .AllowCredentials();
     });
 });
 
@@ -92,26 +89,17 @@ var app = builder.Build();
 
 // ────────────────────────────────────────────────────────────────────────────
 // Seed roles and initial owner account
-// Runs BEFORE the app starts accepting requests.
-// Safe to run on every startup — idempotent.
-// RoleSeeder.SeedAsync(app)'den önce :
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//    await db.Database.MigrateAsync();
-//}
 // ────────────────────────────────────────────────────────────────────────────
 await RoleSeeder.SeedAsync(app);
 
 // ────────────────────────────────────────────────────────────────────────────
 // MIDDLEWARE PIPELINE
-// Order matters — add middleware top to bottom in the correct sequence.
 // ────────────────────────────────────────────────────────────────────────────
 
-// 1. Global exception handler (must be first — wraps everything below)
+// 1. Global exception handler
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// 2. Development-only tools
+// 2. Development tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -125,27 +113,30 @@ if (app.Environment.IsDevelopment())
 // 3. HTTPS redirect
 app.UseHttpsRedirection();
 
-// 4. CORS (must be before Authentication/Authorization)
+// 4. CORS
 app.UseCors("AllowReactDev");
 
-// 5. Authentication → Authorization (order is mandatory)
+// 5. Authentication → Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 6. Hangfire dashboard (Owner-only in production — protected by auth policy)
+// 6. Hangfire dashboard — pipeline kurulduktan SONRA
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
-    // TODO: Replace with a proper authorization filter once auth is fully wired
-    // For now, dashboard is only exposed in Development
-    Authorization = app.Environment.IsDevelopment()
-        ? [new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter()]
-        : [new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter()]
+    Authorization = [new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter()]
 });
 
-// 7. Controllers
+// 7. Recurring jobs — UseHangfireDashboard'dan SONRA kayıt edilmeli
+RecurringJob.AddOrUpdate<StockResetJob>(
+    recurringJobId: "nightly-stock-reset",
+    methodCall: job => job.ExecuteAsync(CancellationToken.None),
+    cronExpression: Cron.Daily(0, 0),
+    options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+// 8. Controllers
 app.MapControllers();
 
-// 8. SignalR hubs (will be added as hubs are implemented)
+// 9. SignalR hubs (ilerleyen görevlerde açılacak)
 // app.MapHub<OrderHub>("/hubs/orders");
 // app.MapHub<KitchenHub>("/hubs/kitchen");
 // app.MapHub<CashierHub>("/hubs/cashier");

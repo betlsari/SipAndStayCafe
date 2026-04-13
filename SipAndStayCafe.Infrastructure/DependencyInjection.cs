@@ -12,6 +12,7 @@ using SipAndStayCafe.Infrastructure.Persistence;
 using SipAndStayCafe.Infrastructure.Services;
 using StackExchange.Redis;
 using System.Text;
+using SipAndStayCafe.Infrastructure.Jobs;
 
 namespace SipAndStayCafe.Infrastructure;
 
@@ -107,6 +108,8 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<AuthService>();
 
+        services.AddScoped<IStockNotificationService, LogStockNotificationService>();
+
         // ──────────────────────────────────────────────────────────────────
         // 5. Unit of Work
         // ──────────────────────────────────────────────────────────────────
@@ -152,7 +155,9 @@ public static class DependencyInjection
             .UsePostgreSqlStorage(opts =>
                 opts.UseNpgsqlConnection(connectionString)));
 
+        
         services.AddHangfireServer();
+        services.AddScoped<StockResetJob>();
 
         return services;
     }

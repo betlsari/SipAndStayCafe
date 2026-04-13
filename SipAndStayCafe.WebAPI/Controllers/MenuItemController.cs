@@ -110,17 +110,40 @@ public sealed class MenuItemController : ControllerBase
     /// Updates today's stock availability for an item.
     /// Also syncs MenuItem.IsAvailable and invalidates the menu cache.
     /// </summary>
+
+
+    /// <summary>
+    /// Updates today's stock availability for a menu item.
+    ///
+    /// Returns:
+    ///   204 No Content  — update applied successfully.
+    ///   404 Not Found   — item does not exist.
+    ///   409 Conflict    — concurrent modification; client should retry.
+    /// </summary>
     [HttpPatch("items/{id:guid}/stock")]
     [Authorize(Roles = "Owner")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateStock(Guid id,
-        [FromBody] UpdateStockRequest request, CancellationToken ct)
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateStock(
+        Guid id,
+        [FromBody] UpdateStockRequest request,
+        CancellationToken ct)
     {
-        await _mediator.Send(new UpdateStockCommand(id, request), ct);
+        var result = await _mediator.Send(new UpdateStockCommand(id, request), ct);
+
+        if (result.IsFailure)
+        {
+            return result.Error.Code switch
+            {
+                "Conflict" => Conflict(new { code = result.Error.Code, message = result.Error.Message }),
+                _ => StatusCode(StatusCodes.Status500InternalServerError,
+                                  new { code = result.Error.Code, message = result.Error.Message })
+            };
+        }
+
         return NoContent();
     }
-
     // ── Admin: ModifierGroup CRUD ────────────────────────────────────────────
 
     [HttpPost("modifier-groups")]

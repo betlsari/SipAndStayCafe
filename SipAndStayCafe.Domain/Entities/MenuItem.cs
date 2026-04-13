@@ -37,7 +37,7 @@ public sealed class MenuItem : BaseEntity
     /// Lower values appear first.
     /// </summary>
     public int DisplayOrder { get; set; }
-
+    public uint RowVersion { get; set; }
     // -----------------------------------------------------------------------
     // Navigation
     // -----------------------------------------------------------------------
@@ -53,4 +53,7 @@ public sealed class MenuItem : BaseEntity
 
     /// <summary>Daily availability log entries for this item.</summary>
     public List<StockUpdate> StockUpdates { get; private set; } = [];
+
+    // Optimistic concurrency — EF Core bunu otomatik kontrol eder
+    
 }
