@@ -1,16 +1,19 @@
-﻿
+﻿using FluentValidation;
 using SipAndStayCafe.Application.DTOs.Auth;
 using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Domain.Common;
 using SipAndStayCafe.Domain.Entities;
 using System.Security.Cryptography;
 using System.Text;
+using ValidationException = SipAndStayCafe.Application.Exceptions.ValidationException;
 
 namespace SipAndStayCafe.Application.Features.Auth;
 
 /// <summary>
 /// Handles all authentication business logic.
 /// Depends only on Application interfaces — zero Infrastructure references.
+/// Validators are injected and called manually because Auth endpoints bypass
+/// the MediatR pipeline (AuthService is called directly from the controller).
 /// </summary>
 public sealed class AuthService
 {
@@ -19,15 +22,24 @@ public sealed class AuthService
     private readonly IIdentityService _identityService;
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
+    private readonly IValidator<LoginRequest> _loginValidator;
+    private readonly IValidator<RegisterStaffRequest> _registerValidator;
+    private readonly IValidator<RefreshTokenRequest> _refreshValidator;
 
     public AuthService(
         IIdentityService identityService,
         ITokenService tokenService,
-        IRefreshTokenRepository refreshTokenRepo)
+        IRefreshTokenRepository refreshTokenRepo,
+        IValidator<LoginRequest> loginValidator,
+        IValidator<RegisterStaffRequest> registerValidator,
+        IValidator<RefreshTokenRequest> refreshValidator)
     {
         _identityService = identityService;
         _tokenService = tokenService;
         _refreshTokenRepo = refreshTokenRepo;
+        _loginValidator = loginValidator;
+        _registerValidator = registerValidator;
+        _refreshValidator = refreshValidator;
     }
 
     // ────────────────────────────────────────────────────────────────────────
@@ -38,6 +50,8 @@ public sealed class AuthService
         LoginRequest request,
         CancellationToken cancellationToken = default)
     {
+        await ValidateAsync(_loginValidator, request, cancellationToken);
+
         var userResult = await _identityService.FindByEmailAsync(request.Email);
         if (userResult is null)
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
@@ -57,6 +71,8 @@ public sealed class AuthService
         RegisterStaffRequest request,
         CancellationToken cancellationToken = default)
     {
+        await ValidateAsync(_registerValidator, request, cancellationToken);
+
         var existing = await _identityService.FindByEmailAsync(request.Email);
         if (existing is not null)
             return Result.Failure<AuthResponse>(
@@ -66,7 +82,7 @@ public sealed class AuthService
             request.Email, request.Password, request.DisplayName, request.Role);
 
         if (!createResult.Succeeded)
-            throw new Exceptions.ValidationException(createResult.Errors);
+            throw new ValidationException(createResult.Errors);
 
         var user = await _identityService.FindByEmailAsync(request.Email);
         return await IssueTokensAsync(user!, cancellationToken);
@@ -80,6 +96,8 @@ public sealed class AuthService
         RefreshTokenRequest request,
         CancellationToken cancellationToken = default)
     {
+        await ValidateAsync(_refreshValidator, request, cancellationToken);
+
         var hash = HashToken(request.RefreshToken);
 
         var storedToken = await _refreshTokenRepo.GetByHashAsync(hash, cancellationToken);
@@ -120,6 +138,25 @@ public sealed class AuthService
     // ────────────────────────────────────────────────────────────────────────
     // Private helpers
     // ────────────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Runs the given validator and throws <see cref="ValidationException"/>
+    /// (caught by ExceptionHandlingMiddleware → 400) if validation fails.
+    /// </summary>
+    private static async Task ValidateAsync<T>(
+        IValidator<T> validator,
+        T instance,
+        CancellationToken cancellationToken)
+    {
+        var result = await validator.ValidateAsync(instance, cancellationToken);
+        if (!result.IsValid)
+        {
+            var errors = result.Errors
+                .GroupBy(f => f.PropertyName, f => f.ErrorMessage)
+                .ToDictionary(g => g.Key, g => g.ToArray());
+            throw new ValidationException(errors);
+        }
+    }
 
     private async Task<Result<AuthResponse>> IssueTokensAsync(
         UserDto user,

@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using SipAndStayCafe.Application;
 using SipAndStayCafe.Infrastructure;
+using SipAndStayCafe.Infrastructure.Hangfire;
 using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Seed;
 using SipAndStayCafe.WebAPI.Middleware;
@@ -96,7 +97,7 @@ await RoleSeeder.SeedAsync(app);
 // MIDDLEWARE PIPELINE
 // ────────────────────────────────────────────────────────────────────────────
 
-// 1. Global exception handler
+// 1. Global exception handler — must be first
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // 2. Development tools
@@ -113,20 +114,24 @@ if (app.Environment.IsDevelopment())
 // 3. HTTPS redirect
 app.UseHttpsRedirection();
 
-// 4. CORS
+// 4. CORS — must be before auth
 app.UseCors("AllowReactDev");
 
-// 5. Authentication → Authorization
+// 5. Authentication → Authorization (order matters)
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 6. Hangfire dashboard — pipeline kurulduktan SONRA
+// 6. Hangfire dashboard
+// Dev  → localhost requests pass through OwnerHangfireAuthFilter unconditionally.
+// Prod → requires an authenticated Owner-role JWT in the request.
+// TODO (post-MVP): add cookie-based session so the owner can log in via the
+//       admin panel and access the dashboard without a separate Bearer token.
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
-    Authorization = [new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter()]
+    Authorization = [new OwnerHangfireAuthFilter()]
 });
 
-// 7. Recurring jobs — UseHangfireDashboard'dan SONRA kayıt edilmeli
+// 7. Recurring jobs — registered after UseHangfireDashboard
 RecurringJob.AddOrUpdate<StockResetJob>(
     recurringJobId: "nightly-stock-reset",
     methodCall: job => job.ExecuteAsync(CancellationToken.None),
@@ -136,7 +141,7 @@ RecurringJob.AddOrUpdate<StockResetJob>(
 // 8. Controllers
 app.MapControllers();
 
-// 9. SignalR hubs (ilerleyen görevlerde açılacak)
+// 9. SignalR hubs — uncomment as each hub is implemented
 // app.MapHub<OrderHub>("/hubs/orders");
 // app.MapHub<KitchenHub>("/hubs/kitchen");
 // app.MapHub<CashierHub>("/hubs/cashier");
