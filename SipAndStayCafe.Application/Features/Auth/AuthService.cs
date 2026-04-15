@@ -37,7 +37,7 @@ public sealed class AuthService
     }
 
     public async Task<Result<AuthResponse>> LoginAsync(
-        LoginRequest request,
+        LoginRequest request, string? deviceHint = null,
         CancellationToken cancellationToken = default)
     {
         // Validation önce çalışsın
@@ -51,11 +51,13 @@ public sealed class AuthService
         if (!passwordValid)
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
 
-        return await IssueTokensAsync(userResult, cancellationToken);
+        return await IssueTokensAsync(userResult, cancellationToken, deviceHint);
     }
 
     public async Task<Result<AuthResponse>> RegisterStaffAsync(
         RegisterStaffRequest request,
+            string? deviceHint = null,
+
         CancellationToken cancellationToken = default)
     {
         await ValidateAndThrowAsync(_registerValidator, request, cancellationToken);
@@ -72,11 +74,12 @@ public sealed class AuthService
             throw new ValidationException(createResult.Errors);
 
         var user = await _identityService.FindByEmailAsync(request.Email);
-        return await IssueTokensAsync(user!, cancellationToken);
+        return await IssueTokensAsync(user!, cancellationToken, deviceHint);
     }
 
     public async Task<Result<AuthResponse>> RefreshAsync(
-        RefreshTokenRequest request,
+        RefreshTokenRequest request, string? deviceHint = null,
+
         CancellationToken cancellationToken = default)
     {
         await ValidateAndThrowAsync(_refreshValidator, request, cancellationToken);
@@ -99,7 +102,7 @@ public sealed class AuthService
         storedToken.Revoke();
         await _refreshTokenRepo.UpdateAsync(storedToken, cancellationToken);
 
-        return await IssueTokensAsync(user, cancellationToken);
+        return await IssueTokensAsync(user, cancellationToken, deviceHint);
     }
 
     public async Task<Result<bool>> LogoutAsync(
@@ -122,7 +125,7 @@ public sealed class AuthService
 
     private async Task<Result<AuthResponse>> IssueTokensAsync(
           UserDto user,
-          CancellationToken cancellationToken)
+          CancellationToken cancellationToken, string? deviceHint = null)
     {
         var accessToken = _tokenService.GenerateAccessToken(
             user.Id, user.Email, user.DisplayName, user.Roles);
@@ -134,6 +137,7 @@ public sealed class AuthService
             UserId = user.Id,
             TokenHash = HashToken(rawRefresh),
             ExpiresAt = DateTime.UtcNow.Add(RefreshTokenLifetime),
+            DeviceHint = deviceHint
         };
 
         await _refreshTokenRepo.AddAsync(refreshEntity, cancellationToken);

@@ -42,7 +42,12 @@ public sealed class AuthController : ControllerBase
         [FromBody] LoginRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _authService.LoginAsync(request, cancellationToken);
+        var deviceHint = Request.Headers.UserAgent.ToString();
+        // Max 200 karakter — RefreshTokenConfiguration'da HasMaxLength(200) var
+        if (deviceHint.Length > 200)
+            deviceHint = deviceHint[..200];
+
+        var result = await _authService.LoginAsync(request, deviceHint, cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : Unauthorized(ProblemFor(result.Error));
@@ -65,7 +70,10 @@ public sealed class AuthController : ControllerBase
         [FromBody] RegisterStaffRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _authService.RegisterStaffAsync(request, cancellationToken);
+        var deviceHint = Request.Headers.UserAgent.ToString();
+        if (deviceHint.Length > 200) deviceHint = deviceHint[..200];
+
+        var result = await _authService.RegisterStaffAsync(request, deviceHint, cancellationToken);
 
         if (result.IsFailure)
         {
@@ -95,7 +103,10 @@ public sealed class AuthController : ControllerBase
         [FromBody] RefreshTokenRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await _authService.RefreshAsync(request, cancellationToken);
+        var deviceHint = Request.Headers.UserAgent.ToString();
+        if (deviceHint.Length > 200) deviceHint = deviceHint[..200];
+
+        var result = await _authService.RefreshAsync(request, deviceHint, cancellationToken);
         return result.IsSuccess
             ? Ok(result.Value)
             : Unauthorized(ProblemFor(result.Error));

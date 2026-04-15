@@ -5,7 +5,6 @@ using SipAndStayCafe.Application.Exceptions;
 using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Domain.Common;
 using SipAndStayCafe.Domain.Entities;
-
 namespace SipAndStayCafe.Application.Features.Menu.MenuItems;
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -131,60 +130,6 @@ public sealed class GetAllMenuItemsHandler
 // ────────────────────────────────────────────────────────────────────────────
 
 public sealed record GetMenuItemByIdQuery(Guid Id) : IRequest<MenuItemDto>;
-
-public sealed class GetMenuItemByIdHandler
-    : IRequestHandler<GetMenuItemByIdQuery, MenuItemDto>
-{
-    private readonly IUnitOfWork _uow;
-    private readonly IMapper _mapper;
-
-    public GetMenuItemByIdHandler(IUnitOfWork uow, IMapper mapper)
-    {
-        _uow = uow;
-        _mapper = mapper;
-    }
-
-    public async Task<MenuItemDto> Handle(
-        GetMenuItemByIdQuery request, CancellationToken cancellationToken)
-    {
-        var item = await _uow.Repository<MenuItem>().GetByIdAsync(request.Id, cancellationToken)
-            ?? throw new NotFoundException(nameof(MenuItem), request.Id);
-
-        var category = await _uow.Repository<Category>().GetByIdAsync(item.CategoryId, cancellationToken)
-            ?? throw new NotFoundException(nameof(Category), item.CategoryId);
-
-        var modifierGroups = await _uow.Repository<ModifierGroup>()
-            .FindAsync(g => g.MenuItemId == item.Id, cancellationToken);
-
-        var modifiers = await _uow.Repository<Modifier>()
-            .FindAsync(m => modifierGroups.Select(g => g.Id).Contains(m.ModifierGroupId)
-                            && m.IsActive, cancellationToken);
-
-        var modifiersByGroup = modifiers
-            .GroupBy(m => m.ModifierGroupId)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-        var groupDtos = modifierGroups
-            .OrderBy(g => g.DisplayOrder)
-            .Select(g =>
-            {
-                var mods = modifiersByGroup.GetValueOrDefault(g.Id, [])
-                    .OrderBy(m => m.DisplayOrder)
-                    .Select(m => new ModifierDto(
-                        m.Id, m.Name, m.AdditionalPrice, m.DisplayOrder, m.IsActive))
-                    .ToList();
-                return new ModifierGroupDto(
-                    g.Id, g.Name, g.SelectionType, g.IsRequired, g.DisplayOrder,
-                    mods.AsReadOnly());
-            })
-            .ToList();
-
-        return new MenuItemDto(
-            item.Id, item.Name, item.Description, item.BasePrice,
-            item.CategoryId, category.Name, item.IsAvailable, item.ImageUrl,
-            item.DisplayOrder, groupDtos.AsReadOnly());
-    }
-}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Commands
