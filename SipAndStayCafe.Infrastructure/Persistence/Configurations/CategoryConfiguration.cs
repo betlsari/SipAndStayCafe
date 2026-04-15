@@ -18,9 +18,6 @@ public sealed class CategoryConfiguration : IEntityTypeConfiguration<Category>
             .IsRequired()
             .HasDefaultValue(true);
 
-        builder.HasMany(c => c.MenuItems)
-            .WithOne(m => m.Category)
-            .HasForeignKey(m => m.CategoryId)
-            .OnDelete(DeleteBehavior.Restrict);
+       
     }
 }

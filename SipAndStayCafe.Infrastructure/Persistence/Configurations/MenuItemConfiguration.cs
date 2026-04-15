@@ -45,6 +45,9 @@ public sealed class MenuItemConfiguration : IEntityTypeConfiguration<MenuItem>
             .HasForeignKey(s => s.MenuItemId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        
+        builder.HasOne(m => m.Category)
+    .WithMany(c => c.MenuItems)
+    .HasForeignKey(m => m.CategoryId)
+    .OnDelete(DeleteBehavior.Restrict);
     }
 }

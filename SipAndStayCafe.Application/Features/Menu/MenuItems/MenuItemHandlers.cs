@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SipAndStayCafe.Application.DTOs.Menu;
 using SipAndStayCafe.Application.Exceptions;
 using SipAndStayCafe.Application.Interfaces;
@@ -303,7 +304,15 @@ public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand, Res
         item.IsAvailable = request.Dto.IsAvailable;
         _uow.Repository<MenuItem>().Update(item);
 
-        await _uow.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _uow.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return Result.Failure<bool>(
+                Error.General.Conflict("MenuItem was modified by another request. Please retry."));
+        }
         await _cache.InvalidateMenuAsync(cancellationToken);
 
         return Result.Success(true);
