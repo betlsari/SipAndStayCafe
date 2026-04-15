@@ -45,7 +45,21 @@ public sealed class JwtTokenService : ITokenService
             throw new InvalidOperationException(
                 "Jwt:SecretKey must be at least 32 characters (256 bits) for HS256.");
     }
-
+    // JwtTokenService.cs'e ekle
+    public string? ExtractUserIdFromToken(string accessToken)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            // ValidateToken ÇAĞIRMA — token expired olabilir
+            var jwt = handler.ReadJwtToken(accessToken);
+            return jwt.Subject; // = sub claim
+        }
+        catch
+        {
+            return null;
+        }
+    }
     /// <inheritdoc/>
     public string GenerateAccessToken(
         string userId,

@@ -32,4 +32,11 @@ public interface ITokenService
     /// Clients use this to schedule proactive token refresh.
     /// </summary>
     DateTime GetAccessTokenExpiry();
+
+    // ITokenService.cs'e ekle
+    /// <summary>
+    /// Expired olsa bile access token'dan userId (sub claim) çıkarır.
+    /// Signature doğrulaması yapılmaz — sadece claim okuma amaçlı.
+    /// </summary>
+    string? ExtractUserIdFromToken(string accessToken);
 }
