@@ -109,7 +109,7 @@ public static class DependencyInjection
         services.AddScoped<AuthService>();
         services.AddScoped<IReportService, QuestPdfReportService>();
         services.AddScoped<WeeklyReportJob>();
-
+        services.AddScoped<IQrCodeService, QrCodeService>();
         services.AddScoped<IStockNotificationService, LogStockNotificationService>();
 
         // ──────────────────────────────────────────────────────────────────

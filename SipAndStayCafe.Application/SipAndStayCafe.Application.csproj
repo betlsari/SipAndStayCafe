@@ -18,8 +18,4 @@
     <ProjectReference Include="..\SipAndStayCafe.Domain\SipAndStayCafe.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\" />
-  </ItemGroup>
-
 </Project>
