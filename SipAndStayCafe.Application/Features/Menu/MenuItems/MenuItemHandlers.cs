@@ -269,8 +269,8 @@ public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand, Res
     }
 
     public async Task<Result<bool>> Handle(
-        UpdateStockCommand request,
-        CancellationToken cancellationToken)
+      UpdateStockCommand request,
+      CancellationToken cancellationToken)
     {
         var item = await _uow.Repository<MenuItem>()
             .GetByIdAsync(request.MenuItemId, cancellationToken)
@@ -313,8 +313,8 @@ public sealed class UpdateStockHandler : IRequestHandler<UpdateStockCommand, Res
             return Result.Failure<bool>(
                 Error.General.Conflict("MenuItem was modified by another request. Please retry."));
         }
-        await _cache.InvalidateMenuAsync(cancellationToken);
 
+        await _cache.InvalidateMenuAsync(cancellationToken);
         return Result.Success(true);
     }
 }

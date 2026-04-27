@@ -64,11 +64,11 @@ public sealed class StockResetJob
         // We use a direct EF Core ExecuteUpdateAsync (EF 7+) for a single bulk UPDATE
         // instead of loading every row into memory — more efficient for large menus.
         var resetCount = await _db.MenuItems
-            .Where(m => !m.IsAvailable)
-            .ExecuteUpdateAsync(
-                setters => setters.SetProperty(m => m.IsAvailable, true),
-                cancellationToken);
-
+    .Where(m => !m.IsAvailable)
+    .ExecuteUpdateAsync(s => s
+        .SetProperty(m => m.IsAvailable, true)
+        .SetProperty(m => m.UpdatedAt, DateTime.UtcNow),
+        cancellationToken);
         _logger.LogInformation(
             "[StockResetJob] Reset {Count} item(s) to available.", resetCount);
 
