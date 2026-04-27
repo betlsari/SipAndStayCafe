@@ -107,6 +107,8 @@ public static class DependencyInjection
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<AuthService>();
+        services.AddScoped<IReportService, QuestPdfReportService>();
+        services.AddScoped<WeeklyReportJob>();
 
         services.AddScoped<IStockNotificationService, LogStockNotificationService>();
 

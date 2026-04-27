@@ -138,6 +138,12 @@ RecurringJob.AddOrUpdate<StockResetJob>(
     cronExpression: Cron.Daily(0, 0),
     options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
+RecurringJob.AddOrUpdate<WeeklyReportJob>(
+    recurringJobId: "weekly-sales-report",
+    methodCall: job => job.ExecuteAsync(CancellationToken.None),
+    cronExpression: "0 0 * * 1",          // Her Pazartesi 00:00 UTC
+    options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
 // 8. Controllers
 app.MapControllers();
 
