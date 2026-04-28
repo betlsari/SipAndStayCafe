@@ -22,4 +22,6 @@ public interface IPaymentNotificationService
     Task NotifyTableSessionClosedAsync(
         int tableNumber,
         CancellationToken cancellationToken);
+    // Mevcut NotifyTableSessionClosedAsync metodunun altına ekle:
+    Task NotifyTableWaitingForPaymentAsync(int tableNumber, CancellationToken ct);
 }

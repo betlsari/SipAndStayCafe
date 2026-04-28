@@ -172,11 +172,16 @@ public class ConfirmCashierPaymentHandler : IRequestHandler<ConfirmCashierPaymen
         if (session.ClosedAt.HasValue)
             return Result<bool>.Failure(Error.Create("Session.AlreadyClosed", "Bu masa oturumu zaten kapatılmış."));
 
-        // 2. Kasiyer manuel ödeme aldığı için Domain Entity'nin durumlarını güncelliyoruz
-        session.PaymentMethod = PaymentMethod.Cashier;
-        session.PaymentStatus = PaymentStatus.Completed;
+        // 2. Müşteri kendi telefonundan "Kasiyerde Öde" tuşuna basmadıysa bile,
+        // kasiyer işlemi onaylarken ödeme yöntemini 'Cashier' olarak belirliyoruz.
+        if (session.PaymentMethod == PaymentMethod.None)
+        {
+            // Bu metot arka planda PaymentMethod = Cashier ve PaymentStatus = Pending yapar
+            session.InitiateCashierPayment();
+        }
 
-        // 3. Entity içindeki kapsüllenmiş ve idempotent olan kapatma metodunu çağırıyoruz
+        // 3. Entity içindeki kapsüllenmiş ve idempotent olan kapatma metodunu çağırıyoruz.
+        // Bu metot arka planda PaymentStatus = Completed yapar ve ClosedAt değerini atar.
         session.Close();
 
         _sessionRepo.Update(session);
