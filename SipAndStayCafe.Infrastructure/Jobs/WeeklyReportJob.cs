@@ -1,47 +1,44 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using MediatR;
+using Microsoft.Extensions.Logging;
+using SipAndStayCafe.Application.Features.Reports;
 using SipAndStayCafe.Application.Interfaces;
 
 namespace SipAndStayCafe.Infrastructure.Jobs;
 
-/// <summary>
-/// Her Pazartesi gece yarısı çalışır; geçen haftanın satış raporunu PDF olarak üretir.
-/// Üretilen PDF şimdilik loglara yazılır — ileride e-posta / admin panel ekine taşınabilir.
-/// </summary>
-public sealed class WeeklyReportJob
+public class WeeklyReportJob
 {
+    private readonly IMediator _mediator;
     private readonly IReportService _reportService;
     private readonly ILogger<WeeklyReportJob> _logger;
 
-    public WeeklyReportJob(IReportService reportService, ILogger<WeeklyReportJob> logger)
+    public WeeklyReportJob(IMediator mediator, IReportService reportService, ILogger<WeeklyReportJob> logger)
     {
+        _mediator = mediator;
         _reportService = reportService;
         _logger = logger;
     }
 
-    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(CancellationToken ct)
     {
-        // Geçen Pazartesi — Pazar aralığı
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var lastMonday = today.AddDays(-(int)today.DayOfWeek - 6);  // ISO: Pazartesi = 1
-        var lastSunday = lastMonday.AddDays(6);
+        // Formül Düzeltmesi: Eğer Job Pazartesi çalışıyorsa, "EndDate" Dün (Pazar) olmalıdır.
+        // StartDate ise ondan 6 gün öncesi (Önceki Pazartesi) olmalıdır.
+        var today = DateTime.Today;
 
-        _logger.LogInformation(
-            "[WeeklyReportJob] Rapor üretiliyor: {From} – {To}", lastMonday, lastSunday);
+        var endDate = today.AddDays(-1);
+        var startDate = endDate.AddDays(-6);
 
-        try
-        {
-            var pdf = await _reportService.GenerateWeeklySalesReportAsync(
-                lastMonday, lastSunday, cancellationToken);
+        _logger.LogInformation("Haftalık rapor tetiklendi. Dönem: {Start} - {End}", startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
 
-            // TODO: PDF'i e-posta ile gönder veya admin panel üzerinden indirilebilir yap.
-            // Şimdilik boyutu logla.
-            _logger.LogInformation(
-                "[WeeklyReportJob] PDF üretildi. Boyut: {Bytes} byte", pdf.Length);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "[WeeklyReportJob] Rapor üretilemedi.");
-            throw;  // Hangfire başarısız sayar ve yeniden dener
-        }
+        // 1. Veriyi çek (Önceki adımda yazdığımız Handler tetiklenir)
+        var query = new GetWeeklySalesReportQuery(startDate, endDate);
+        var reportData = await _mediator.Send(query, ct);
+
+        // 2. PDF Dosyasını üret (Byte Array olarak)
+        var pdfBytes = _reportService.GenerateWeeklyReportPdf(reportData);
+
+        // TODO (İleriye dönük): Bu noktada üretilen 'pdfBytes' dizisi IEmailService üzerinden
+        // işletme sahibinin mailine gönderilebilir veya bir Cloud Storage'a kaydedilebilir.
+
+        _logger.LogInformation("Haftalık PDF raporu başarıyla oluşturuldu. Dosya Boyutu: {Size} KB", pdfBytes.Length / 1024);
     }
 }
