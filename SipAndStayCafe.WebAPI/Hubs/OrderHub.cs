@@ -76,4 +76,7 @@ public sealed class OrderHub : Hub
 
     public static string TableGroupName(int tableNumber)
         => $"table-{tableNumber}";
+    // Server → Client method names
+    public const string ReceiveNewOrder = nameof(ReceiveNewOrder);
+    public const string OrderStatusUpdated = nameof(OrderStatusUpdated);
 }
