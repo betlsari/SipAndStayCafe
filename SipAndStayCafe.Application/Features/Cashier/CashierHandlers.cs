@@ -131,4 +131,5 @@ public class GetPendingCashierPaymentsHandler : IRequestHandler<GetPendingCashie
             OrderCount: s.Orders.Count
         )).ToList();
     }
-}
+}// Add this to the QUERIES section with other records:
+public record ConfirmCashierPaymentCommand(Guid SessionId) : IRequest;

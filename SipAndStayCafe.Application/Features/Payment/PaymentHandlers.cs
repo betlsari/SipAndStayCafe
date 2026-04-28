@@ -44,9 +44,12 @@ public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, stri
             throw new NotFoundException(nameof(PaymentTransaction), transactionId);
 
         // Include ile Table verisini de getiriyoruz ki Notification servise TableNumber atabilelim
-        var session = await _sessionRepo.Query()
-            .Include(s => s.Table)
-            .FirstOrDefaultAsync(s => s.Id == transaction.TableSessionId, cancellationToken);
+        // With this:
+        var session = await _sessionRepo.FirstOrDefaultAsync(
+            s => s.Id == transaction.TableSessionId, cancellationToken);
+
+        if (session == null)
+            throw new NotFoundException(nameof(TableSession), transaction.TableSessionId);
 
         if (session == null)
             throw new NotFoundException(nameof(TableSession), transaction.TableSessionId);
