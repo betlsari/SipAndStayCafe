@@ -36,14 +36,12 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderDto>
         IRepository<Table> tableRepo,
         IRepository<TableSession> sessionRepo,
         IQueryableRepository<MenuItem> queryableMenuItemRepo,
-        IRepository<Order> orderRepo,
         IUnitOfWork unitOfWork,
         IMapper mapper)
     {
         _tableRepo = tableRepo;
         _sessionRepo = sessionRepo;
         _queryableMenuItemRepo = queryableMenuItemRepo;
-        _orderRepo = orderRepo;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -143,15 +141,18 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderDto>
         {
             TableSessionId = session.Id,
             Status = OrderStatus.Received,
-            Note = request.Note,
-            OrderItems = orderItems
+            Note = request.Note
         };
+
+        // List<OrderItem> içindeki her elemanı navigation property üzerinden ekle
+        order.OrderItems.AddRange(orderItems);
 
         // 5. Session Toplamını Güncelle
         session.TotalAmount += orderTotal;
 
-        await _orderRepo.AddAsync(order, cancellationToken);
-        _sessionRepo.Update(session);
+        // PlaceOrderHandler'da _orderRepo yerine _unitOfWork.Repository<Order>() kullan
+        await _unitOfWork.Repository<Order>().AddAsync(order, cancellationToken);
+        _unitOfWork.Repository<TableSession>().Update(session);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -176,7 +177,10 @@ public class GetTableOrderHistoryHandler : IRequestHandler<GetTableOrderHistoryQ
     {
         var sessions = await _queryableSessionRepo.FindWithIncludesAsync(
             s => s.Table.TableNumber == query.TableNumber && s.ClosedAt == null,
-            q => q.Include(s => s.Orders).ThenInclude(o => o.OrderItems).ThenInclude(i => i.MenuItem),
+           q => q.Include(s => s.Table)
+      .Include(s => s.Orders)
+          .ThenInclude(o => o.OrderItems)
+          .ThenInclude(i => i.MenuItem),
             cancellationToken);
 
         var activeSession = sessions.FirstOrDefault();

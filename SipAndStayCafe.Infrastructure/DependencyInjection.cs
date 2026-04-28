@@ -111,7 +111,7 @@ public static class DependencyInjection
         services.AddScoped<WeeklyReportJob>();
         services.AddScoped<IQrCodeService, QrCodeService>();
         services.AddScoped<IStockNotificationService, LogStockNotificationService>();
-
+        services.AddScoped<IWaiterNotificationService, LogWaiterNotificationService>();
         // ──────────────────────────────────────────────────────────────────
         // 5. Unit of Work
         // ──────────────────────────────────────────────────────────────────
