@@ -28,24 +28,26 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderDto>
     private readonly IRepository<Table> _tableRepo;
     private readonly IRepository<TableSession> _sessionRepo;
     private readonly IQueryableRepository<MenuItem> _queryableMenuItemRepo;
-    private readonly IRepository<Order> _orderRepo;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IOrderNotificationService _orderNotificationService;
+
 
     public PlaceOrderHandler(
         IRepository<Table> tableRepo,
         IRepository<TableSession> sessionRepo,
         IQueryableRepository<MenuItem> queryableMenuItemRepo,
         IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        IOrderNotificationService orderNotificationService)  // ← ekle
     {
         _tableRepo = tableRepo;
         _sessionRepo = sessionRepo;
         _queryableMenuItemRepo = queryableMenuItemRepo;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _orderNotificationService = orderNotificationService;  // ← ekle
     }
-
     public async Task<OrderDto> Handle(PlaceOrderCommand command, CancellationToken cancellationToken)
     {
         var request = command.Request;
@@ -156,9 +158,15 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderDto>
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // TODO: B3 görevinde IOrderNotificationService ile mutfağa haber verilecek
 
-        return _mapper.Map<OrderDto>(order);
+        var orderDto = _mapper.Map<OrderDto>(order);
+
+        await _orderNotificationService.NotifyNewOrderAsync(
+            orderDto,
+            request.TableNumber,
+            cancellationToken);
+
+        return orderDto;
     }
 }
 
@@ -203,10 +211,18 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
     private readonly IRepository<Order> _orderRepo;
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateOrderStatusHandler(IRepository<Order> orderRepo, IUnitOfWork unitOfWork)
+    private readonly IOrderNotificationService _orderNotificationService;
+    private readonly IQueryableRepository<Order> _queryableOrderRepo;
+    public UpdateOrderStatusHandler(
+      IRepository<Order> orderRepo,
+      IUnitOfWork unitOfWork,
+      IOrderNotificationService orderNotificationService,  // ← ekle
+      IQueryableRepository<Order> queryableOrderRepo)      // ← ekle
     {
         _orderRepo = orderRepo;
         _unitOfWork = unitOfWork;
+        _orderNotificationService = orderNotificationService;
+        _queryableOrderRepo = queryableOrderRepo;
     }
 
     public async Task Handle(UpdateOrderStatusCommand command, CancellationToken cancellationToken)
@@ -222,6 +238,19 @@ public class UpdateOrderStatusHandler : IRequestHandler<UpdateOrderStatusCommand
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         // TODO: B3 görevinde IOrderNotificationService ile müşteriye/kasaya haber verilecek
+        // tableNumber için Order → TableSession → Table join gerekiyor
+        var orders = await _queryableOrderRepo.FindWithIncludesAsync(
+            o => o.Id == command.OrderId,
+            q => q.Include(o => o.TableSession).ThenInclude(s => s.Table),
+            cancellationToken);
+
+        var tableNumber = orders.FirstOrDefault()?.TableSession.Table.TableNumber ?? 0;
+
+        await _orderNotificationService.NotifyOrderStatusChangedAsync(
+            command.OrderId,
+            tableNumber,
+            command.NewStatus,
+            cancellationToken);
     }
 }
 
