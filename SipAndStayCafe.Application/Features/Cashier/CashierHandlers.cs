@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SipAndStayCafe.Application.DTOs.Cashier;
 using SipAndStayCafe.Application.Exceptions;
 using SipAndStayCafe.Application.Interfaces;
+using SipAndStayCafe.Domain.Common;
 using SipAndStayCafe.Domain.Entities;
 using SipAndStayCafe.Domain.Enums;
 
@@ -132,4 +133,58 @@ public class GetPendingCashierPaymentsHandler : IRequestHandler<GetPendingCashie
         )).ToList();
     }
 }// Add this to the QUERIES section with other records:
-public record ConfirmCashierPaymentCommand(Guid SessionId) : IRequest;
+// ==========================================
+// 3. COMMANDS & YAZMA İŞLEMLERİ (YENİ EKLENEN)
+// ==========================================
+
+public record ConfirmCashierPaymentCommand(Guid SessionId) : IRequest<Result<bool>>;
+
+public class ConfirmCashierPaymentHandler : IRequestHandler<ConfirmCashierPaymentCommand, Result<bool>>
+{
+    private readonly IQueryableRepository<TableSession> _queryableSessionRepo;
+    private readonly IRepository<TableSession> _sessionRepo;
+    private readonly IPaymentNotificationService _paymentNotificationService;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public ConfirmCashierPaymentHandler(
+        IQueryableRepository<TableSession> queryableSessionRepo,
+        IRepository<TableSession> sessionRepo,
+        IPaymentNotificationService paymentNotificationService,
+        IUnitOfWork unitOfWork)
+    {
+        _queryableSessionRepo = queryableSessionRepo;
+        _sessionRepo = sessionRepo;
+        _paymentNotificationService = paymentNotificationService;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<Result<bool>> Handle(ConfirmCashierPaymentCommand request, CancellationToken cancellationToken)
+    {
+        // 1. Session'ı ve bağlı olduğu masayı (TableNumber için) Eager Load ile getiriyoruz
+        var session = await _queryableSessionRepo.GetByIdWithIncludesAsync(
+            request.SessionId,
+            q => q.Include(s => s.Table),
+            cancellationToken);
+
+        if (session == null)
+            throw new NotFoundException(nameof(TableSession), request.SessionId);
+
+        if (session.ClosedAt.HasValue)
+            return Result<bool>.Failure(Error.Create("Session.AlreadyClosed", "Bu masa oturumu zaten kapatılmış."));
+
+        // 2. Kasiyer manuel ödeme aldığı için Domain Entity'nin durumlarını güncelliyoruz
+        session.PaymentMethod = PaymentMethod.Cashier;
+        session.PaymentStatus = PaymentStatus.Completed;
+
+        // 3. Entity içindeki kapsüllenmiş ve idempotent olan kapatma metodunu çağırıyoruz
+        session.Close();
+
+        _sessionRepo.Update(session);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // 4. Kapanış bildirimini gönderiyoruz (SignalR üzerinden ekranları güncelleyecek)
+        await _paymentNotificationService.NotifyTableSessionClosedAsync(session.Table.TableNumber, cancellationToken);
+
+        return Result<bool>.Success(true);
+    }
+}
