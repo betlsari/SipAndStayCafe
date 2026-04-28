@@ -80,11 +80,11 @@ public static class DependencyInjection
                     ValidIssuer = configuration["Jwt:Issuer"],
                     ValidAudience = configuration["Jwt:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(
-                                                  Encoding.UTF8.GetBytes(jwtSecretKey)),
+                        Encoding.UTF8.GetBytes(jwtSecretKey)),
                     ClockSkew = TimeSpan.Zero,
                 };
 
-                // SignalR: token via query string for WebSocket connections
+                // SignalR: WebSocket bağlantılarında token query string'den okunur
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = ctx =>
@@ -111,7 +111,18 @@ public static class DependencyInjection
         services.AddScoped<WeeklyReportJob>();
         services.AddScoped<IQrCodeService, QrCodeService>();
         services.AddScoped<IStockNotificationService, LogStockNotificationService>();
-        services.AddScoped<IWaiterNotificationService, LogWaiterNotificationService>();
+
+        // ── Notification servisleri ────────────────────────────────────────
+        // Hub proxy interface'leri (IOrderHubContext, ICashierHubContext) WebAPI
+        // katmanındaki adapter sınıflarıyla karşılanır. Bu kayıtlar Program.cs'de
+        // yapılır çünkü adapter'lar IHubContext<THub>'a bağımlı ve THub tipleri
+        // WebAPI katmanında tanımlı.
+        //
+        // Infrastructure bu gerçeği bilmez — sadece aşağıdaki interface'lere bağımlı:
+        services.AddScoped<IOrderNotificationService, SignalROrderNotificationService>();
+        services.AddScoped<IPaymentNotificationService, SignalRPaymentNotificationService>();
+        services.AddScoped<IWaiterNotificationService, SignalRWaiterNotificationService>();
+
         // ──────────────────────────────────────────────────────────────────
         // 5. Unit of Work
         // ──────────────────────────────────────────────────────────────────
@@ -144,8 +155,6 @@ public static class DependencyInjection
         {
             services.AddScoped<IMenuCacheService, NullMenuCacheService>();
         }
-        // Redis yoksa:
-        // services.AddScoped<IMenuCacheService, NullMenuCacheService>();
 
         // ──────────────────────────────────────────────────────────────────
         // 7. Hangfire
@@ -157,7 +166,6 @@ public static class DependencyInjection
             .UsePostgreSqlStorage(opts =>
                 opts.UseNpgsqlConnection(connectionString)));
 
-        
         services.AddHangfireServer();
         services.AddScoped<StockResetJob>();
 

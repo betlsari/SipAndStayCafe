@@ -1,9 +1,11 @@
 ﻿using Hangfire;
 using SipAndStayCafe.Application;
+using SipAndStayCafe.Application.Interfaces.Hubs;
 using SipAndStayCafe.Infrastructure;
 using SipAndStayCafe.Infrastructure.Hangfire;
 using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Seed;
+using SipAndStayCafe.WebAPI.Adapters;
 using SipAndStayCafe.WebAPI.Hubs;
 using SipAndStayCafe.WebAPI.Middleware;
 
@@ -20,7 +22,20 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // ────────────────────────────────────────────────────────────────────────────
-// 3. Controllers + JSON options
+// 3. Hub proxy adapter'ları — WebAPI katmanında kayıt zorunlu.
+//
+//    IOrderHubContext  → OrderHubContextAdapter  (IHubContext<OrderHub> kullanır)
+//    ICashierHubContext → CashierHubContextAdapter (IHubContext<CashierHub> kullanır)
+//
+//    Bu kayıtlar Infrastructure.DependencyInjection'da YAPILMAZ çünkü
+//    OrderHub / CashierHub WebAPI katmanında tanımlı; Infrastructure bu tipleri
+//    bilmez ve bilmemeli (Clean Architecture).
+// ────────────────────────────────────────────────────────────────────────────
+builder.Services.AddScoped<IOrderHubContext, OrderHubContextAdapter>();
+builder.Services.AddScoped<ICashierHubContext, CashierHubContextAdapter>();
+
+// ────────────────────────────────────────────────────────────────────────────
+// 4. Controllers + JSON options
 // ────────────────────────────────────────────────────────────────────────────
 builder.Services
     .AddControllers()
@@ -31,7 +46,7 @@ builder.Services
     });
 
 // ────────────────────────────────────────────────────────────────────────────
-// 4. Swagger / OpenAPI
+// 5. Swagger / OpenAPI
 // ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts =>
@@ -65,12 +80,12 @@ builder.Services.AddSwaggerGen(opts =>
 });
 
 // ────────────────────────────────────────────────────────────────────────────
-// 5. SignalR
+// 6. SignalR
 // ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
 
 // ────────────────────────────────────────────────────────────────────────────
-// 6. CORS
+// 7. CORS
 // ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(opts =>
 {
@@ -118,21 +133,17 @@ app.UseHttpsRedirection();
 // 4. CORS — must be before auth
 app.UseCors("AllowReactDev");
 
-// 5. Authentication → Authorization (order matters)
+// 5. Authentication → Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
 // 6. Hangfire dashboard
-// Dev  → localhost requests pass through OwnerHangfireAuthFilter unconditionally.
-// Prod → requires an authenticated Owner-role JWT in the request.
-// TODO (post-MVP): add cookie-based session so the owner can log in via the
-//       admin panel and access the dashboard without a separate Bearer token.
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
     Authorization = [new OwnerHangfireAuthFilter()]
 });
 
-// 7. Recurring jobs — registered after UseHangfireDashboard
+// 7. Recurring jobs
 RecurringJob.AddOrUpdate<StockResetJob>(
     recurringJobId: "nightly-stock-reset",
     methodCall: job => job.ExecuteAsync(CancellationToken.None),
@@ -142,15 +153,14 @@ RecurringJob.AddOrUpdate<StockResetJob>(
 RecurringJob.AddOrUpdate<WeeklyReportJob>(
     recurringJobId: "weekly-sales-report",
     methodCall: job => job.ExecuteAsync(CancellationToken.None),
-    cronExpression: "0 0 * * 1",          // Her Pazartesi 00:00 UTC
+    cronExpression: "0 0 * * 1",
     options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
 // 8. Controllers
 app.MapControllers();
 
-// 9. SignalR hubs — uncomment as each hub is implemented
- app.MapHub<OrderHub>("/hubs/orders");
-// app.MapHub<KitchenHub>("/hubs/kitchen");
+// 9. SignalR hubs
+app.MapHub<OrderHub>("/hubs/orders");
 app.MapHub<CashierHub>("/hubs/cashier");
 
 app.Run();
