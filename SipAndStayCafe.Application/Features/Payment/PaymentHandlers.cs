@@ -139,8 +139,9 @@ public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, stri
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             // Kasiyer ekranına "Masa X Kasiyerde Ödeme Yapacak" bildirimi gönder
-            await _paymentNotificationService.NotifyTableWaitingForPaymentAsync(session.Table.TableNumber, cancellationToken);
-
+           
+            // With this line:
+            await _paymentNotificationService.NotifyTableWaitingForPaymentAsync(session.Table.TableNumber, session.TotalAmount, cancellationToken);
             return Result<bool>.Success(true);
         }
     }

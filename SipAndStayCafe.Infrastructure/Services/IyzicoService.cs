@@ -21,7 +21,7 @@ public class IyzicoService : IIyzicoService
         };
     }
 
-    public Task<CheckoutFormInitialize> CreateCheckoutFormAsync(Guid paymentId, decimal price, string callbackUrl)
+    public async Task<CheckoutFormInitialize> CreateCheckoutFormAsync(Guid paymentId, decimal price, string callbackUrl)
     {
         // 1. İyzico İstek Nesnesini Hazırla
         var request = new CreateCheckoutFormInitializeRequest
@@ -85,19 +85,19 @@ public class IyzicoService : IIyzicoService
         request.BasketItems = basketItems;
 
         // İyzico'ya isteği at
-        var checkoutFormInitialize = CheckoutFormInitialize.Create(request, _options);
+        var checkoutFormInitialize = await CheckoutFormInitialize.Create(request, _options);
 
-        return Task.FromResult(checkoutFormInitialize);
+        return checkoutFormInitialize;
     }
 
-    public Task<CheckoutForm> RetrieveCheckoutFormAsync(string token)
+    public async Task<CheckoutForm> RetrieveCheckoutFormAsync(string token)
     {
         var request = new RetrieveCheckoutFormRequest
         {
             Token = token
         };
 
-        var checkoutForm = CheckoutForm.Retrieve(request, _options);
-        return Task.FromResult(checkoutForm);
+        var checkoutForm = await CheckoutForm.Retrieve(request, _options);
+        return checkoutForm;
     }
 }

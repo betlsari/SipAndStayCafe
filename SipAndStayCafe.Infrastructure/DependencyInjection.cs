@@ -8,11 +8,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SipAndStayCafe.Application.Features.Auth;
 using SipAndStayCafe.Application.Interfaces;
+using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Persistence;
+using SipAndStayCafe.Infrastructure.Persistence.Repositories;
 using SipAndStayCafe.Infrastructure.Services;
 using StackExchange.Redis;
 using System.Text;
-using SipAndStayCafe.Infrastructure.Jobs;
 
 namespace SipAndStayCafe.Infrastructure;
 
@@ -124,11 +125,27 @@ public static class DependencyInjection
         services.AddScoped<IWaiterNotificationService, SignalRWaiterNotificationService>();
 
 
+     
+
         services.AddScoped<IIyzicoService, IyzicoService>();
+
         // ──────────────────────────────────────────────────────────────────
         // 5. Unit of Work
         // ──────────────────────────────────────────────────────────────────
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // ──────────────────────────────────────────────────────────────────
+        // 5a. Generic Repository & Queryable Repository Factory Registrations
+        // ──────────────────────────────────────────────────────────────────
+        // These allow handlers to request IRepository<T> or IQueryableRepository<T>
+        // and get instances of GenericRepository<T> or QueryableRepository<T>
+        services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(IQueryableRepository<>), typeof(QueryableRepository<>));
+
+        // ──────────────────────────────────────────────────────────────────
+        // 5b. Report Repository
+        // ──────────────────────────────────────────────────────────────────
+        services.AddScoped<IReportRepository, ReportRepository>();
 
         // ──────────────────────────────────────────────────────────────────
         // 6. Redis
