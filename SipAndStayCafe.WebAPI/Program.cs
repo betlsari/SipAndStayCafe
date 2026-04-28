@@ -4,6 +4,7 @@ using SipAndStayCafe.Infrastructure;
 using SipAndStayCafe.Infrastructure.Hangfire;
 using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Seed;
+using SipAndStayCafe.WebAPI.Hubs;
 using SipAndStayCafe.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -148,8 +149,8 @@ RecurringJob.AddOrUpdate<WeeklyReportJob>(
 app.MapControllers();
 
 // 9. SignalR hubs — uncomment as each hub is implemented
-// app.MapHub<OrderHub>("/hubs/orders");
+ app.MapHub<OrderHub>("/hubs/orders");
 // app.MapHub<KitchenHub>("/hubs/kitchen");
-// app.MapHub<CashierHub>("/hubs/cashier");
+app.MapHub<CashierHub>("/hubs/cashier");
 
 app.Run();

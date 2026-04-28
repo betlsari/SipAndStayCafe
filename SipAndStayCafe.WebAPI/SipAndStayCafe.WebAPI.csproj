@@ -21,8 +21,4 @@
     <ProjectReference Include="..\SipAndStayCafe.Infrastructure\SipAndStayCafe.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Hubs\" />
-  </ItemGroup>
-
 </Project>
