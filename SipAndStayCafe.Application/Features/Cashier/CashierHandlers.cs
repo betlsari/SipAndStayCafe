@@ -33,7 +33,6 @@ public class GetActiveSessionsHandler : IRequestHandler<GetActiveSessionsQuery, 
 
     public async Task<IReadOnlyList<CashierSessionDto>> Handle(GetActiveSessionsQuery request, CancellationToken cancellationToken)
     {
-        // Sadece açık olan oturumları, masa ve sipariş bilgileriyle Eager Load yapıyoruz
         var sessions = await _queryableSessionRepo.FindWithIncludesAsync(
             s => s.ClosedAt == null,
             q => q.Include(s => s.Table).Include(s => s.Orders),
@@ -44,7 +43,8 @@ public class GetActiveSessionsHandler : IRequestHandler<GetActiveSessionsQuery, 
             SessionId: s.Id,
             OpenedAt: s.OpenedAt,
             TotalAmount: s.TotalAmount,
-            PaymentMethod: s.PaymentMethod?.ToString(),
+            // Enum None ise null dön, aksi halde string'e çevir
+            PaymentMethod: s.PaymentMethod == PaymentMethod.None ? null : s.PaymentMethod.ToString(),
             PaymentStatus: s.PaymentStatus.ToString(),
             OrderCount: s.Orders.Count
         )).ToList();
@@ -62,7 +62,6 @@ public class GetSessionDetailHandler : IRequestHandler<GetSessionDetailQuery, Ca
 
     public async Task<CashierSessionDetailDto> Handle(GetSessionDetailQuery request, CancellationToken cancellationToken)
     {
-        // Masanın içine tıklandığında sipariş detaylarını ve içindeki ürünleri çekiyoruz
         var sessions = await _queryableSessionRepo.FindWithIncludesAsync(
             s => s.Id == request.SessionId,
             q => q.Include(s => s.Table)
@@ -75,7 +74,6 @@ public class GetSessionDetailHandler : IRequestHandler<GetSessionDetailQuery, Ca
         if (session == null)
             throw new NotFoundException(nameof(TableSession), request.SessionId);
 
-        // İç içe hiyerarşiyi (OrderRounds -> OrderItems) dolduruyoruz
         var orderRoundDtos = session.Orders
             .OrderByDescending(o => o.CreatedAt)
             .Select(o => new CashierOrderRoundDto(
@@ -96,7 +94,8 @@ public class GetSessionDetailHandler : IRequestHandler<GetSessionDetailQuery, Ca
             SessionId: session.Id,
             OpenedAt: session.OpenedAt,
             PaymentStatus: session.PaymentStatus.ToString(),
-            PaymentMethod: session.PaymentMethod?.ToString(),
+            // Enum None ise null dön, aksi halde string'e çevir
+            PaymentMethod: session.PaymentMethod == PaymentMethod.None ? null : session.PaymentMethod.ToString(),
             GrandTotal: session.TotalAmount,
             OrderRounds: orderRoundDtos
         );
@@ -114,7 +113,6 @@ public class GetPendingCashierPaymentsHandler : IRequestHandler<GetPendingCashie
 
     public async Task<IReadOnlyList<CashierSessionDto>> Handle(GetPendingCashierPaymentsQuery request, CancellationToken cancellationToken)
     {
-        // Müşteri telefondan "Kasada Öde" tuşuna basmış ve "Pending" durumunda olan oturumları filtreliyoruz
         var sessions = await _queryableSessionRepo.FindWithIncludesAsync(
             s => s.ClosedAt == null
                  && s.PaymentMethod == PaymentMethod.Cashier
@@ -127,8 +125,9 @@ public class GetPendingCashierPaymentsHandler : IRequestHandler<GetPendingCashie
             SessionId: s.Id,
             OpenedAt: s.OpenedAt,
             TotalAmount: s.TotalAmount,
-            PaymentMethod: s.PaymentMethod?.ToString(), // Kasiyer olarak dolu gelecek
-            PaymentStatus: s.PaymentStatus.ToString(),  // Pending olarak dolu gelecek
+            // Burada zaten Cashier filtresi var, kesin dolu olduğu için null kontrolüne gerek yok
+            PaymentMethod: s.PaymentMethod.ToString(),
+            PaymentStatus: s.PaymentStatus.ToString(),
             OrderCount: s.Orders.Count
         )).ToList();
     }

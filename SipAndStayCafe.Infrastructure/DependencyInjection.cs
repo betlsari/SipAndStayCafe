@@ -123,6 +123,8 @@ public static class DependencyInjection
         services.AddScoped<IPaymentNotificationService, SignalRPaymentNotificationService>();
         services.AddScoped<IWaiterNotificationService, SignalRWaiterNotificationService>();
 
+
+        services.AddScoped<IIyzicoService, IyzicoService>();
         // ──────────────────────────────────────────────────────────────────
         // 5. Unit of Work
         // ──────────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@
     <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
+    <PackageReference Include="Iyzipay" Version="2.1.78" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
