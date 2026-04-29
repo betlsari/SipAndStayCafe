@@ -3,100 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\auth.api.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\api\\auth.api.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\App.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\App.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\eslint.config.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\eslint.config.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\main.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\main.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\axiosInstance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\api\\axiosInstance.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\vite.config.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\vite.config.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\auth\\Login.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\pages\\auth\\Login.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\store\\authStore.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\store\\authStore.ts||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\customer\\Menu.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\pages\\customer\\Menu.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\DependencyInjection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\MenuItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Entities\\MenuItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.Development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\appsettings.Development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx||{0F2454B1-A556-402D-A7D0-1FDE7F99DEE0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\CategoryDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -107,10 +47,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -119,84 +55,12 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\ServiceRegistration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\ITokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\ITokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Entities\\RefreshToken.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Application\\Exceptions\\ValidationException.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\Error.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\Result.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:SipAndStayCafe.Domain\\Common\\BaseEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
@@ -210,7 +74,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -227,299 +91,115 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "main.tsx",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\main.tsx",
-              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\main.tsx",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\main.tsx",
-              "RelativeToolTip": "cafeorder-frontend\\src\\main.tsx",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-04-29T11:52:39.407Z",
-              "EditorCaption": ""
+              "Title": "eslint.config.js",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\eslint.config.js",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\eslint.config.js",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\eslint.config.js",
+              "RelativeToolTip": "cafeorder-frontend\\eslint.config.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-04-29T14:34:50.249Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "App.tsx",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\App.tsx",
               "RelativeDocumentMoniker": "cafeorder-frontend\\src\\App.tsx",
               "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\App.tsx",
               "RelativeToolTip": "cafeorder-frontend\\src\\App.tsx",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAoAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-04-29T11:47:08.308Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "index.css",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\index.css",
-              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\index.css",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\index.css",
-              "RelativeToolTip": "cafeorder-frontend\\src\\index.css",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
-              "WhenOpened": "2026-04-29T11:46:54.186Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "vite.config.ts",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\vite.config.ts",
-              "RelativeDocumentMoniker": "cafeorder-frontend\\vite.config.ts",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\vite.config.ts",
-              "RelativeToolTip": "cafeorder-frontend\\vite.config.ts",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
-              "WhenOpened": "2026-04-29T11:46:35.48Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "LogStockNotificationService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\LogStockNotificationService.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAuwCUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T09:32:23.888Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "IStockNotificationService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IStockNotificationService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T09:31:37.693Z"
+              "WhenOpened": "2026-04-29T13:37:54.214Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Program.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Program.cs",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Program.cs",
-              "ViewState": "AgIAAF0AAAAAAAAAAAAwwGoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:14:59.569Z",
+              "Title": "Login.tsx",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\auth\\Login.tsx",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\pages\\auth\\Login.tsx",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\auth\\Login.tsx",
+              "RelativeToolTip": "cafeorder-frontend\\src\\pages\\auth\\Login.tsx",
+              "ViewState": "AgIAAAMAAAAAAAAAAAApwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:37:26.707Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "axiosInstance.ts",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\axiosInstance.ts",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\api\\axiosInstance.ts",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\axiosInstance.ts",
+              "RelativeToolTip": "cafeorder-frontend\\src\\api\\axiosInstance.ts",
+              "ViewState": "AgIAAC4AAAAAAAAAAAAQwAwAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:20:53.403Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "auth.api.ts",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\auth.api.ts",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\api\\auth.api.ts",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\api\\auth.api.ts",
+              "RelativeToolTip": "cafeorder-frontend\\src\\api\\auth.api.ts",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:20:01.472Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "StockResetJob.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Jobs\\StockResetJob.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAuwFUAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T09:32:51.415Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "MenuItem.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\MenuItem.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Entities\\MenuItem.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\MenuItem.cs",
-              "RelativeToolTip": "SipAndStayCafe.Domain\\Entities\\MenuItem.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAAACcAAAAoAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T09:17:13.833Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "MenuCacheService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\MenuCacheService.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAAiwDwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:25:54.658Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "ModifierHandlers.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Menu\\Modifiers\\ModifierHandlers.cs",
-              "ViewState": "AgIAAMgAAAAAAAAAAAAiwO0AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:25:00.95Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "MenuItemHandlers.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Menu\\MenuItems\\MenuItemHandlers.cs",
-              "ViewState": "AgIAAE8BAAAAAAAAAAAuwG0BAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:24:20.803Z"
+              "Title": "Menu.tsx",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\customer\\Menu.tsx",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\pages\\customer\\Menu.tsx",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\customer\\Menu.tsx",
+              "RelativeToolTip": "cafeorder-frontend\\src\\pages\\customer\\Menu.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:11:24.387Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "DependencyInjection.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\DependencyInjection.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:12:10.63Z"
+              "Title": "KitchenDisplay.tsx",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx",
+              "RelativeToolTip": "cafeorder-frontend\\src\\pages\\kitchen\\KitchenDisplay.tsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:11:09.041Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "NullMenuCacheService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\NullMenuCacheService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:26:16.135Z"
+              "DocumentIndex": 5,
+              "Title": "authStore.ts",
+              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\store\\authStore.ts",
+              "RelativeDocumentMoniker": "cafeorder-frontend\\src\\store\\authStore.ts",
+              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\cafeorder-frontend\\src\\store\\authStore.ts",
+              "RelativeToolTip": "cafeorder-frontend\\src\\store\\authStore.ts",
+              "ViewState": "AgIAABwAAAAAAAAAAAAiwEMAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003213|",
+              "WhenOpened": "2026-04-29T13:02:49.706Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "MenuItemController.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Controllers\\MenuItemController.cs",
-              "ViewState": "AgIAAGcAAAAAAAAAAAAuwHwAAAA6AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:27:02.104Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "CategoryController.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\Controllers\\CategoryController.cs",
-              "ViewState": "AgIAACIAAAAAAAAAAAAiwEcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:26:49.141Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\appsettings.json",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.json",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAOAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-11T15:40:19.112Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\appsettings.Development.json",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\appsettings.Development.json",
-              "RelativeToolTip": "SipAndStayCafe.WebAPI\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-04-12T16:42:19.792Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "CategoryHandlers.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Menu\\Categories\\CategoryHandlers.cs",
-              "ViewState": "AgIAAIIAAAAAAAAAAAAiwKcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:23:39.025Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "MenuValidators.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Menu\\Validators\\MenuValidators.cs",
-              "ViewState": "AgIAAH8AAAAAAAAAAAAiwKQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:22:49.243Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "IMenuCacheService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IMenuCacheService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:20:58.999Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
-              "Title": "MenuMappingProfile.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Mappings\\MenuMappingProfile.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:20:23.589Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 8,
               "Title": "MenuItemDtos.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs",
               "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs",
               "RelativeToolTip": "SipAndStayCafe.Application\\DTOs\\Menu\\MenuItemDtos.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAADoAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-12T16:19:43.461Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "ModifierDtos.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\DTOs\\Menu\\ModifierDtos.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAiwBcAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-12T16:18:54.346Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 9,
               "Title": "CategoryDtos.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Menu\\CategoryDtos.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Application\\DTOs\\Menu\\CategoryDtos.cs",
@@ -531,7 +211,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 11,
               "Title": "AppDbContextModelSnapshot.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Migrations\\AppDbContextModelSnapshot.cs",
@@ -543,7 +223,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 10,
               "Title": "AppDbContextFactory.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContextFactory.cs",
@@ -555,7 +235,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 13,
               "Title": "ITokenService.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\ITokenService.cs",
@@ -567,7 +247,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 12,
               "Title": "ServiceRegistration.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\ServiceRegistration.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.Application\\ServiceRegistration.cs",
@@ -579,79 +259,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
-              "Title": "RefreshTokenRepository.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\RefreshTokenRepository.cs",
-              "ViewState": "AgIAAAcAAAAAAAAAAAAAwCAAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:54:24.65Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 29,
-              "Title": "SipAndStayCafe.Infrastructure.csproj",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\SipAndStayCafe.Infrastructure.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAIAwwBMAAABFAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-04-11T15:14:57.91Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 32,
-              "Title": "IIdentityService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IIdentityService.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAwB8AAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:53:02.067Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 26,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Persistence\\AppDbContext.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAGUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:34:43.504Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 34,
-              "Title": "IdentityService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\IdentityService.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAAwE4AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:54:04.592Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 35,
-              "Title": "IRefreshTokenRepository.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Interfaces\\IRefreshTokenRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:53:34.276Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 14,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "SipAndStayCafe.WebAPI\\Controllers\\AuthController.cs",
@@ -663,163 +271,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
-              "Title": "JwtTokenService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Services\\JwtTokenService.cs",
-              "ViewState": "AgIAAEYAAAAAAAAAAAAAAGMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:36:39.041Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Auth\\AuthService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:33:05.142Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 38,
-              "Title": "RoleSeeder.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Seed\\RoleSeeder.cs",
-              "ViewState": "AgIAAH8AAAAAAAAAAAAAAJwAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:37:39.704Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 39,
-              "Title": "RefreshTokenConfiguration.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
-              "RelativeToolTip": "SipAndStayCafe.Infrastructure\\Persistence\\Configurations\\RefreshTokenConfiguration.cs",
-              "ViewState": "AgIAAAQAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:35:30.488Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 40,
-              "Title": "RefreshToken.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
-              "RelativeToolTip": "SipAndStayCafe.Domain\\Entities\\RefreshToken.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAAADkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:33:57.501Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 41,
-              "Title": "AuthValidators.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Features\\Auth\\Validators\\AuthValidators.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAAADQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:32:28.137Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 43,
-              "Title": "LoggingBehaviour.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Common\\Behaviours\\LoggingBehaviour.cs",
-              "ViewState": "AgIAACkAAAAAAAAAAAAAAEYAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:24:29.302Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 44,
-              "Title": "AuthDtos.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\DTOs\\Auth\\AuthDtos.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAAABkAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:26:05.32Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 42,
-              "Title": "ValidationBehaviour.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Common\\Behaviours\\ValidationBehaviour.cs",
-              "ViewState": "AgIAACMAAAAAAAAAAAAAADoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:23:14.574Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 45,
-              "Title": "ValidationException.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
-              "RelativeToolTip": "SipAndStayCafe.Application\\Exceptions\\ValidationException.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:21:02.147Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 46,
-              "Title": "Error.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Error.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Error.cs",
-              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\Error.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:12:07.708Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 47,
-              "Title": "Result.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\Result.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\Result.cs",
-              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\Result.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:12:02.691Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 48,
-              "Title": "BaseEntity.cs",
-              "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
-              "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
-              "ToolTip": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
-              "RelativeToolTip": "SipAndStayCafe.Domain\\Common\\BaseEntity.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-11T15:11:56.381Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 15,
               "Title": "SipAndStayCafe.Domain.csproj",
               "DocumentMoniker": "C:\\Users\\betls\\OneDrive\\Masa\u00FCst\u00FC\\SipAndStayCafe\\SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",
               "RelativeDocumentMoniker": "SipAndStayCafe.Domain\\SipAndStayCafe.Domain.csproj",

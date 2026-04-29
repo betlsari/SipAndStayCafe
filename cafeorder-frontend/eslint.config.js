@@ -1,3 +1,9 @@
+
+//Bu dosya bir ESLint konfigürasyon dosyasý ve kod kalitesini kontrol etmek için kullanýlýr.
+
+
+//“Konfigürasyon dosyasý” (configuration file), bir programýn nasýl çalýþacaðýný belirleyen ayar dosyasýdýr. 
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

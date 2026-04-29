@@ -1,57 +1,132 @@
-import axiosInstance from './axiosInstance'
+﻿// cafeorder-frontend/src/api/auth.api.ts
+import axiosInstance from './axiosInstance';
 
+// ─── Request Types ────────────────────────────────────────────────────────────
 
-// credentials i�in any yerine interface kullan�yoruz
-export interface LoginCredentials {
-    email: string;
-    password?: string;
-}
-
-export const loginApi = async (credentials: LoginCredentials) => {
-    const response = await axiosInstance.post('/auth/login', credentials);
-    return response.data;
-
-};
-
-export const refreshApi = async (refreshToken: string) => {
-    const response = await axiosInstance.post('/auth/refresh', { refreshToken });
-    return response.data;
-};
-
-export const logoutApi = async () => {
-    await axiosInstance.post('/auth/logout');
-};
 export interface LoginRequest {
-    email: string
-    password: string
+    email: string;
+    password: string;
 }
 
-export interface LoginResponse {
-    user: {
-        id: string;
-        name: string;
-        role: string;
-    };
-    token: string;        // Hata: LoginResponse i�inde 'token' bulunamad� diyordu
+export interface RegisterStaffRequest {
+    email: string;
+    password: string;
+    displayName: string;
+    /** Must be one of: "Owner" | "Cashier" | "KitchenStaff" */
+    role: 'Owner' | 'Cashier' | 'KitchenStaff';
+}
+
+export interface RefreshTokenRequest {
+    accessToken: string;
     refreshToken: string;
 }
 
-export interface RegisterRequest {
-    username: string
-    password: string
-    email: string
+// ─── Response Types ───────────────────────────────────────────────────────────
+
+export interface AuthResponse {
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpiry: string; // ISO 8601 UTC datetime string
+    userId: string;
+    displayName: string;
+    roles: string[];
 }
+
+/**
+ * authApi.refreshToken() → axiosInstance'ın response interceptor'ı
+ * { token, user } bekliyor.
+ *
+ * Backend AuthResponse'daki field'lardan:
+ *   token  = accessToken
+ *   user   = { userId, displayName, roles, refreshToken, accessTokenExpiry }
+ *
+ * Interceptor'da useAuthStore.getState().setAuth(user, token) çağrılıyor.
+ * setAuth(user, token) imzasına göre user nesnesi AuthUser tipinde olmalı.
+ */
+export interface AuthUser {
+    userId: string;
+    displayName: string;
+    roles: string[];
+    refreshToken: string;
+    accessTokenExpiry: string;
+}
+
+export interface RefreshResponse {
+    token: string;
+    user: AuthUser;
+}
+
+// ─── API Functions ────────────────────────────────────────────────────────────
 
 export const authApi = {
+    /**
+     * POST /api/auth/login
+     * Returns full AuthResponse.
+     */
     login: (data: LoginRequest) =>
-        axiosInstance.post<LoginResponse>('/auth/login', data),
+        axiosInstance.post<AuthResponse>('/auth/login', data),
 
-    register: (data: RegisterRequest) =>
-        axiosInstance.post('/auth/register', data),
-    refreshToken: () => axiosInstance.post<LoginResponse>('/auth/refresh'), // refreshToken() fonksiyon ismi kontrol�
-    logout: () =>
-        axiosInstance.post('/auth/logout'),
+    /**
+     * POST /api/auth/register-staff
+     * Owner-only endpoint.
+     */
+    registerStaff: (data: RegisterStaffRequest) =>
+        axiosInstance.post<AuthResponse>('/auth/register-staff', data),
 
-    refresh: (refreshToken: string) =>
-        axiosInstance.post<{ accessToken: string }>('/auth/refresh', { refreshToken }),
-}
+    /**
+     * POST /api/auth/refresh
+     * Called by the axios response interceptor on 401.
+     * Returns { token, user } shaped response for the interceptor.
+     *
+     * Backend döner: AuthResponse { accessToken, refreshToken, ... }
+     * Interceptor beklediği: { token, user }
+     * Bu method o dönüşümü burada yaparak interceptor'ı basit tutar.
+     */
+    refreshToken: async (): Promise<{ data: RefreshResponse }> => {
+        // localStorage / sessionStorage kullanmıyoruz (artifact kısıtı yok ama
+        // güvenlik açısından refreshToken memory'de veya authStore'da tutulur).
+        // useAuthStore import döngüsünü kırmak için lazy import kullanıyoruz.
+        const { useAuthStore } = await import('../store/authStore');
+        const state = useAuthStore.getState();
+
+        const payload: RefreshTokenRequest = {
+            accessToken: state.token ?? '',
+            refreshToken: state.refreshToken ?? '',
+        };
+
+        const response = await axiosInstance.post<AuthResponse>(
+            '/auth/refresh',
+            payload,
+        );
+
+        const raw = response.data;
+
+        // Backend AuthResponse → Interceptor'ın beklediği { token, user } şekline dönüştür
+        const shaped: RefreshResponse = {
+            token: raw.accessToken,
+            user: {
+                userId: raw.userId,
+                displayName: raw.displayName,
+                roles: raw.roles,
+                refreshToken: raw.refreshToken,
+                accessTokenExpiry: raw.accessTokenExpiry,
+            },
+        };
+
+        return { data: shaped };
+    },
+
+    /**
+     * POST /api/auth/logout
+     * Sends the current refreshToken to revoke it server-side.
+     */
+    logout: async (): Promise<void> => {
+        const { useAuthStore } = await import('../store/authStore');
+        const refreshToken = useAuthStore.getState().refreshToken;
+        if (refreshToken) {
+            await axiosInstance.post('/auth/logout', JSON.stringify(refreshToken), {
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+    },
+};

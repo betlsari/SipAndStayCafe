@@ -1,9 +1,19 @@
 ﻿// cafeorder-frontend/src/api/axiosInstance.ts
-import axios, { type AxiosInstance, AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { useAuthStore } from '../store/authStore';
-import { authApi } from './auth.api';
+//
+// DEĞİŞİKLİKLER (önceki versiyona göre):
+//   1. authApi import'u lazy (döngüsel bağımlılık kırıldı)
+//   2. setAuth çağrısında artık response.data.token / response.data.user
+//      kullanılıyor — auth.api.ts'deki refreshToken() metodu bu şekli döndürüyor
+//   3. Tip tanımları eklendi
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:5001/api';
+import axios, {
+    type AxiosInstance,
+    AxiosError,
+    type InternalAxiosRequestConfig,
+} from 'axios';
+import { useAuthStore } from '../store/authStore';
+
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://localhost:7272/api';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;
@@ -14,7 +24,6 @@ interface RetryQueueItem {
     reject: (error: unknown) => void;
 }
 
-// Birden fazla 401 hatası gelirse istekleri kuyruğa almak için
 let isRefreshing = false;
 let failedQueue: RetryQueueItem[] = [];
 
@@ -31,14 +40,11 @@ const processQueue = (error: unknown, token: string | null = null) => {
 
 const axiosInstance: AxiosInstance = axios.create({
     baseURL: BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-    withCredentials: true, // HttpOnly cookie kullanımı için kritik
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 10_000,
 });
 
-// Request Interceptor: Her isteğe güncel Access Token'ı ekle
+// ── Request Interceptor: Her isteğe Bearer token ekle ────────────────────────
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = useAuthStore.getState().token;
@@ -47,19 +53,21 @@ axiosInstance.interceptors.request.use(
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => Promise.reject(error),
 );
 
-// Response Interceptor: 401 hatasında Silent Refresh yap ve kuyruğu yönet
+// ── Response Interceptor: 401'de token yenile, kuyruğu yönet ─────────────────
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as CustomAxiosRequestConfig;
 
-        // Eğer hata 401 ise ve bu isteği daha önce tekrar denemediysek
-        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-
-            // Eğer şu an zaten bir refresh işlemi devam ediyorsa, bu isteği kuyruğa ekle
+        if (
+            error.response?.status === 401 &&
+            originalRequest &&
+            !originalRequest._retry
+        ) {
+            // Zaten refresh devam ediyorsa kuyruğa al
             if (isRefreshing) {
                 return new Promise<string>((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -77,32 +85,32 @@ axiosInstance.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Refresh API'sini çağır (auth.api içinden)
+                // Lazy import: döngüsel bağımlılığı kırar
+                const { authApi } = await import('./auth.api');
                 const response = await authApi.refreshToken();
+
+                // auth.api.ts'deki refreshToken() { data: { token, user } } döndürüyor
                 const { token, user } = response.data;
 
-                // Yeni bilgileri Zustand Store'a kaydet
+                // Store'u güncelle
                 useAuthStore.getState().setAuth(user, token);
 
-                // Kuyrukta bekleyen diğer isteklere yeni token'ı gönder
+                // Kuyruktaki isteklere yeni token'ı ver
                 processQueue(null, token);
 
-                // Asıl (ilk hata alan) isteği yeni token ile tekrarla
+                // Asıl isteği tekrarla
                 if (originalRequest.headers) {
                     originalRequest.headers.Authorization = `Bearer ${token}`;
                 }
                 return axiosInstance(originalRequest);
-
             } catch (refreshError) {
-                // Refresh işlemi de başarısız olursa (örneğin Refresh Token süresi dolmuşsa)
                 processQueue(refreshError, null);
-                useAuthStore.getState().clearAuth(); // Kullanıcıyı çıkış yaptır
+                useAuthStore.getState().clearAuth();
 
-                // Login sayfasına yönlendir (Loop olmaması için kontrol edilebilir)
+                // Login döngüsüne girmeyi önle
                 if (!window.location.pathname.includes('/login')) {
                     window.location.href = '/login';
                 }
-
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;
@@ -110,7 +118,7 @@ axiosInstance.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
 
 export default axiosInstance;

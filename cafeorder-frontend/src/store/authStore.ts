@@ -1,68 +1,92 @@
+﻿// cafeorder-frontend/src/store/authStore.ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import type { AuthUser } from '../api/auth.api';
 
-// 1. Kullan�c� tipini tan�ml�yoruz
-export interface User {
-    id: string;
-    name: string;
-    role: string;
-}
+// ─── State Shape ──────────────────────────────────────────────────────────────
 
-// 2. Store yap�s�n� tan�ml�yoruz
 interface AuthState {
-    user: User | null;
-    token: string | null; // axiosInstance 'token' bekledi�i i�in isimlendirmeyi sadele�tirdik
+    /** JWT access token (in-memory only, never persisted to storage) */
+    token: string | null;
+
+    /** Raw refresh token string (in-memory only) */
     refreshToken: string | null;
-    isAuthenticated: boolean;
-    // Fonksiyonlar
-    setAuth: (user: User, token: string, refreshToken?: string) => void;
-    setTokens: (token: string, refreshToken?: string) => void;
+
+    /** Decoded user info from the last successful auth response */
+    user: AuthUser | null;
+
+    /** True while an auth operation is in-flight */
+    isLoading: boolean;
+
+    // ─── Actions ──────────────────────────────────────────────────────────
+
+    /** Called after successful login / register / token refresh */
+    setAuth: (user: AuthUser, token: string) => void;
+
+    /** Called after logout or when refresh fails */
     clearAuth: () => void;
+
+    /** Toggle loading state (used by login page) */
+    setLoading: (loading: boolean) => void;
 }
 
-// 3. Store olu�turma
-export const useAuthStore = create<AuthState>()(
-    persist(
-        (set) => ({
+// ─── Derived helpers ──────────────────────────────────────────────────────────
+
+/**
+ * Returns true if the stored access token has not yet expired.
+ * Relies on accessTokenExpiry stored inside the user object.
+ */
+const isTokenValid = (user: AuthUser | null): boolean => {
+    if (!user?.accessTokenExpiry) return false;
+    return new Date(user.accessTokenExpiry) > new Date();
+};
+
+// ─── Store ────────────────────────────────────────────────────────────────────
+
+export const useAuthStore = create<AuthState>((set) => ({
+    token: null,
+    refreshToken: null,
+    user: null,
+    isLoading: false,
+
+    setAuth: (user, token) =>
+        set({
+            user,
+            token,
+            refreshToken: user.refreshToken,
+            isLoading: false,
+        }),
+
+    clearAuth: () =>
+        set({
             user: null,
             token: null,
             refreshToken: null,
-            isAuthenticated: false,
-
-            // Hem kullan�c�y� hem tokenlar� tek seferde set eder (Giri� an�nda)
-            setAuth: (user, token, refreshToken) => {
-                set({
-                    user,
-                    token,
-                    refreshToken: refreshToken || null,
-                    isAuthenticated: true,
-                });
-            },
-
-            // Sadece tokenlar� g�ncellemek i�in (Refresh token senaryosu i�in)
-            setTokens: (token, refreshToken) => {
-                set((state) => ({
-                    token,
-                    refreshToken: refreshToken ?? state.refreshToken,
-                }));
-            },
-
-            // Her �eyi temizler (��k�� an�nda)
-            clearAuth: () => {
-                set({
-                    user: null,
-                    token: null,
-                    refreshToken: null,
-                    isAuthenticated: false,
-                });
-                // Not: Persist middleware oldu�u i�in localStorage.removeItem yapman�za gerek yoktur, 
-                // Zustand otomatik temizler.
-            },
+            isLoading: false,
         }),
-        {
-            name: 'auth-storage', // Taray�c� haf�zas�ndaki (localStorage) anahtar ad�
-            storage: createJSONStorage(() => localStorage),
-            // Sadece belirli alanlar� kaydetmek isterseniz 'partialize' ekleyebilirsiniz
-        }
-    )
-);
+
+    setLoading: (loading) => set({ isLoading: loading }),
+}));
+
+// ─── Selectors (hook wrappers for convenience) ────────────────────────────────
+
+/** Returns true if the user is authenticated and the token is still valid. */
+export const useIsAuthenticated = () =>
+    useAuthStore((s) => !!s.token && isTokenValid(s.user));
+
+/** Returns the current user's roles array, or an empty array. */
+export const useUserRoles = () =>
+    useAuthStore((s) => s.user?.roles ?? []);
+
+/**
+ * Returns true if the current user has at least one of the given roles.
+ * Example: useHasRole('Owner') or useHasRole('Cashier', 'Owner')
+ */
+export const useHasRole = (...roles: string[]) =>
+    useAuthStore((s) => {
+        const userRoles = s.user?.roles ?? [];
+        return roles.some((r) => userRoles.includes(r));
+    });
+
+/** Returns the display name of the current user, or null. */
+export const useDisplayName = () =>
+    useAuthStore((s) => s.user?.displayName ?? null);
