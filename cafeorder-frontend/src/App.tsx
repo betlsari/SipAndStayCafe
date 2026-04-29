@@ -1,52 +1,100 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
+﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Toaster } from 'sonner'
+import { Suspense, lazy } from 'react'
 
-// Sayfalar
-import Login from './pages/auth/Login';
-import OwnerDashboard from './pages/admin/Dashboard';
-import CashierPanel from './pages/cashier/Orders';
-import KitchenDisplay from './pages/kitchen/KitchenDisplay';
-import CustomerMenu from './pages/customer/Menu';
+import { ProtectedRoute } from './components/ui/ProtectedRoute'
+import { LoadingSpinner } from './components/ui/LoadingSpinner'
 
-function App() {
+// ─── Lazy pages ───────────────────────────────────────────────────────────────
+const Login = lazy(() => import('./pages/auth/Login'))
+
+// Customer (anonymous)
+const Menu = lazy(() => import('./pages/customer/Menu'))
+
+const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'))
+const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'))
+
+
+
+// Kitchen (KitchenStaff)
+const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'))
+
+// Cashier (Cashier | Owner)
+const CashierDashboard = lazy(() => import('./pages/cashier/CashierDashboard'))
+
+// Admin (Owner)
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+
+// ─── React Query client ───────────────────────────────────────────────────────
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5,
+            retry: 1,
+        },
+    },
+})
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+export default function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                {/* --- ANON�M ROTALAR --- */}
-                <Route path="/login" element={<Login />} />
+        <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+                <Suspense fallback={<LoadingSpinner />}>
+                    <Routes>
+                        <Route path="/login" element={<Login />} />
 
-                {/* M��teri Rotas�: Herkese a��k, QR koddan gelen tableId parametresi ile */}
-                <Route path="/table/:tableId" element={<CustomerMenu />} />
+                        <Route path="/menu" element={<Menu />} />
+                        <Route path="/order-status" element={<OrderStatus />} />
+                        <Route path="/payment-result" element={<PaymentResult />} />
 
-                {/* --- KORUMALI ROTALAR --- */}
+                        <Route
+                            path="/kitchen"
+                            element={
+                                <ProtectedRoute roles={['KitchenStaff']}>
+                                    <KitchenDisplay />
+                                </ProtectedRoute>
+                            }
+                        />
 
-                {/* Sadece Owner (Y�netici) */}
-                <Route path="/admin/*" element={
-                    <ProtectedRoute allowedRoles={['Owner']}>
-                        <OwnerDashboard />
-                    </ProtectedRoute>
-                } />
+                        <Route
+                            path="/cashier"
+                            element={
+                                <ProtectedRoute roles={['Cashier', 'Owner']}>
+                                    <CashierDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
 
-                {/* Kasiyer (Owner da girebilir) */}
-                <Route path="/cashier/*" element={
-                    <ProtectedRoute allowedRoles={['Cashier', 'Owner']}>
-                        <CashierPanel />
-                    </ProtectedRoute>
-                } />
+                        <Route
+                            path="/admin/*"
+                            element={
+                                <ProtectedRoute roles={['Owner']}>
+                                    <AdminDashboard />
+                                </ProtectedRoute>
+                            }
+                        />
 
-                {/* Mutfak Ekibi (Owner da girebilir) */}
-                <Route path="/kitchen/*" element={
-                    <ProtectedRoute allowedRoles={['KitchenStaff', 'Owner']}>
-                        <KitchenDisplay />
-                    </ProtectedRoute>
-                } />
+                        <Route path="/" element={<Navigate to="/login" replace />} />
+                        <Route path="*" element={<Navigate to="/login" replace />} />
+                    </Routes>
+                </Suspense>
 
-                {/* Hatal� Yollar ��in Y�nlendirmeler */}
-                <Route path="/unauthorized" element={<div>Yetkiniz yok!</div>} />
-                <Route path="/" element={<Navigate to="/login" replace />} />
-            </Routes>
-        </BrowserRouter>
-    );
+                <Toaster
+                    position="top-right"
+                    toastOptions={{
+                        duration: 4000,
+                        style: {
+                            background: '#1a1a1a',
+                            color: '#f5f5f5',
+                            borderRadius: '8px',
+                            border: '1px solid #333',
+                            fontSize: '14px',
+                        },
+                    }}
+                />
+            </BrowserRouter>
+        </QueryClientProvider>
+    )
 }
-
-export default App;
