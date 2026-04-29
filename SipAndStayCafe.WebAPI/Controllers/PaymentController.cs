@@ -38,15 +38,22 @@ public class PaymentController : ControllerBase
     }
 
     // POST /api/payment/initiate-cashier
+    // PaymentController.cs — initiate-cashier düzeltmesi
     [HttpPost("initiate-cashier")]
-    [AllowAnonymous] // Müşteriler giriş yapmadığı için açık olmalı
-    public async Task<IActionResult> InitiateCashierPayment([FromBody] InitiatePaymentRequest request, CancellationToken ct)
+    [AllowAnonymous]
+    public async Task<IActionResult> InitiateCashierPayment(
+        [FromBody] InitiatePaymentRequest request, CancellationToken ct)
     {
         var result = await _mediator.Send(new InitiateCashierPaymentCommand(request.SessionId), ct);
 
         if (!result.IsSuccess)
         {
-            return BadRequest(new { Error = result.Error.Message });
+            return result.Error.Code switch
+            {
+                "Payment.AlreadyLocked" => Conflict(new { code = result.Error.Code, message = result.Error.Message }),
+                "Session.AlreadyClosed" => Conflict(new { code = result.Error.Code, message = result.Error.Message }),
+                _ => BadRequest(new { code = result.Error.Code, message = result.Error.Message })
+            };
         }
 
         return Ok(new { Message = "Kasiyere ödeme bildirimi gönderildi. Lütfen kasaya gidiniz." });

@@ -11,6 +11,9 @@ public interface IIdentityService
     Task<UserDto?> FindByIdAsync(string userId);
     Task<bool> CheckPasswordAsync(string userId, string password);
     Task<IdentityResult> CreateUserAsync(string email, string password, string displayName, string role);
+    Task<IEnumerable<UserDto>> GetAllUsersAsync();
+    Task DeleteUserAsync(string id, CancellationToken ct);
+
 }
 
 /// <summary>
