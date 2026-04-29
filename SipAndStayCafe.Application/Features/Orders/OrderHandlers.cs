@@ -70,6 +70,8 @@ public class PlaceOrderHandler : IRequestHandler<PlaceOrderCommand, OrderDto>
                 TotalAmount = 0m
             };
             await _sessionRepo.AddAsync(session, cancellationToken);
+            // Yeni session'ın ID'sini almak için hemen kaydet
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         // 3. Sipariş Kalemleri ve Fiyat Hesaplama
