@@ -20,25 +20,29 @@ public class WeeklyReportJob
 
     public async Task ExecuteAsync(CancellationToken ct)
     {
-        // Formül Düzeltmesi: Eğer Job Pazartesi çalışıyorsa, "EndDate" Dün (Pazar) olmalıdır.
-        // StartDate ise ondan 6 gün öncesi (Önceki Pazartesi) olmalıdır.
         var today = DateTime.Today;
-
         var endDate = today.AddDays(-1);
         var startDate = endDate.AddDays(-6);
 
-        _logger.LogInformation("Haftalık rapor tetiklendi. Dönem: {Start} - {End}", startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
+        _logger.LogInformation("Haftalık rapor tetiklendi. Dönem: {Start} - {End}",
+            startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
 
-        // 1. Veriyi çek (Önceki adımda yazdığımız Handler tetiklenir)
         var query = new GetWeeklySalesReportQuery(startDate, endDate);
         var reportData = await _mediator.Send(query, ct);
 
-        // 2. PDF Dosyasını üret (Byte Array olarak)
         var pdfBytes = _reportService.GenerateWeeklyReportPdf(reportData);
 
-        // TODO (İleriye dönük): Bu noktada üretilen 'pdfBytes' dizisi IEmailService üzerinden
-        // işletme sahibinin mailine gönderilebilir veya bir Cloud Storage'a kaydedilebilir.
+        // Kaydetme klasörü
+        var reportsDir = Path.Combine(AppContext.BaseDirectory, "Reports");
+        Directory.CreateDirectory(reportsDir);
 
-        _logger.LogInformation("Haftalık PDF raporu başarıyla oluşturuldu. Dosya Boyutu: {Size} KB", pdfBytes.Length / 1024);
+        var fileName = $"weekly-report-{startDate:yyyy-MM-dd}_{endDate:yyyy-MM-dd}.pdf";
+        var filePath = Path.Combine(reportsDir, fileName);
+
+        await File.WriteAllBytesAsync(filePath, pdfBytes, ct);
+
+        _logger.LogInformation(
+            "Haftalık PDF raporu kaydedildi: {FilePath} ({Size} KB)",
+            filePath, pdfBytes.Length / 1024);
     }
 }
