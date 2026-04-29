@@ -1,99 +1,106 @@
-﻿import axios from 'axios'
+﻿import axios, { type AxiosInstance, AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { useAuthStore } from '../store/authStore';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-const axiosInstance = axios.create({
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+    _retry?: boolean;
+}
+
+interface RetryQueueItem {
+    resolve: (token: string) => void;
+    reject: (error: unknown) => void;
+}
+
+const axiosInstance: AxiosInstance = axios.create({
     baseURL: BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
     timeout: 10000,
-})
+});
 
-// ─── Request Interceptor ─────────────────────────────────────────────────────
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('accessToken')
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`
-        }
-        return config
-    },
-    (error) => Promise.reject(error)
-)
-
-// ─── Response Interceptor ────────────────────────────────────────────────────
-let isRefreshing = false
-let failedQueue: Array<{
-    resolve: (value: string) => void
-    reject: (reason?: unknown) => void
-}> = []
+let isRefreshing = false;
+let failedQueue: RetryQueueItem[] = [];
 
 const processQueue = (error: unknown, token: string | null = null) => {
     failedQueue.forEach((prom) => {
         if (error) {
-            prom.reject(error)
-        } else {
-            prom.resolve(token!)
+            prom.reject(error);
+        } else if (token) {
+            prom.resolve(token);
         }
-    })
-    failedQueue = []
-}
+    });
+    failedQueue = [];
+};
+
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('accessToken');
+        if (token && config.headers) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 axiosInstance.interceptors.response.use(
     (response) => response,
-    async (error) => {
-        const originalRequest = error.config
+    async (error: AxiosError) => {
+        const originalRequest = error.config as CustomAxiosRequestConfig;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
             if (isRefreshing) {
                 return new Promise<string>((resolve, reject) => {
-                    failedQueue.push({ resolve, reject })
+                    failedQueue.push({ resolve, reject });
                 })
                     .then((token) => {
-                        originalRequest.headers.Authorization = `Bearer ${token}`
-                        return axiosInstance(originalRequest)
+                        if (originalRequest.headers) {
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
+                        }
+                        return axiosInstance(originalRequest);
                     })
-                    .catch((err) => Promise.reject(err))
+                    .catch((err) => Promise.reject(err));
             }
 
-            originalRequest._retry = true
-            isRefreshing = true
+            originalRequest._retry = true;
+            isRefreshing = true;
 
-            const refreshToken = localStorage.getItem('refreshToken')
+            const refreshToken = localStorage.getItem('refreshToken');
 
             if (!refreshToken) {
-                isRefreshing = false
-                localStorage.clear()
-                window.location.href = '/login'
-                return Promise.reject(error)
+                isRefreshing = false;
+                useAuthStore.getState().logout();
+                window.location.href = '/login';
+                return Promise.reject(error);
             }
 
             try {
-                const { data } = await axios.post(`${BASE_URL}/auth/refresh`, {
+                const response = await axios.post(`${BASE_URL}/auth/refresh`, {
                     refreshToken,
-                })
+                });
 
-                const newAccessToken = data.accessToken
-                localStorage.setItem('accessToken', newAccessToken)
+                const { accessToken, newRefreshToken } = response.data;
+                useAuthStore.getState().setTokens(accessToken, newRefreshToken || refreshToken);
+                processQueue(null, accessToken);
 
-                axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`
-                processQueue(null, newAccessToken)
+                if (originalRequest.headers) {
+                    originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                }
+                return axiosInstance(originalRequest);
 
-                originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-                return axiosInstance(originalRequest)
             } catch (refreshError) {
-                processQueue(refreshError, null)
-                localStorage.clear()
-                window.location.href = '/login'
-                return Promise.reject(refreshError)
+                processQueue(refreshError, null);
+                useAuthStore.getState().logout();
+                window.location.href = '/login';
+                return Promise.reject(refreshError);
             } finally {
-                isRefreshing = false
+                isRefreshing = false;
             }
         }
-
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
-)
+);
 
-export default axiosInstance
+export default axiosInstance;
