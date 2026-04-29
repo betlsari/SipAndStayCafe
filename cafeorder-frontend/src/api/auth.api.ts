@@ -22,15 +22,18 @@ export const logoutApi = async () => {
     await axiosInstance.post('/auth/logout');
 };
 export interface LoginRequest {
-    username: string
+    email: string
     password: string
 }
 
 export interface LoginResponse {
-    accessToken: string
-    refreshToken: string
-    role: string
-    username: string
+    user: {
+        id: string;
+        name: string;
+        role: string;
+    };
+    token: string;        // Hata: LoginResponse içinde 'token' bulunamadý diyordu
+    refreshToken: string;
 }
 
 export interface RegisterRequest {
@@ -45,7 +48,7 @@ export const authApi = {
 
     register: (data: RegisterRequest) =>
         axiosInstance.post('/auth/register', data),
-
+    refreshToken: () => axiosInstance.post<LoginResponse>('/auth/refresh'), // refreshToken() fonksiyon ismi kontrolü
     logout: () =>
         axiosInstance.post('/auth/logout'),
 

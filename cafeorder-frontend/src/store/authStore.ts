@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 // 1. Kullanýcý tipini tanýmlýyoruz
 export interface User {
@@ -8,16 +8,16 @@ export interface User {
     role: string;
 }
 
-// 2. Store'un sahip olacaðý tüm alanlarý ve fonksiyonlarý burada belirtiyoruz
+// 2. Store yapýsýný tanýmlýyoruz
 interface AuthState {
     user: User | null;
-    accessToken: string | null;
+    token: string | null; // axiosInstance 'token' beklediði için isimlendirmeyi sadeleþtirdik
     refreshToken: string | null;
     isAuthenticated: boolean;
     // Fonksiyonlar
-    login: (userData: User, accessToken: string, refreshToken: string) => void;
-    logout: () => void;
-    setTokens: (accessToken: string, refreshToken: string) => void;
+    setAuth: (user: User, token: string, refreshToken?: string) => void;
+    setTokens: (token: string, refreshToken?: string) => void;
+    clearAuth: () => void;
 }
 
 // 3. Store oluþturma
@@ -25,43 +25,44 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
             user: null,
-            accessToken: null,
+            token: null,
             refreshToken: null,
             isAuthenticated: false,
 
-            // Login fonksiyonu: Hem kullanýcýyý hem tokenlarý set eder
-            login: (userData, accessToken, refreshToken) => {
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
+            // Hem kullanýcýyý hem tokenlarý tek seferde set eder (Giriþ anýnda)
+            setAuth: (user, token, refreshToken) => {
                 set({
-                    user: userData,
-                    accessToken,
-                    refreshToken,
-                    isAuthenticated: true
-                });
-            },
-
-            // Logout fonksiyonu: Her þeyi temizler
-            logout: () => {
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
-                set({
-                    user: null,
-                    accessToken: null,
-                    refreshToken: null,
-                    isAuthenticated: false
+                    user,
+                    token,
+                    refreshToken: refreshToken || null,
+                    isAuthenticated: true,
                 });
             },
 
             // Sadece tokenlarý güncellemek için (Refresh token senaryosu için)
-            setTokens: (accessToken, refreshToken) => {
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-                set({ accessToken, refreshToken });
+            setTokens: (token, refreshToken) => {
+                set((state) => ({
+                    token,
+                    refreshToken: refreshToken ?? state.refreshToken,
+                }));
+            },
+
+            // Her þeyi temizler (Çýkýþ anýnda)
+            clearAuth: () => {
+                set({
+                    user: null,
+                    token: null,
+                    refreshToken: null,
+                    isAuthenticated: false,
+                });
+                // Not: Persist middleware olduðu için localStorage.removeItem yapmanýza gerek yoktur, 
+                // Zustand otomatik temizler.
             },
         }),
         {
             name: 'auth-storage', // Tarayýcý hafýzasýndaki (localStorage) anahtar adý
+            storage: createJSONStorage(() => localStorage),
+            // Sadece belirli alanlarý kaydetmek isterseniz 'partialize' ekleyebilirsiniz
         }
     )
 );
