@@ -76,4 +76,24 @@ public sealed class IdentityService : IIdentityService
         var roles = await _userManager.GetRolesAsync(user);
         return new UserDto(user.Id, user.Email!, user.DisplayName, roles.ToList().AsReadOnly());
     }
+
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    {
+        var users = _userManager.Users.ToList();
+        var userDtos = new List<UserDto>();
+        foreach (var user in users)
+        {
+            userDtos.Add(await ToDto(user));
+        }
+        return userDtos;
+    }
+
+    public async Task DeleteUserAsync(string id, CancellationToken ct)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is not null)
+        {
+            await _userManager.DeleteAsync(user);
+        }
+    }
 }

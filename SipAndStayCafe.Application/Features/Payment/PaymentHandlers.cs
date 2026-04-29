@@ -9,99 +9,92 @@ using SipAndStayCafe.Domain.Enums;
 namespace SipAndStayCafe.Application.Features.Payment;
 
 public record IyzicoCallbackCommand(string Token) : IRequest<string>; // İşlem bitince müşterinin yönlendirileceği URL'i döneceğiz
-
 public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, string>
 {
     private readonly IIyzicoService _iyzicoService;
     private readonly IRepository<TableSession> _sessionRepo;
     private readonly IRepository<PaymentTransaction> _transactionRepo;
-    private readonly IPaymentNotificationService _paymentNotificationService; // SignalR için (Daha sonra eklenecek)
+    private readonly IPaymentNotificationService _paymentNotificationService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IQueryableRepository<TableSession> _queryableSessionRepo; // ← EKLENDİ
 
     public IyzicoCallbackHandler(
         IIyzicoService iyzicoService,
         IRepository<TableSession> sessionRepo,
         IRepository<PaymentTransaction> transactionRepo,
         IPaymentNotificationService paymentNotificationService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IQueryableRepository<TableSession> queryableSessionRepo) // ← EKLENDİ
     {
         _iyzicoService = iyzicoService;
         _sessionRepo = sessionRepo;
         _transactionRepo = transactionRepo;
         _paymentNotificationService = paymentNotificationService;
         _unitOfWork = unitOfWork;
+        _queryableSessionRepo = queryableSessionRepo; // ← EKLENDİ
     }
 
     public async Task<string> Handle(IyzicoCallbackCommand request, CancellationToken cancellationToken)
     {
-        // 1. İyzico'dan gelen token ile ödemenin sonucunu sorgula
         var checkoutForm = await _iyzicoService.RetrieveCheckoutFormAsync(request.Token);
 
-        // İyzico'ya gönderdiğimiz ConversationId, bizim veritabanımızdaki Transaction ID'sine denk geliyor
         if (!Guid.TryParse(checkoutForm.ConversationId, out Guid transactionId))
-            throw new ValidationException(new Dictionary<string, string[]> { { "Token", new[] { "Geçersiz işlem referansı." } } });
-        // 2. İşlemi ve bağlı olduğu masayı bul
+            throw new ValidationException(new Dictionary<string, string[]>
+            {
+                { "Token", new[] { "Geçersiz işlem referansı." } }
+            });
+
         var transaction = await _transactionRepo.GetByIdAsync(transactionId, cancellationToken);
         if (transaction == null)
             throw new NotFoundException(nameof(PaymentTransaction), transactionId);
 
-        // Include ile Table verisini de getiriyoruz ki Notification servise TableNumber atabilelim
-        // With this:
-        var session = await _sessionRepo.FirstOrDefaultAsync(
-            s => s.Id == transaction.TableSessionId, cancellationToken);
+        // ← DÜZELTME: Table navigation property dahil ediliyor
+        var sessions = await _queryableSessionRepo.FindWithIncludesAsync(
+            s => s.Id == transaction.TableSessionId,
+            q => q.Include(s => s.Table),
+            cancellationToken);
 
+        var session = sessions.FirstOrDefault();
         if (session == null)
             throw new NotFoundException(nameof(TableSession), transaction.TableSessionId);
 
-        if (session == null)
-            throw new NotFoundException(nameof(TableSession), transaction.TableSessionId);
-        // 3. Duplicate (Çift) Webhook Koruması (İdempotency)
-        // Eğer bu transaction zaten tamamlanmışsa, işlemi tekrar etmeden direkt başarılı kabul edip dönüyoruz
+        // Duplicate webhook koruması
         if (transaction.Status != PaymentStatus.Pending)
-        {
             return $"/payment-result?status={transaction.Status.ToString().ToLower()}";
-        }
 
-        // 4. İyzico'dan dönen sonucu işle
         if (checkoutForm.PaymentStatus == "SUCCESS")
         {
-            // Başarılı ödeme
             transaction.Status = PaymentStatus.Completed;
             transaction.CompletedAt = DateTime.UtcNow;
             transaction.ProviderPaymentId = checkoutForm.PaymentId;
-
-            session.Close(); // Entity içindeki Kapsüllü ve Idempotent metod
+            session.Close();
         }
         else
         {
-            // Başarısız ödeme
             transaction.Status = PaymentStatus.Failed;
             transaction.CompletedAt = DateTime.UtcNow;
             transaction.FailureReason = checkoutForm.ErrorMessage ?? "Bilinmeyen İyzico Hatası";
-
-            session.MarkOnlinePaymentFailed(); // Kilit açılır, müşteri tekrar deneyebilir
+            session.MarkOnlinePaymentFailed();
         }
 
         _transactionRepo.Update(transaction);
         _sessionRepo.Update(session);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 5. Kasiyere bildirim gönder (Başarılı ise kasiyer ekranında otomatik düşmesi için)
-        // 5. Kasiyere bildirim gönder (Başarılı ise kasiyer ekranında otomatik düşmesi için)
         if (checkoutForm.PaymentStatus == "SUCCESS")
         {
-            // Metot adı NotifyTableSessionClosedAsync olarak düzeltildi ve TableNumber gönderiliyor
-            await _paymentNotificationService.NotifyTableSessionClosedAsync(session.Table.TableNumber, cancellationToken);
+            // session.Table artık güvenle erişilebilir
+            await _paymentNotificationService.NotifyTableSessionClosedAsync(
+                session.Table.TableNumber, cancellationToken);
         }
-        // 6. Müşteriyi Frontend'deki sonuç sayfasına yönlendir
-        // Not: "/payment-result" senin React frontend'indeki route olmalıdır.
+
         return $"/payment-result?status={(checkoutForm.PaymentStatus == "SUCCESS" ? "success" : "failed")}";
     }
-
-    // ==========================================
-    // KASİYERDE ÖDEME BAŞLATMA
-    // ==========================================
-    public record InitiateCashierPaymentCommand(Guid SessionId) : IRequest<Result<bool>>;
+}
+// ==========================================
+// KASİYERDE ÖDEME BAŞLATMA
+// ==========================================
+public record InitiateCashierPaymentCommand(Guid SessionId) : IRequest<Result<bool>>;
 
     public class InitiateCashierPaymentHandler : IRequestHandler<InitiateCashierPaymentCommand, Result<bool>>
     {
@@ -132,16 +125,23 @@ public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, stri
             if (session == null)
                 throw new NotFoundException(nameof(TableSession), request.SessionId);
 
-            // Domain Entity metodunu çağır (PaymentMethod=Cashier, PaymentStatus=Pending yapar)
-            session.InitiateCashierPayment();
+            // Oturum zaten kapalıysa reddet
+            if (session.IsPaid || session.ClosedAt.HasValue)
+                return Result<bool>.Failure(Error.Create("Session.AlreadyClosed",
+                    "Bu masa oturumu zaten kapatılmış."));
+
+            // Domain metodu false dönerse başka bir ödeme yöntemi zaten kilitlenmiş demektir
+            var locked = session.InitiateCashierPayment();
+            if (!locked)
+                return Result<bool>.Failure(Error.Create("Payment.AlreadyLocked",
+                    $"Bu oturum için zaten '{session.PaymentMethod}' ödeme yöntemi başlatılmış. Çift ödeme engellenди."));
 
             _sessionRepo.Update(session);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Kasiyer ekranına "Masa X Kasiyerde Ödeme Yapacak" bildirimi gönder
-           
-            // With this line:
-            await _paymentNotificationService.NotifyTableWaitingForPaymentAsync(session.Table.TableNumber, session.TotalAmount, cancellationToken);
+            await _paymentNotificationService.NotifyTableWaitingForPaymentAsync(
+                session.Table.TableNumber, session.TotalAmount, cancellationToken);
+
             return Result<bool>.Success(true);
         }
     }
@@ -186,10 +186,22 @@ public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, stri
             if (session == null)
                 throw new NotFoundException(nameof(TableSession), req.SessionId);
 
-            // Domain Entity metodunu çağır (PaymentMethod=Online, Status=Pending yapar, kilidi kapatır)
-            session.InitiateOnlinePayment();
+            // Oturum zaten kapalıysa reddet
+            if (session.IsPaid || session.ClosedAt.HasValue)
+                throw new ValidationException(new Dictionary<string, string[]>
+        {
+            { "Session", new[] { "Bu masa oturumu zaten kapatılmış." } }
+        });
 
-            // Her girişimde yeni bir Transaction (Audit Trail) kaydı oluştur
+            // Domain metodu false dönerse başka bir ödeme yöntemi zaten kilitlenmiş demektir
+            var locked = session.InitiateOnlinePayment();
+            if (!locked)
+                throw new ValidationException(new Dictionary<string, string[]>
+        {
+            { "Payment", new[] { $"Bu oturum için zaten '{session.PaymentMethod}' ödeme yöntemi başlatılmış. Çift ödeme engellendi." } }
+        });
+
+            // Transaction kaydı
             var transaction = new PaymentTransaction
             {
                 TableSessionId = session.Id,
@@ -203,24 +215,22 @@ public class IyzicoCallbackHandler : IRequestHandler<IyzicoCallbackCommand, stri
             _sessionRepo.Update(session);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Callback URL oluştur (İyzico işlemi bitirince buraya POST atacak)
             var callbackUrl = $"{req.CallbackBaseUrl.TrimEnd('/')}/api/payment/iyzico/callback";
-
-            // İyzico'dan Checkout Form HTML içeriğini al
-            var checkoutForm = await _iyzicoService.CreateCheckoutFormAsync(transaction.Id, session.TotalAmount, callbackUrl);
+            var checkoutForm = await _iyzicoService.CreateCheckoutFormAsync(
+                transaction.Id, session.TotalAmount, callbackUrl);
 
             if (checkoutForm.Status != "success")
             {
-                // İyzico form üretemezse işlemi geri al / başarısız işaretle
                 session.MarkOnlinePaymentFailed();
                 _sessionRepo.Update(session);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                throw new ValidationException(new Dictionary<string, string[]> { { "Iyzico", new[] { checkoutForm.ErrorMessage ?? "Ödeme altyapısı başlatılamadı." } } });
+                throw new ValidationException(new Dictionary<string, string[]>
+        {
+            { "Iyzico", new[] { checkoutForm.ErrorMessage ?? "Ödeme altyapısı başlatılamadı." } }
+        });
             }
 
-            // Frontend'in (React) iframe veya div içine basacağı HTML kodunu dönüyoruz
             return checkoutForm.CheckoutFormContent;
         }
     }
-}
