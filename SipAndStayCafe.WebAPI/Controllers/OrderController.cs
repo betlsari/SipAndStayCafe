@@ -82,7 +82,6 @@ public sealed class OrderController : ControllerBase
         await _mediator.Send(new CallWaiterCommand(request), ct);
         return NoContent();
     }
-}
 
 [HttpGet("kitchen")]
     [Authorize(Roles = "KitchenStaff")]
@@ -92,6 +91,6 @@ public sealed class OrderController : ControllerBase
         var result = await _mediator.Send(new GetKitchenActiveOrdersQuery(), ct);
         return Ok(result);
     }
-
+}
 /// <summary>Mutfak ekranı durum güncelleme request DTO'su.</summary>
 public sealed record UpdateOrderStatusRequest(OrderStatus NewStatus);
