@@ -77,6 +77,72 @@ export interface CategoryDto {
     isActive: boolean
 }
 
+// ─── Menu Requests ────────────────────────────────────────────────────────────
+
+export interface CreateCategoryRequest {
+    name: string
+    displayOrder: number
+}
+
+export interface UpdateCategoryRequest {
+    name: string
+    displayOrder: number
+    isActive: boolean
+}
+
+export interface CreateMenuItemRequest {
+    name: string
+    description?: string
+    basePrice: number
+    categoryId: string
+    imageUrl?: string
+    displayOrder: number
+}
+
+export interface UpdateMenuItemRequest {
+    name: string
+    description?: string
+    basePrice: number
+    categoryId: string
+    isAvailable: boolean
+    imageUrl?: string
+    displayOrder: number
+}
+
+export interface UpdateStockRequest {
+    isAvailable: boolean
+    note?: string
+}
+
+export interface CreateModifierGroupRequest {
+    menuItemId: string
+    name: string
+    selectionType: ModifierSelectionType
+    isRequired: boolean
+    displayOrder: number
+}
+
+export interface UpdateModifierGroupRequest {
+    name: string
+    selectionType: ModifierSelectionType
+    isRequired: boolean
+    displayOrder: number
+}
+
+export interface CreateModifierRequest {
+    modifierGroupId: string
+    name: string
+    additionalPrice: number
+    displayOrder: number
+}
+
+export interface UpdateModifierRequest {
+    name: string
+    additionalPrice: number
+    displayOrder: number
+    isActive: boolean
+}
+
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
 export type OrderStatus = 'Received' | 'BeingPrepared' | 'Ready'
@@ -145,6 +211,19 @@ export interface TableSessionDto {
     paymentStatus: PaymentStatus
 }
 
+export interface CreateTableRequest {
+    tableNumber: number
+}
+
+export interface UpdateTableRequest {
+    tableNumber: number
+    isActive: boolean
+}
+
+export interface CloseSessionRequest {
+    sessionId: string
+}
+
 // ─── Cashier ─────────────────────────────────────────────────────────────────
 
 export interface CashierSessionDto {
@@ -180,6 +259,12 @@ export interface CashierSessionDetailDto {
     paymentMethod: PaymentMethod | null
     grandTotal: number
     orderRounds: CashierOrderRoundDto[]
+}
+
+// ─── Payment ─────────────────────────────────────────────────────────────────
+
+export interface InitiatePaymentRequest {
+    sessionId: string
 }
 
 // ─── Reports ─────────────────────────────────────────────────────────────────
@@ -218,10 +303,4 @@ export interface WeeklySalesReportDto {
     totalOrders: number
     dailySales: DailySalesSummaryDto[]
     topSellingItems: TopSellingItemDto[]
-}
-
-// ─── Payment ─────────────────────────────────────────────────────────────────
-
-export interface InitiatePaymentRequest {
-    sessionId: string
 }

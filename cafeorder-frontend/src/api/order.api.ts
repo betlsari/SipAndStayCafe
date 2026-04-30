@@ -1,39 +1,22 @@
 import axiosInstance from './axiosInstance'
-
-export interface OrderItem {
-    productId: number
-    quantity: number
-}
-
-export interface CreateOrderRequest {
-    tableNumber: number
-    items: OrderItem[]
-    note?: string
-}
-
-export interface Order {
-    id: number
-    tableNumber: number
-    status: 'PENDING' | 'PREPARING' | 'READY' | 'DELIVERED' | 'CANCELLED'
-    items: OrderItem[]
-    totalPrice: number
-    createdAt: string
-    note?: string
-}
+import type {
+    PlaceOrderRequest,
+    OrderDto,
+    TableOrderHistoryDto,
+    WaiterCallRequest,
+} from '../types/index'
+import type { OrderStatus } from '../types/index'
 
 export const orderApi = {
-    createOrder: (data: CreateOrderRequest) =>
-        axiosInstance.post<Order>('/orders', data),
+    placeOrder: (data: PlaceOrderRequest) =>
+        axiosInstance.post<OrderDto>('/orders', data),
 
-    getOrders: () =>
-        axiosInstance.get<Order[]>('/orders'),
+    getTableOrderHistory: (tableNumber: number) =>
+        axiosInstance.get<TableOrderHistoryDto>(`/orders/table/${tableNumber}`),
 
-    getOrderById: (id: number) =>
-        axiosInstance.get<Order>(`/orders/${id}`),
+    updateOrderStatus: (id: string, newStatus: OrderStatus) =>
+        axiosInstance.patch<void>(`/orders/${id}/status`, { newStatus }),
 
-    updateOrderStatus: (id: number, status: Order['status']) =>
-        axiosInstance.patch<Order>(`/orders/${id}/status`, { status }),
-
-    cancelOrder: (id: number) =>
-        axiosInstance.delete(`/orders/${id}`),
+    callWaiter: (data: WaiterCallRequest) =>
+        axiosInstance.post<void>('/orders/call-waiter', data),
 }
