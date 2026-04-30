@@ -84,5 +84,14 @@ public sealed class OrderController : ControllerBase
     }
 }
 
+[HttpGet("kitchen")]
+    [Authorize(Roles = "KitchenStaff")]
+    [ProducesResponseType(typeof(List<KitchenOrderDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetKitchenActiveOrders(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetKitchenActiveOrdersQuery(), ct);
+        return Ok(result);
+    }
+
 /// <summary>Mutfak ekranı durum güncelleme request DTO'su.</summary>
 public sealed record UpdateOrderStatusRequest(OrderStatus NewStatus);

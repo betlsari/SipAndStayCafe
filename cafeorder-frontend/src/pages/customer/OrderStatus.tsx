@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { orderApi } from '../../api/order.api'
-import { paymentApi } from '../../api/payment.api'
 import type { TableOrderHistoryDto, OrderDto } from '../../types/index'
 import WaiterCallButton from '../../components/customer/WaiterCallButton'
 

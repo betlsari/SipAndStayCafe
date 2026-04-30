@@ -1,63 +1,89 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { authApi } from '../api/auth.api'
-import type { LoginRequest, RegisterRequest } from '../api/auth.api'
-import { useAuthStore } from '../store/authStore'
+// cafeorder-frontend/src/hooks/useAuth.ts
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
+import { authApi } from '../api/auth.api';
+import type { LoginRequest, RegisterStaffRequest, AuthUser } from '../api/auth.api';
+import { useAuthStore, useAuthState } from '../store/authStore';
 
 export const useAuth = () => {
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-    const { setTokens, setUser, logout: storeLogout, isAuthenticated, role, username } = useAuthStore()
-    const navigate = useNavigate()
+    // username yerine displayName'i alýyoruz
+    const { isAuthenticated, role, displayName } = useAuthState();
+    const { setAuth, clearAuth } = useAuthStore();
 
     const login = async (data: LoginRequest) => {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
         try {
-            const res = await authApi.login(data)
-            const { accessToken, refreshToken, username, role } = res.data
-            setTokens(accessToken, refreshToken)
-            setUser(username, role)
+            const res = await authApi.login(data);
+            const { accessToken, ...userData } = res.data;
 
-            if (role === 'ADMIN') navigate('/admin')
-            else if (role === 'WAITER') navigate('/waiter')
-            else navigate('/menu')
+            // API'deki AuthUser modeline tam olarak eþleþen nesne oluþturuyoruz
+            const authUser: AuthUser = {
+                userId: userData.userId,
+                displayName: userData.displayName,
+                roles: userData.roles,
+                refreshToken: userData.refreshToken,
+                accessTokenExpiry: userData.accessTokenExpiry
+            };
+
+            setAuth(authUser, accessToken);
+
+            // Role tabanlý yönlendirme
+            if (authUser.roles.includes('Owner')) navigate('/admin');
+            else if (authUser.roles.includes('KitchenStaff')) navigate('/kitchen');
+            else if (authUser.roles.includes('Cashier')) navigate('/cashier');
+            else navigate('/menu');
+
         } catch (err: unknown) {
-            const msg =
-                err instanceof Error
-                    ? err.message
-                    : 'Giriþ baþarýsýz. Kullanýcý adý veya þifre hatalý.'
-            setError(msg)
+            if (err instanceof AxiosError) {
+                setError(err.response?.data?.message || 'Giriþ baþarýsýz. Lütfen bilgilerinizi kontrol edin.');
+            } else {
+                setError('Beklenmedik bir hata oluþtu.');
+            }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
-    const register = async (data: RegisterRequest) => {
-        setLoading(true)
-        setError(null)
+    const register = async (data: RegisterStaffRequest) => {
+        setLoading(true);
+        setError(null);
         try {
-            await authApi.register(data)
-            navigate('/login')
+            await authApi.registerStaff(data);
+            navigate('/login');
         } catch (err: unknown) {
-            const msg = err instanceof Error ? err.message : 'Kayýt baþarýsýz.'
-            setError(msg)
+            if (err instanceof AxiosError) {
+                setError(err.response?.data?.message || 'Personel kaydý baþarýsýz.');
+            }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     const logout = async () => {
         try {
-            await authApi.logout()
+            await authApi.logout();
         } catch {
-            // token zaten geçersiz olabilir, önemli deðil
+            // Hata olsa bile client-side auth temizlenmeli
         } finally {
-            storeLogout()
-            navigate('/login')
+            clearAuth();
+            navigate('/login');
         }
-    }
+    };
 
-    return { login, register, logout, loading, error, isAuthenticated, role, username }
-}
+    return {
+        login,
+        register,
+        logout,
+        loading,
+        error,
+        isAuthenticated,
+        role,
+        displayName // username yerine bunu dýþarý aktarýyoruz
+    };
+};

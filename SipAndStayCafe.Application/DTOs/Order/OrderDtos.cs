@@ -71,3 +71,15 @@ public sealed record TableOrderHistoryDto(
     int TableNumber,
     List<OrderDto> Orders,
     decimal GrandTotal);
+
+/// <summary>
+/// Mutfak ekranı için aktif sipariş — tableNumber order entity'sinden join'lenir.
+/// </summary>
+public sealed record KitchenOrderDto(
+    Guid OrderId,
+    int TableNumber,
+    string Status,
+    List<OrderItemDto> Items,
+    decimal Total,
+    DateTime CreatedAt,
+    string? Note);

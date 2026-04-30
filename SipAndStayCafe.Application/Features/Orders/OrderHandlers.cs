@@ -277,3 +277,39 @@ public class CallWaiterHandler : IRequestHandler<CallWaiterCommand>
         await _waiterNotificationService.NotifyWaiterCalledAsync(command.Request.TableNumber, command.Request.Note, cancellationToken);
     }
 }
+public record GetKitchenActiveOrdersQuery : IRequest<List<KitchenOrderDto>>;
+
+public class GetKitchenActiveOrdersHandler : IRequestHandler<GetKitchenActiveOrdersQuery, List<KitchenOrderDto>>
+{
+    private readonly IQueryableRepository<Order> _queryableOrderRepo;
+    private readonly IMapper _mapper;
+
+    public GetKitchenActiveOrdersHandler(IQueryableRepository<Order> queryableOrderRepo, IMapper mapper)
+    {
+        _queryableOrderRepo = queryableOrderRepo;
+        _mapper = mapper;
+    }
+
+    public async Task<List<KitchenOrderDto>> Handle(
+        GetKitchenActiveOrdersQuery query,
+        CancellationToken cancellationToken)
+    {
+        var orders = await _queryableOrderRepo.FindWithIncludesAsync(
+            o => o.Status == OrderStatus.Received || o.Status == OrderStatus.BeingPrepared,
+            q => q.Include(o => o.OrderItems)
+                  .Include(o => o.TableSession).ThenInclude(s => s.Table),
+            cancellationToken);
+
+        return orders
+            .OrderBy(o => o.CreatedAt)
+            .Select(o => new KitchenOrderDto(
+                OrderId: o.Id,
+                TableNumber: o.TableSession.Table.TableNumber,
+                Status: o.Status.ToString(),
+                Items: _mapper.Map<List<OrderItemDto>>(o.OrderItems),
+                Total: o.OrderItems.Sum(i => i.ItemTotal),
+                CreatedAt: o.CreatedAt,
+                Note: o.Note))
+            .ToList();
+    }
+}

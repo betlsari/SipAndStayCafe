@@ -5,6 +5,7 @@ import { Suspense, lazy } from 'react'
 
 import { ProtectedRoute } from './components/ui/ProtectedRoute'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
+import Payment from './components/customer/Payment'
 
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -47,6 +48,7 @@ export default function App() {
 
                         <Route path="/menu" element={<Menu />} />
                         <Route path="/order-status" element={<OrderStatus />} />
+                        <Route path="/payment" element={<Payment />} />
                         <Route path="/payment-result" element={<PaymentResult />} />
 
                         <Route
