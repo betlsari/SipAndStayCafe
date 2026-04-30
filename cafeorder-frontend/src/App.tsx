@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { Suspense, lazy } from 'react'
 
 import { ProtectedRoute } from './components/ui/ProtectedRoute'
+import SessionDetailPage from './pages/cashier/SessionDetailPage'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import Payment from './components/customer/Payment'
 
@@ -68,7 +69,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
-
+                        <Route path="/cashier/sessions/:id" element={<SessionDetailPage />} />
                         <Route
                             path="/admin/*"
                             element={
@@ -77,6 +78,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+
 
                         <Route path="/" element={<Navigate to="/login" replace />} />
                         <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { CashierSessionDto } from '../../types/index';
+import type { CashierSessionDto } from '../../types/index';
 import PaymentBadge from './PaymentBadge';
 
 interface SessionCardProps {
