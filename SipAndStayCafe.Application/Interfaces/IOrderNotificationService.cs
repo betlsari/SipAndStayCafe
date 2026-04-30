@@ -3,10 +3,7 @@ using SipAndStayCafe.Domain.Enums;
 
 namespace SipAndStayCafe.Application.Interfaces;
 
-/// <summary>
-/// Sipariş ile ilgili real-time bildirimlerin soyutlaması.
-/// Implementation SignalR hub'ları üzerinden Infrastructure katmanında yapılır.
-/// </summary>
+
 public interface IOrderNotificationService
 {
     /// <summary>

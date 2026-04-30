@@ -304,3 +304,13 @@ export interface WeeklySalesReportDto {
     dailySales: DailySalesSummaryDto[]
     topSellingItems: TopSellingItemDto[]
 }
+
+export interface KitchenOrderDto {
+    orderId: string
+    tableNumber: number
+    status: string
+    items: OrderItemDto[]
+    total: number
+    createdAt: string
+    note?: string | null
+}

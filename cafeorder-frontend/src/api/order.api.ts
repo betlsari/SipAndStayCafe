@@ -4,6 +4,7 @@ import type {
     OrderDto,
     TableOrderHistoryDto,
     WaiterCallRequest,
+    KitchenOrderDto,
 } from '../types/index'
 import type { OrderStatus } from '../types/index'
 
@@ -19,4 +20,6 @@ export const orderApi = {
 
     callWaiter: (data: WaiterCallRequest) =>
         axiosInstance.post<void>('/orders/call-waiter', data),
+    getKitchenActiveOrders: () =>
+        axiosInstance.get<KitchenOrderDto[]>('/orders/kitchen'),
 }
