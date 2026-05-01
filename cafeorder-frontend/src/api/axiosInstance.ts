@@ -73,6 +73,7 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true
             isRefreshing = true
 
+
             try {
                 const { authApi } = await import('./auth.api')
                 const response = await authApi.refreshToken()
@@ -89,8 +90,10 @@ axiosInstance.interceptors.response.use(
                 processQueue(refreshError, null)
                 useAuthStore.getState().clearAuth()
 
+                // window.location.href yerine history API — Router'ı bypass etmez
                 if (!window.location.pathname.includes('/login')) {
-                    window.location.href = '/login'
+                    window.history.pushState({}, '', '/login')
+                    window.dispatchEvent(new PopStateEvent('popstate'))
                 }
                 return Promise.reject(refreshError)
             } finally {

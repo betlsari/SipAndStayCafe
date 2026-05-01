@@ -1,2 +1,2 @@
-const Dashboard = () => <div>Y�netici Paneli</div>;
+﻿const Dashboard = () => <div>Yönetici Paneli</div>;
 export default Dashboard;
