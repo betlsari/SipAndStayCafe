@@ -1,9 +1,9 @@
 export function LoadingSpinner() {
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#0e0e0e]">
-            <div className="flex flex-col items-center gap-4">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2a2a2a] border-t-[#c8a96e]" />
-                <span className="text-sm text-[#666] tracking-widest uppercase">Yükleniyor</span>
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin" />
+                <p className="text-zinc-500 text-sm">Yükleniyor…</p>
             </div>
         </div>
     )

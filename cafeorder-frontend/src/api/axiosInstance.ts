@@ -100,6 +100,24 @@ axiosInstance.interceptors.response.use(
                 isRefreshing = false
             }
         }
+        // ── Global hata bildirimleri ──────────────────────────────────────
+        // 401 zaten yukarıda ele alındı; refresh başarısızsa clearAuth çağrılır.
+        const status = error.response?.status
+
+        if (status === undefined || status === 0) {
+            // Network hatası / sunucuya ulaşılamıyor
+            const { toast } = await import('sonner')
+            toast.error('Sunucuya bağlanılamıyor. İnternet bağlantınızı kontrol edin.')
+        } else if (status === 403) {
+            const { toast } = await import('sonner')
+            toast.error('Bu işlem için yetkiniz bulunmuyor.')
+        } else if (status === 500) {
+            const { toast } = await import('sonner')
+            toast.error('Sunucu hatası oluştu. Lütfen tekrar deneyin.')
+        } else if (status >= 502 && status <= 504) {
+            const { toast } = await import('sonner')
+            toast.error('Sunucu şu an yanıt vermiyor. Kısa süre sonra tekrar deneyin.')
+        }
 
         return Promise.reject(error)
     },

@@ -10,6 +10,12 @@ import Payment from './components/customer/Payment'
 // Ekle
 import AdminLayout from './pages/admin/AdminLayout'
 import CategoryManagement from './pages/admin/CategoryManagement'
+
+
+
+import ErrorBoundary from './components/ui/ErrorBoundary'
+import { useRegisterSW } from './hooks/useRegisterSW'
+
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -45,6 +51,7 @@ const queryClient = new QueryClient({
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
+    useRegisterSW()
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
@@ -56,30 +63,44 @@ export default function App() {
                         <Route path="/order-status" element={<OrderStatus />} />
                         <Route path="/payment" element={<Payment />} />
                         <Route path="/payment-result" element={<PaymentResult />} />
-
                         <Route
                             path="/kitchen"
                             element={
                                 <ProtectedRoute roles={['KitchenStaff']}>
-                                    <KitchenDisplay />
+                                    <ErrorBoundary>
+                                        <KitchenDisplay />
+                                    </ErrorBoundary>
                                 </ProtectedRoute>
                             }
                         />
-                        <Route path="/cashier/sessions/:id" element={<SessionDetailPage />} />
+
+                        <Route
+                            path="/cashier/sessions/:id"
+                            element={
+                                <ErrorBoundary>
+                                    <SessionDetailPage />
+                                </ErrorBoundary>
+                            }
+                        />
 
                         <Route
                             path="/cashier"
                             element={
                                 <ProtectedRoute roles={['Cashier', 'Owner']}>
-                                    <CashierPage />
+                                    <ErrorBoundary>
+                                        <CashierPage />
+                                    </ErrorBoundary>
                                 </ProtectedRoute>
                             }
                         />
+
                         <Route
                             path="/admin"
                             element={
                                 <ProtectedRoute roles={['Owner']}>
-                                    <AdminLayout />
+                                    <ErrorBoundary>
+                                        <AdminLayout />
+                                    </ErrorBoundary>
                                 </ProtectedRoute>
                             }
                         >
