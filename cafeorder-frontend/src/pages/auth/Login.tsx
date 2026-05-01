@@ -5,11 +5,9 @@ import { authApi } from '../../api/auth.api';
 import { useAuthStore } from '../../store/authStore';
 import type { AuthUser, UserRole } from '../../types/index';
 
-/**
- * Backend'den dönen hata mesajı yapısı
- */
 interface ApiErrorResponse {
     message?: string;
+    title?: string;
 }
 
 export default function Login() {
@@ -20,9 +18,6 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    /**
-     * Kullanıcı rolüne göre gidilecek sayfayı belirler
-     */
     const getRoleRedirect = (roles: UserRole[]): string => {
         if (roles.includes('Owner')) return '/admin';
         if (roles.includes('Cashier')) return '/cashier';
@@ -36,32 +31,41 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // 1. API İsteği
+            // Doğrudan authApi.login çağrısı — axiosInstance interceptor'ı
+            // 401'de refresh tetiklemez çünkü /auth/login isAuthEndpoint listesinde
             const res = await authApi.login({ email, password });
             const raw = res.data;
 
-            // 2. Kullanıcı verisini merkezi tiplerle uyumlu hale getir[cite: 1]
             const user: AuthUser = {
                 userId: raw.userId,
                 displayName: raw.displayName,
-                roles: raw.roles as UserRole[], // Güvenli tip dönüşümü[cite: 1]
+                roles: raw.roles,
                 refreshToken: raw.refreshToken,
                 accessTokenExpiry: raw.accessTokenExpiry,
             };
 
-            // 3. Global State (Zustand) güncellemesi[cite: 1]
             setAuth(user, raw.accessToken);
 
-            // 4. Yetkiye göre yönlendirme
             const redirectPath = getRoleRedirect(user.roles);
-            navigate(redirectPath);
+            navigate(redirectPath, { replace: true });
 
         } catch (err) {
-            // ✅ AxiosError kullanarak tip güvenliği sağlandı[cite: 1]
             const axiosError = err as AxiosError<ApiErrorResponse>;
-            console.error('Giriş Hatası:', axiosError);
+            const status = axiosError.response?.status;
 
-            const message = axiosError.response?.data?.message || 'E-posta veya şifre hatalı.';
+            let message = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+
+            if (status === 401 || status === 400) {
+                message = 'E-posta veya şifre hatalı.';
+            } else if (status === 0 || !status) {
+                message = 'Sunucuya bağlanılamıyor. API çalışıyor mu?';
+            } else {
+                message =
+                    axiosError.response?.data?.message ??
+                    axiosError.response?.data?.title ??
+                    message;
+            }
+
             setError(message);
         } finally {
             setLoading(false);
@@ -110,8 +114,17 @@ export default function Login() {
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-md transition-all animate-in fade-in">
+                        <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-md">
                             <p className="text-xs text-red-700 font-medium">{error}</p>
+                        </div>
+                    )}
+
+                    {/* Geliştirme ortamı için hızlı giriş ipucu */}
+                    {import.meta.env.DEV && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
+                            <p className="font-semibold mb-1">🔑 Varsayılan Giriş:</p>
+                            <p>E-posta: <span className="font-mono">admin@sipandstay.com</span></p>
+                            <p>Şifre: <span className="font-mono">Admin123!</span></p>
                         </div>
                     )}
 

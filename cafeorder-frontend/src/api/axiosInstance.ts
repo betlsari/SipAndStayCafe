@@ -16,6 +16,11 @@ interface RetryQueueItem {
     reject: (error: unknown) => void;
 }
 
+// Auth endpoint'leri için refresh yapılmamalı
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/refresh', '/auth/logout'];
+const isAuthEndpoint = (url?: string) =>
+    AUTH_ENDPOINTS.some((e) => url?.includes(e));
+
 let isRefreshing = false;
 let failedQueue: RetryQueueItem[] = [];
 
@@ -30,10 +35,10 @@ const processQueue = (error: unknown, token: string | null = null) => {
 const axiosInstance: AxiosInstance = axios.create({
     baseURL: BASE_URL,
     headers: { 'Content-Type': 'application/json' },
-    timeout: 15_000, // Timeout süresi biraz artırıldı
+    timeout: 15_000,
 });
 
-// ── Request Interceptor: Her isteğe Bearer Token ekle ──────────────────────────
+// ── Request Interceptor ──────────────────────────────────────────────────────
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = useAuthStore.getState().token;
@@ -45,19 +50,36 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error),
 );
 
-// ── Response Interceptor: 401 Hatası, Refresh Token ve Kuyruk Yönetimi ─────────
+// ── Response Interceptor ─────────────────────────────────────────────────────
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as CustomAxiosRequestConfig;
+        const status = error.response?.status;
+        const requestUrl = originalRequest?.url;
 
-        // Eğer hata 401 (Unauthorized) ise ve bu bir tekrar isteği değilse
+        // Auth endpoint'leri için 401/400 → direkt reject, refresh döngüsü yok
+        if (isAuthEndpoint(requestUrl)) {
+            return Promise.reject(error);
+        }
+
+        // 401 ve retry edilmemiş ve refresh token var → refresh dene
         if (
-            error.response?.status === 401 &&
+            status === 401 &&
             originalRequest &&
             !originalRequest._retry
         ) {
-            // Zaten bir refresh işlemi devam ediyorsa, isteği kuyruğa ekle
+            const { user } = useAuthStore.getState();
+
+            // Refresh token yoksa direkt login'e yönlendir
+            if (!user?.refreshToken) {
+                useAuthStore.getState().clearAuth();
+                if (!window.location.pathname.includes('/login')) {
+                    window.location.href = '/login';
+                }
+                return Promise.reject(error);
+            }
+
             if (isRefreshing) {
                 return new Promise<string>((resolve, reject) => {
                     failedQueue.push({ resolve, reject });
@@ -75,29 +97,23 @@ axiosInstance.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Döngüsel bağımlılığı önlemek için authApi'yi dinamik import et
                 const { authApi } = await import('./auth.api');
                 const response = await authApi.refreshToken();
-                const { token, user } = response.data;
+                const { token, user: refreshedUser } = response.data;
 
-                // Yeni token ve kullanıcı bilgilerini store'a kaydet
-                useAuthStore.getState().setAuth(user, token);
-
-                // Kuyrukta bekleyen diğer isteklere yeni token'ı gönder
+                useAuthStore.getState().setAuth(refreshedUser, token);
                 processQueue(null, token);
 
-                // Orijinal isteği yeni token ile tekrarla
                 if (originalRequest.headers) {
                     originalRequest.headers.Authorization = `Bearer ${token}`;
                 }
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
-                // Refresh işlemi başarısız olursa her şeyi temizle ve login'e at
                 processQueue(refreshError, null);
                 useAuthStore.getState().clearAuth();
 
                 if (!window.location.pathname.includes('/login')) {
-                    window.location.href = '/login'; // Kesin çözüm için href kullanıldı
+                    window.location.href = '/login';
                 }
                 return Promise.reject(refreshError);
             } finally {
@@ -105,18 +121,20 @@ axiosInstance.interceptors.response.use(
             }
         }
 
-        // ── Global Hata Bildirimleri (Toast) ──────────────────────────────────────
-        const status = error.response?.status;
-        const { toast } = await import('sonner'); // Sadece hata anında import edilir
+        // ── Global Toast Bildirimleri ────────────────────────────────────────
+        // 401 login hataları için toast gösterme (Login sayfası kendi yönetir)
+        if (status !== 401) {
+            const { toast } = await import('sonner');
 
-        if (status === undefined || status === 0) {
-            toast.error('Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.');
-        } else if (status === 403) {
-            toast.error('Bu işlem için yetkiniz bulunmuyor.');
-        } else if (status === 500) {
-            toast.error('Sunucu tarafında bir hata oluştu.');
-        } else if (status >= 502 && status <= 504) {
-            toast.error('Servis şu an kullanılamıyor, lütfen bekleyin.');
+            if (status === undefined || status === 0) {
+                toast.error('Sunucuya ulaşılamıyor. Bağlantınızı kontrol edin.');
+            } else if (status === 403) {
+                toast.error('Bu işlem için yetkiniz bulunmuyor.');
+            } else if (status === 500) {
+                toast.error('Sunucu tarafında bir hata oluştu.');
+            } else if (status !== undefined && status >= 502 && status <= 504) {
+                toast.error('Servis şu an kullanılamıyor, lütfen bekleyin.');
+            }
         }
 
         return Promise.reject(error);

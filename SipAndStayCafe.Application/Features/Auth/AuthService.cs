@@ -1,215 +1,200 @@
-﻿using FluentValidation;
+﻿using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Logging;
 using SipAndStayCafe.Application.DTOs.Auth;
 using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Domain.Common;
 using SipAndStayCafe.Domain.Entities;
-using System.Security.Cryptography;
-using System.Text;
-using ValidationException = SipAndStayCafe.Application.Exceptions.ValidationException;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+
 
 namespace SipAndStayCafe.Application.Features.Auth;
 
+/// <summary>
+/// Application katmanında yaşar.
+/// Infrastructure veya Identity'ye doğrudan bağımlılık YOKTUR.
+/// Tüm kimlik işlemleri IIdentityService üzerinden soyutlanmıştır.
+/// </summary>
 public sealed class AuthService
 {
-    private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(30);
-
     private readonly IIdentityService _identityService;
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
-    private readonly IValidator<LoginRequest> _loginValidator;
-    private readonly IValidator<RegisterStaffRequest> _registerValidator;
-    private readonly IValidator<RefreshTokenRequest> _refreshValidator;
+    private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         IIdentityService identityService,
         ITokenService tokenService,
         IRefreshTokenRepository refreshTokenRepo,
-        IValidator<LoginRequest> loginValidator,
-        IValidator<RegisterStaffRequest> registerValidator,
-        IValidator<RefreshTokenRequest> refreshValidator)
+        ILogger<AuthService> logger)
     {
         _identityService = identityService;
         _tokenService = tokenService;
         _refreshTokenRepo = refreshTokenRepo;
-        _loginValidator = loginValidator;
-        _registerValidator = registerValidator;
-        _refreshValidator = refreshValidator;
+        _logger = logger;
     }
+
+    // ── Login ────────────────────────────────────────────────────────────────
 
     public async Task<Result<AuthResponse>> LoginAsync(
-        LoginRequest request, string? deviceHint = null,
+        LoginRequest request,
+        string deviceHint,
         CancellationToken cancellationToken = default)
     {
-        // Validation önce çalışsın
-        await ValidateAndThrowAsync(_loginValidator, request, cancellationToken);
-
-        var userResult = await _identityService.FindByEmailAsync(request.Email);
-        if (userResult is null)
+        // 1. Kullanıcıyı e-posta ile bul
+        var userDto = await _identityService.FindByEmailAsync(request.Email);
+        if (userDto is null)
+        {
+            _logger.LogWarning("[Auth] Login failed - user not found: {Email}", request.Email);
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
+        }
 
-        var passwordValid = await _identityService.CheckPasswordAsync(userResult.Id, request.Password);
+        // 2. Şifreyi doğrula
+        var passwordValid = await _identityService.CheckPasswordAsync(userDto.Id, request.Password);
         if (!passwordValid)
+        {
+            _logger.LogWarning("[Auth] Login failed - wrong password: {Email}", request.Email);
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
+        }
 
-        return await IssueTokensAsync(userResult, cancellationToken, deviceHint);
+        _logger.LogInformation("[Auth] Login successful: {Email} | Roles: {Roles}",
+            request.Email, string.Join(", ", userDto.Roles));
+
+        return await IssueTokenPairAsync(userDto, deviceHint, cancellationToken);
     }
+
+    // ── Register Staff ───────────────────────────────────────────────────────
 
     public async Task<Result<AuthResponse>> RegisterStaffAsync(
         RegisterStaffRequest request,
-            string? deviceHint = null,
-
+        string deviceHint,
         CancellationToken cancellationToken = default)
     {
-        await ValidateAndThrowAsync(_registerValidator, request, cancellationToken);
+        string[] validRoles = ["Owner", "Cashier", "KitchenStaff"];
+        if (!validRoles.Contains(request.Role))
+            return Result.Failure<AuthResponse>(
+                Error.General.Validation($"Geçersiz rol: {request.Role}"));
 
         var existing = await _identityService.FindByEmailAsync(request.Email);
         if (existing is not null)
             return Result.Failure<AuthResponse>(
-                Error.General.Conflict($"A user with email '{request.Email}' already exists."));
+                Error.General.Conflict($"Bu e-posta zaten kullanımda: {request.Email}"));
 
         var createResult = await _identityService.CreateUserAsync(
             request.Email, request.Password, request.DisplayName, request.Role);
 
         if (!createResult.Succeeded)
-            throw new ValidationException(createResult.Errors);
+        {
+            var firstError = createResult.Errors.Values
+                .SelectMany(e => e)
+                .FirstOrDefault() ?? "Kullanıcı oluşturulamadı.";
+            return Result.Failure<AuthResponse>(Error.General.Validation(firstError));
+        }
 
-        var user = await _identityService.FindByEmailAsync(request.Email);
-        return await IssueTokensAsync(user!, cancellationToken, deviceHint);
+        var userDto = await _identityService.FindByEmailAsync(request.Email);
+        if (userDto is null)
+            return Result.Failure<AuthResponse>(Error.General.Unexpected());
+
+        return await IssueTokenPairAsync(userDto, deviceHint, cancellationToken);
     }
 
-    public async Task<Result<AuthResponse>> RefreshAsync(
-        RefreshTokenRequest request, string? deviceHint = null,
+    // ── Refresh ──────────────────────────────────────────────────────────────
 
+    public async Task<Result<AuthResponse>> RefreshAsync(
+        RefreshTokenRequest request,
+        string deviceHint,
         CancellationToken cancellationToken = default)
     {
-        await ValidateAndThrowAsync(_refreshValidator, request, cancellationToken);
-
-        var hash = HashToken(request.RefreshToken);
-
-        var storedToken = await _refreshTokenRepo.GetByHashAsync(hash, cancellationToken);
-        if (storedToken is null || !storedToken.IsActive)
+        var userId = ExtractUserIdFromExpiredToken(request.AccessToken);
+        if (userId is null)
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
 
-        // Sorun 5 fix: access token'dan userId çıkar ve refresh token userId ile eşleştir
-        var userIdFromAccessToken = _tokenService.ExtractUserIdFromToken(request.AccessToken);
-        if (userIdFromAccessToken is null || userIdFromAccessToken != storedToken.UserId)
+        var tokenHash = HashToken(request.RefreshToken);
+        var storedToken = await _refreshTokenRepo.GetByHashAsync(tokenHash, cancellationToken);
+
+        if (storedToken is null || !storedToken.IsActive || storedToken.UserId != userId)
+        {
+            _logger.LogWarning("[Auth] Refresh failed - invalid token for userId: {UserId}", userId);
+            return Result.Failure<AuthResponse>(Error.General.Unauthorized());
+        }
+
+        var userDto = await _identityService.FindByIdAsync(userId);
+        if (userDto is null)
             return Result.Failure<AuthResponse>(Error.General.Unauthorized());
 
-        var user = await _identityService.FindByIdAsync(storedToken.UserId);
-        if (user is null)
-            return Result.Failure<AuthResponse>(Error.General.Unauthorized());
-
+        // Token rotation — eski iptal, yeni ver
         storedToken.Revoke();
         await _refreshTokenRepo.UpdateAsync(storedToken, cancellationToken);
 
-        return await IssueTokensAsync(user, cancellationToken, deviceHint);
+        return await IssueTokenPairAsync(userDto, deviceHint, cancellationToken);
     }
 
-    public async Task<Result<bool>> LogoutAsync(
+    // ── Logout ───────────────────────────────────────────────────────────────
+
+    public async Task LogoutAsync(
         string rawRefreshToken,
         CancellationToken cancellationToken = default)
     {
-        var hash = HashToken(rawRefreshToken);
-        var storedToken = await _refreshTokenRepo.GetByHashAsync(hash, cancellationToken);
+        var tokenHash = HashToken(rawRefreshToken);
+        var storedToken = await _refreshTokenRepo.GetByHashAsync(tokenHash, cancellationToken);
 
-        if (storedToken is null)
-            return Result.Success(true);
-
-        storedToken.Revoke();
-        await _refreshTokenRepo.UpdateAsync(storedToken, cancellationToken);
-
-        return Result.Success(true);
+        if (storedToken is not null && storedToken.IsActive)
+        {
+            storedToken.Revoke();
+            await _refreshTokenRepo.UpdateAsync(storedToken, cancellationToken);
+        }
+        // Idempotent
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    // ── Private ──────────────────────────────────────────────────────────────
 
-    private async Task<Result<AuthResponse>> IssueTokensAsync(
-          UserDto user,
-          CancellationToken cancellationToken, string? deviceHint = null)
+    private async Task<Result<AuthResponse>> IssueTokenPairAsync(
+        UserDto userDto,
+        string deviceHint,
+        CancellationToken cancellationToken)
     {
         var accessToken = _tokenService.GenerateAccessToken(
-            user.Id, user.Email, user.DisplayName, user.Roles);
-        var rawRefresh = _tokenService.GenerateRefreshToken();
-        var expiry = _tokenService.GetAccessTokenExpiry();
+            userDto.Id, userDto.Email, userDto.DisplayName, userDto.Roles);
+        var accessExpiry = _tokenService.GetAccessTokenExpiry();
 
-        var refreshEntity = new RefreshToken
+        var rawRefreshToken = _tokenService.GenerateRefreshToken();
+        var tokenHash = HashToken(rawRefreshToken);
+        var hint = deviceHint.Length > 200 ? deviceHint[..200] : deviceHint;
+
+        var refreshTokenEntity = new RefreshToken
         {
-            UserId = user.Id,
-            TokenHash = HashToken(rawRefresh),
-            ExpiresAt = DateTime.UtcNow.Add(RefreshTokenLifetime),
-            DeviceHint = deviceHint
+            UserId = userDto.Id,
+            TokenHash = tokenHash,
+            ExpiresAt = DateTime.UtcNow.AddDays(30),
+            DeviceHint = hint,
         };
 
-        await _refreshTokenRepo.AddAsync(refreshEntity, cancellationToken);
+        await _refreshTokenRepo.AddAsync(refreshTokenEntity, cancellationToken);
 
         return Result.Success(new AuthResponse(
             AccessToken: accessToken,
-            RefreshToken: rawRefresh,
-            AccessTokenExpiry: expiry,
-            UserId: user.Id,
-            DisplayName: user.DisplayName,
-            Roles: user.Roles));
+            RefreshToken: rawRefreshToken,
+            AccessTokenExpiry: accessExpiry,
+            UserId: userDto.Id,
+            DisplayName: userDto.DisplayName,
+            Roles: userDto.Roles));
     }
 
-    private static string HashToken(string rawToken)
+    private static string? ExtractUserIdFromExpiredToken(string accessToken)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(accessToken);
+            return jwt.Subject;
+        }
+        catch { return null; }
+    }
+
+    public static string HashToken(string rawToken)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawToken));
         return Convert.ToHexString(bytes).ToLowerInvariant();
-    }
-
-    private static async Task ValidateAndThrowAsync<T>(
-        IValidator<T> validator,
-        T instance,
-        CancellationToken cancellationToken)
-    {
-        var result = await validator.ValidateAsync(instance, cancellationToken);
-        if (!result.IsValid)
-        {
-            var errors = result.Errors
-                .GroupBy(e => e.PropertyName, e => e.ErrorMessage)
-                .ToDictionary(g => g.Key, g => g.ToArray());
-            throw new ValidationException(errors);
-        }
-    }
-
-    // Application katmanında JWT'ye doğrudan bağımlılık olmadan,
-    // sadece claim okuma amacıyla minimal bir parse yapıyoruz.
-    // Signature doğrulamıyoruz — zaten expired olabilir.
-    // Amacımız sadece sub claim'ini okumak.
-    private static string? ExtractUserIdFromExpiredToken(string accessToken)
-    {
-        if (string.IsNullOrWhiteSpace(accessToken))
-            return null;
-
-        try
-        {
-            // JWT formatı: header.payload.signature
-            // Payload'ı base64 decode edip sub claim'i okuyoruz.
-            var parts = accessToken.Split('.');
-            if (parts.Length != 3)
-                return null;
-
-            // Base64Url → Base64 dönüşümü
-            var payload = parts[1];
-            payload = payload.Replace('-', '+').Replace('_', '/');
-            switch (payload.Length % 4)
-            {
-                case 2: payload += "=="; break;
-                case 3: payload += "="; break;
-            }
-
-            var json = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(payload));
-            using var doc = System.Text.Json.JsonDocument.Parse(json);
-
-            // JWT standardı: "sub" claim = userId
-            if (doc.RootElement.TryGetProperty("sub", out var sub))
-                return sub.GetString();
-
-            return null;
-        }
-        catch
-        {
-            return null;
-        }
     }
 }

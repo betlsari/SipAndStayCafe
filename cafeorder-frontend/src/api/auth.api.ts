@@ -12,7 +12,6 @@ export interface RegisterStaffRequest {
     email: string;
     password: string;
     displayName: string;
-    /** Must be bir tanesi: "Owner" | "Cashier" | "KitchenStaff" */
     role: UserRole;
 }
 
@@ -26,15 +25,12 @@ export interface RefreshTokenRequest {
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
-    accessTokenExpiry: string; // ISO 8601 UTC datetime string
+    accessTokenExpiry: string;
     userId: string;
     displayName: string;
-    roles: UserRole[]; // ✅ string[] yerine direkt UserRole[] yapıldı
+    roles: UserRole[];
 }
 
-/**
- * useAuthStore.setAuth() metodu AuthUser tipinde bir nesne bekler.
- */
 export interface AuthUser {
     userId: string;
     displayName: string;
@@ -53,48 +49,52 @@ export interface RefreshResponse {
 export const authApi = {
     /**
      * POST /api/auth/login
-     * Backend: AuthController.Login
      */
     login: (data: LoginRequest) =>
         axiosInstance.post<AuthResponse>('/auth/login', data),
 
     /**
      * POST /api/auth/register-staff
-     * Owner (Admin) yetkisi gerektirir.
-     * Backend: AuthController.RegisterStaff
      */
     registerStaff: (data: RegisterStaffRequest) =>
         axiosInstance.post<AuthResponse>('/auth/register-staff', data),
 
     /**
      * POST /api/auth/refresh
-     * 401 hatalarında Axios Interceptor tarafından tetiklenir.
-     * Backend: AuthController.RefreshToken
+     * Sadece geçerli refresh token varsa çağrılmalı.
      */
     refreshToken: async (): Promise<{ data: RefreshResponse }> => {
-        // Import döngüsünü engellemek için store'u fonksiyon içinde dinamik import ediyoruz
         const { useAuthStore } = await import('../store/authStore');
         const state = useAuthStore.getState();
 
-        const payload: RefreshTokenRequest = {
-            accessToken: state.token ?? '',
-            refreshToken: state.user?.refreshToken ?? '',
-        };
+        const accessToken = state.token ?? '';
+        const refreshToken = state.user?.refreshToken ?? '';
 
-        const response = await axiosInstance.post<AuthResponse>(
-            '/auth/refresh',
+        // Guard: token yoksa çağırma
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
+        }
+
+        const payload: RefreshTokenRequest = { accessToken, refreshToken };
+
+        // axiosInstance yerine doğrudan axios kullan → interceptor döngüsünü kır
+        const { default: axios } = await import('axios');
+        const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5291/api';
+
+        const response = await axios.post<AuthResponse>(
+            `${BASE_URL}/auth/refresh`,
             payload,
+            { headers: { 'Content-Type': 'application/json' } }
         );
 
         const raw = response.data;
 
-        // Backend'den gelen ham veriyi Interceptor'ın işleyebileceği hale getiriyoruz
         const shaped: RefreshResponse = {
             token: raw.accessToken,
             user: {
                 userId: raw.userId,
                 displayName: raw.displayName,
-                roles: raw.roles as UserRole[], // ✅ Tip zorlaması (Casting) eklendi
+                roles: raw.roles,
                 refreshToken: raw.refreshToken,
                 accessTokenExpiry: raw.accessTokenExpiry,
             },
@@ -105,8 +105,6 @@ export const authApi = {
 
     /**
      * POST /api/auth/logout
-     * Mevcut refresh token'ı server tarafında geçersiz kılar.
-     * Backend: AuthController.Logout[cite: 1]
      */
     logout: async (): Promise<void> => {
         const { useAuthStore } = await import('../store/authStore');
@@ -114,10 +112,13 @@ export const authApi = {
         const refreshToken = state.user?.refreshToken;
 
         if (refreshToken) {
-            // Backend string tipinde bir body beklediği için stringify kullanıyoruz[cite: 1]
-            await axiosInstance.post('/auth/logout', JSON.stringify(refreshToken), {
-                headers: { 'Content-Type': 'application/json' },
-            });
+            try {
+                await axiosInstance.post('/auth/logout', JSON.stringify(refreshToken), {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            } catch {
+                // Logout hatası sessizce geçilir — store zaten temizlenecek
+            }
         }
     },
 };
