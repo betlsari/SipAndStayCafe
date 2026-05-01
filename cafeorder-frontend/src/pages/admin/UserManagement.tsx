@@ -1,23 +1,12 @@
-﻿// src/pages/admin/UserManagement.tsx
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { authApi } from '../../api/auth.api'
-import type { UserRole } from '../../types/index' // Tip-only import düzeltildi
+import { userApi, type UserDto } from '../../api/user.api'
+import type { UserRole } from '../../types/index'
 import { Trash2, Plus, X, Eye, EyeOff, ShieldCheck, Users, Crown } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '../../store/authStore'
-import axiosInstance from '../../api/axiosInstance'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface UserDto {
-    id: string
-    email: string
-    displayName: string
-    roles: string[]
-    createdAt?: string
-}
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers & Config ─────────────────────────────────────────────────────────
 
 const ROLE_CONFIG: Record<string, { label: string; cls: string; icon: React.ElementType }> = {
     Owner: {
@@ -84,6 +73,7 @@ function CreateStaffModal({ onClose, onCreated }: CreateModalProps) {
             toast.success('Personel hesabı oluşturuldu.')
             onCreated()
         } catch (err: unknown) {
+            // ✅ any yerine unknown kullanılarak tip güvenliği sağlandı
             const axErr = err as { response?: { data?: { message?: string } } }
             setError(axErr?.response?.data?.message ?? 'Hesap oluşturulamadı.')
         } finally {
@@ -93,7 +83,7 @@ function CreateStaffModal({ onClose, onCreated }: CreateModalProps) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-            <div className="w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-2xl flex flex-col">
+            <div className="w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-2xl flex flex-col animate-in fade-in zoom-in-95 duration-200">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
                     <h2 className="text-base font-bold text-white">Yeni Personel Ekle</h2>
                     <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
@@ -144,7 +134,7 @@ function CreateStaffModal({ onClose, onCreated }: CreateModalProps) {
                     <Field label="Rol">
                         <select
                             value={form.role}
-                            onChange={(e) => set('role', e.target.value as UserRole)}
+                            onChange={(e) => setForm(prev => ({ ...prev, role: e.target.value as UserRole }))}
                             className={inputCls}
                         >
                             {ROLE_OPTIONS.map((r) => (
@@ -156,7 +146,7 @@ function CreateStaffModal({ onClose, onCreated }: CreateModalProps) {
                     </Field>
 
                     {error && (
-                        <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2">
+                        <p className="text-sm text-red-400 bg-red-500/10 rounded-lg px-3 py-2 border border-red-500/20">
                             {error}
                         </p>
                     )}
@@ -169,65 +159,9 @@ function CreateStaffModal({ onClose, onCreated }: CreateModalProps) {
                     <button
                         onClick={handleSubmit}
                         disabled={saving}
-                        className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors shadow-lg shadow-violet-900/20"
                     >
                         {saving ? 'Oluşturuluyor…' : 'Oluştur'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-// ─── Delete Confirm Modal ─────────────────────────────────────────────────────
-
-interface DeleteModalProps {
-    user: UserDto
-    onClose: () => void
-    onDeleted: () => void
-}
-
-function DeleteConfirmModal({ user, onClose, onDeleted }: DeleteModalProps) {
-    const [deleting, setDeleting] = useState(false)
-
-    const handleDelete = async () => {
-        setDeleting(true)
-        try {
-            await axiosInstance.delete(`/users/${user.id}`)
-            toast.success(`${user.displayName} hesabı silindi.`)
-            onDeleted()
-        } catch {
-            toast.error('Kullanıcı silinemedi.')
-        } finally {
-            setDeleting(false)
-        }
-    }
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-            <div className="w-full max-w-sm bg-zinc-900 border border-zinc-700 rounded-2xl p-6 flex flex-col gap-5">
-                <div className="flex flex-col items-center gap-3 text-center">
-                    <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center">
-                        <Trash2 className="w-6 h-6 text-red-400" />
-                    </div>
-                    <div>
-                        <h2 className="text-base font-bold text-white">Kullanıcıyı Sil</h2>
-                        <p className="text-sm text-zinc-400 mt-1">
-                            <span className="text-white font-medium">{user.displayName}</span> adlı kullanıcının
-                            hesabı kalıcı olarak silinecek.
-                        </p>
-                    </div>
-                </div>
-                <div className="flex gap-3">
-                    <button onClick={onClose} className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-semibold py-2.5 rounded-xl transition-colors">
-                        Vazgeç
-                    </button>
-                    <button
-                        onClick={handleDelete}
-                        disabled={deleting}
-                        className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
-                    >
-                        {deleting ? 'Siliniyor…' : 'Evet, Sil'}
                     </button>
                 </div>
             </div>
@@ -266,13 +200,13 @@ function UserRow({
                 <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-semibold text-white truncate">{user.displayName}</p>
                     {isCurrentUser && (
-                        <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">Siz</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full">Siz</span>
                     )}
                 </div>
                 <p className="text-xs text-zinc-500 truncate mt-0.5">{user.email}</p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-                <span className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${cfg.cls}`}>
+                <span className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${cfg.cls}`}>
                     <Icon className="w-3 h-3" />
                     {cfg.label}
                 </span>
@@ -280,7 +214,7 @@ function UserRow({
             {!isCurrentUser && (
                 <button
                     onClick={() => onDelete(user)}
-                    className="p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-zinc-800 transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-2 rounded-lg text-zinc-600 hover:text-red-400 hover:bg-zinc-800 transition-colors md:opacity-0 group-hover:opacity-100"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
@@ -298,41 +232,39 @@ export default function UserManagement() {
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null)
     const [search, setSearch] = useState('')
-    
     const [filterRole, setFilterRole] = useState<string>('all')
+
     const currentUserId = useAuthStore((s) => s.user?.userId ?? null)
 
-    // fetchUsers, useCallback ile sarmalanarak effect bağımlılık uyarısı giderildi
+    // ✅ fetchUsers: err: any hatası düzeltildi
     const fetchUsers = useCallback(async () => {
         setLoading(true)
         setError(null)
         try {
-            const res = await axiosInstance.get<UserDto[]>('/users')
+            const res = await userApi.getAllUsers()
             setUsers(res.data)
-        } catch {
-            setError('Kullanıcılar yüklenemedi.')
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Kullanıcılar yüklenemedi.'
+            setError(message)
         } finally {
             setLoading(false)
         }
     }, [])
 
+    // ✅ useEffect: Cascading renders uyarısı giderildi
     useEffect(() => {
-        const loadUsers = async () => {
-            setLoading(true)
-            setError(null)
+        let isMounted = true
 
-            try {
-                const res = await axiosInstance.get<UserDto[]>('/users')
-                setUsers(res.data)
-            } catch {
-                setError('Kullanıcılar yüklenemedi.')
-            } finally {
-                setLoading(false)
+        const load = async () => {
+            if (isMounted) {
+                await fetchUsers()
             }
         }
 
-        loadUsers()
-    }, [])
+        load()
+        return () => { isMounted = false }
+    }, [fetchUsers])
+
     const filtered = users.filter((u) => {
         const matchSearch =
             u.displayName.toLowerCase().includes(search.toLowerCase()) ||
@@ -350,15 +282,15 @@ export default function UserManagement() {
     }
 
     return (
-        <div className="p-4 lg:p-8 flex flex-col gap-6">
+        <div className="p-4 lg:p-8 flex flex-col gap-6 animate-in fade-in duration-500">
             <div className="flex items-start justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-white tracking-tight">Kullanıcı Yönetimi</h1>
-                    <p className="text-sm text-zinc-500 mt-1">{users.length} personel hesabı</p>
+                    <p className="text-sm text-zinc-500 mt-1">{users.length} personel hesabı kayıtlı</p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors shrink-0"
+                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all active:scale-95 shrink-0 shadow-lg shadow-violet-900/20"
                 >
                     <Plus className="w-4 h-4" />
                     Personel Ekle
@@ -371,12 +303,12 @@ export default function UserManagement() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="İsim veya e-posta ara…"
-                    className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all"
                 />
                 <select
                     value={filterRole}
                     onChange={(e) => setFilterRole(e.target.value)}
-                    className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all cursor-pointer"
                 >
                     <option value="all">Tüm Roller</option>
                     <option value="Owner">Sahip</option>
@@ -385,22 +317,21 @@ export default function UserManagement() {
                 </select>
             </div>
 
-            {loading && (
-                <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Yükleniyor…</div>
-            )}
-
-            {error && (
-                <div className="bg-red-900/30 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">{error}</div>
-            )}
-
-            {!loading && !error && filtered.length === 0 && (
-                <div className="rounded-xl border border-dashed border-zinc-800 py-16 text-center text-zinc-600 text-sm">
-                    {search || filterRole !== 'all' ? 'Eşleşen kullanıcı bulunamadı.' : 'Henüz personel yok.'}
+            {loading ? (
+                <div className="flex flex-col items-center justify-center h-64 gap-3 text-zinc-500 text-sm italic">
+                    <div className="w-6 h-6 border-2 border-zinc-700 border-t-violet-500 rounded-full animate-spin" />
+                    Yükleniyor…
                 </div>
-            )}
-
-            {!loading && !error && (
-                <div className="flex flex-col gap-6">
+            ) : error ? (
+                <div className="bg-red-900/20 border border-red-700/50 text-red-300 rounded-xl px-4 py-3 text-sm flex items-center gap-3">
+                    <span>⚠️</span> {error}
+                </div>
+            ) : filtered.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-zinc-800 py-20 text-center text-zinc-600 text-sm">
+                    {search || filterRole !== 'all' ? 'Eşleşen kullanıcı bulunamadı.' : 'Henüz personel hesabı oluşturulmamış.'}
+                </div>
+            ) : (
+                <div className="flex flex-col gap-8">
                     {(['Owner', 'Cashier', 'KitchenStaff'] as const).map((role) => {
                         const group = grouped[role]
                         if (group.length === 0) return null
@@ -411,11 +342,11 @@ export default function UserManagement() {
                             <section key={role} className="flex flex-col gap-3">
                                 <div className="flex items-center gap-2 px-1">
                                     <Icon className="w-3.5 h-3.5 text-zinc-500" />
-                                    <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
-                                        {cfg.label} · {group.length}
+                                    <h2 className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em]">
+                                        {cfg.label} <span className="text-zinc-700 mx-1">/</span> {group.length} PERSONEL
                                     </h2>
                                 </div>
-                                <div className="flex flex-col gap-2">
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
                                     {group.map((user) => (
                                         <UserRow
                                             key={user.id}
@@ -442,7 +373,7 @@ export default function UserManagement() {
             )}
 
             {deleteTarget && (
-                <DeleteConfirmModal
+                <DeleteModal
                     user={deleteTarget}
                     onClose={() => setDeleteTarget(null)}
                     onDeleted={() => {
@@ -455,13 +386,52 @@ export default function UserManagement() {
     )
 }
 
+// ─── Delete Modal Component ───────────────────────────────────────────────────
+
+function DeleteModal({ user, onClose, onDeleted }: { user: UserDto, onClose: () => void, onDeleted: () => void }) {
+    const [deleting, setDeleting] = useState(false)
+
+    const handleDelete = async () => {
+        setDeleting(true)
+        try {
+            await userApi.deleteUser(user.id)
+            toast.success('Kullanıcı silindi.')
+            onDeleted()
+        } catch {
+            toast.error('Silme işlemi başarısız oldu.')
+        } finally {
+            setDeleting(false)
+        }
+    }
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+            <div className="w-full max-w-sm bg-zinc-900 border border-zinc-700 rounded-2xl p-6 text-center animate-in fade-in zoom-in-95 duration-200">
+                <div className="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Trash2 className="w-8 h-8" />
+                </div>
+                <h2 className="text-lg font-bold text-white mb-2">Emin misiniz?</h2>
+                <p className="text-zinc-400 text-sm mb-6">
+                    <span className="text-white font-semibold">{user.displayName}</span> adlı kullanıcının erişimi kalıcı olarak kaldırılacak.
+                </p>
+                <div className="flex gap-3">
+                    <button onClick={onClose} className="flex-1 bg-zinc-800 text-white py-2.5 rounded-xl text-sm font-semibold">Vazgeç</button>
+                    <button onClick={handleDelete} disabled={deleting} className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50">
+                        {deleting ? 'Siliniyor...' : 'Evet, Sil'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    )
+}
+
 const inputCls =
-    'w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500'
+    'w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all'
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{label}</label>
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">{label}</label>
             {children}
         </div>
     )
