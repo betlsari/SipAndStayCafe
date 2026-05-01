@@ -30,6 +30,9 @@ const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'))
 // Cashier (Cashier | Owner)
 const CashierPage = lazy(() => import('./pages/cashier/CashierPage'))
 
+const ReportPage = lazy(() => import('./pages/admin/ReportPage'))
+
+
 // ─── React Query client ───────────────────────────────────────────────────────
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -84,6 +87,7 @@ export default function App() {
                             <Route path="categories" element={<CategoryManagement />} />
                             <Route path="items" element={<ItemManagement />} />
                             <Route path="tables" element={<TableManagement />} />
+                            <Route path="reports" element={<ReportPage />} />
                         </Route>
 
                       
