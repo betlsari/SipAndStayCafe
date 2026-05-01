@@ -1,6 +1,7 @@
 ﻿import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../store/cartStore'
 import { orderApi } from '../../api/order.api'
+import { tableApi } from '../../api/table.api'
 import { useState } from 'react'
 
 interface Props {
@@ -9,20 +10,14 @@ interface Props {
 
 export default function CartDrawer({ onClose }: Props) {
     const navigate = useNavigate()
-    const { items, tableNumber, removeItem, clearCart, getTotalPrice } = useCartStore()
+    const { items, tableNumber, removeItem, clearCart, getTotalPrice, setSessionId } = useCartStore()
     const [note, setNote] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
     const handleOrder = async () => {
-        if (!tableNumber) {
-            setError('Masa numarasi bulunamadi.')
-            return
-        }
-        if (items.length === 0) {
-            setError('Sepetiniz bos.')
-            return
-        }
+        if (!tableNumber) { setError('Masa numarası bulunamadı.'); return }
+        if (items.length === 0) { setError('Sepetiniz boş.'); return }
 
         setLoading(true)
         setError(null)
@@ -37,11 +32,26 @@ export default function CartDrawer({ onClose }: Props) {
                 })),
                 note: note || undefined,
             })
+
+            // Sipariş başarılıysa aktif session'ı bul ve sakla
+            try {
+                const tablesRes = await tableApi.getAll()
+                const table = tablesRes.data.find(t => t.tableNumber === tableNumber)
+                if (table) {
+                    const sessionRes = await tableApi.getActiveSession(table.id)
+                    if (sessionRes.data) {
+                        setSessionId(sessionRes.data.id)
+                    }
+                }
+            } catch {
+                // sessionId alınamazsa devam et — OrderStatus sayfası tekrar dener
+            }
+
             clearCart()
             onClose()
             navigate(`/order-status?table=${tableNumber}`)
         } catch {
-            setError('Siparis gonderilemedi. Tekrar deneyin.')
+            setError('Sipariş gönderilemedi. Tekrar deneyin.')
         } finally {
             setLoading(false)
         }
@@ -50,21 +60,14 @@ export default function CartDrawer({ onClose }: Props) {
     return (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
             <div className="w-full max-w-lg bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
-                {/* Header */}
                 <div className="px-4 py-4 border-b flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-800">Sepetim</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
-                    >
-                        ×
-                    </button>
+                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
                 </div>
 
-                {/* Items */}
                 <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
                     {items.length === 0 ? (
-                        <p className="text-center text-gray-400 py-8">Sepetiniz bos.</p>
+                        <p className="text-center text-gray-400 py-8">Sepetiniz boş.</p>
                     ) : (
                         items.map((item, index) => (
                             <div key={index} className="flex items-start justify-between bg-gray-50 rounded-xl p-3">
@@ -78,7 +81,8 @@ export default function CartDrawer({ onClose }: Props) {
                                         </p>
                                     )}
                                     <p className="text-purple-600 font-bold text-sm mt-1">
-                                        ₺{item.itemTotal.toFixed(2)}                                    </p>
+                                        ₺{item.itemTotal.toFixed(2)}
+                                    </p>
                                 </div>
                                 <button
                                     onClick={() => removeItem(index)}
@@ -90,22 +94,18 @@ export default function CartDrawer({ onClose }: Props) {
                         ))
                     )}
 
-                    {/* Note */}
                     {items.length > 0 && (
                         <textarea
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            placeholder="Siparis notu (opsiyonel)..."
+                            placeholder="Sipariş notu (opsiyonel)..."
                             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                     )}
 
-                    {error && (
-                        <p className="text-sm text-red-500 text-center">{error}</p>
-                    )}
+                    {error && <p className="text-sm text-red-500 text-center">{error}</p>}
                 </div>
 
-                {/* Footer */}
                 {items.length > 0 && (
                     <div className="border-t px-4 py-4 flex flex-col gap-3">
                         <div className="flex items-center justify-between">
@@ -119,7 +119,7 @@ export default function CartDrawer({ onClose }: Props) {
                             disabled={loading}
                             className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
                         >
-                            {loading ? 'Gonderiliyor...' : 'Siparisi Gonder'}
+                            {loading ? 'Gönderiliyor...' : 'Siparişi Gönder'}
                         </button>
                     </div>
                 )}

@@ -4,7 +4,6 @@ import type { AuthUser } from '../types/index'
 
 interface AuthState {
     token: string | null
-    refreshToken: string | null
     user: AuthUser | null
     isLoading: boolean
 
@@ -22,52 +21,34 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set) => ({
             token: null,
-            refreshToken: null,
             user: null,
             isLoading: false,
 
-            // ✅ FIXED setAuth
+            // persist middleware zaten storage'a yazıyor — manuel localStorage kaldırıldı
             setAuth: (user, token) => {
-                localStorage.setItem('token', token)
-                localStorage.setItem('refreshToken', user.refreshToken || '')
-
-                set({
-                    user,
-                    token,
-                    refreshToken: user.refreshToken || null,
-                    isLoading: false,
-                })
+                set({ user, token, isLoading: false })
             },
 
-            // ✅ logout
             clearAuth: () => {
-                localStorage.removeItem('token')
-                localStorage.removeItem('refreshToken')
-
-                set({
-                    user: null,
-                    token: null,
-                    refreshToken: null,
-                    isLoading: false,
-                })
+                set({ user: null, token: null, isLoading: false })
             },
 
             setLoading: (loading) => set({ isLoading: loading }),
         }),
         {
             name: 'auth-storage',
+            // Sadece token ve user persist ediliyor, isLoading hayır
+            partialize: (state) => ({ token: state.token, user: state.user }),
         }
     )
 )
 
-// 🔥 derived state hook
 export const useAuthState = () => {
     const { user, token } = useAuthStore()
-
     return {
         user,
         isAuthenticated: !!token && isTokenValid(user),
-        role: user?.roles?.[0] || null,
-        displayName: user?.displayName || null,
+        role: user?.roles?.[0] ?? null,
+        displayName: user?.displayName ?? null,
     }
 }

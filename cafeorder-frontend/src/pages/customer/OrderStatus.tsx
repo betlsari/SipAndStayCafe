@@ -1,7 +1,9 @@
 ﻿import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { orderApi } from '../../api/order.api'
+import { tableApi } from '../../api/table.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
+import { useCartStore } from '../../store/cartStore'
 import type { TableOrderHistoryDto, OrderDto, OrderStatus as OrderStatusType } from '../../types/index'
 import WaiterCallButton from '../../components/customer/WaiterCallButton'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
@@ -22,16 +24,17 @@ const statusColor: Record<string, string> = {
 export default function OrderStatus() {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
-    const tableNumber = Number(searchParams.get('table'))
 
+    // NaN guard: '?table=abc' veya parametre yoksa 0 döner, aşağıda yakalanır
+    const tableNumber = Number(searchParams.get('table')) || 0
+
+    const { sessionId: storedSessionId, setSessionId } = useCartStore()
     const [history, setHistory] = useState<TableOrderHistoryDto | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [paymentLoading, setPaymentLoading] = useState(false)
 
-    // 1. Veri Yükleme: err: any ve unused err düzeltildi
     const fetchHistory = useCallback(async () => {
-        if (!tableNumber) return
         try {
             const res = await orderApi.getTableOrderHistory(tableNumber)
             setHistory(res.data)
@@ -43,60 +46,67 @@ export default function OrderStatus() {
         }
     }, [tableNumber])
 
-    // 2. SignalR Handler: any kullanımı OrderStatusType ile değiştirildi
+    // sessionId store'da yoksa tableApi üzerinden çek
+    const resolveSessionId = useCallback(async (): Promise<string | null> => {
+        if (storedSessionId) return storedSessionId
+        try {
+            const tablesRes = await tableApi.getAll()
+            const table = tablesRes.data.find(t => t.tableNumber === tableNumber)
+            if (!table) return null
+            const sessionRes = await tableApi.getActiveSession(table.id)
+            const id = sessionRes.data?.id ?? null
+            if (id) setSessionId(id)
+            return id
+        } catch {
+            return null
+        }
+    }, [tableNumber, storedSessionId, setSessionId])
+
     const handleStatusUpdate = useCallback((orderId: string, newStatus: string) => {
         setHistory((prev) => {
             if (!prev) return null
-
             const targetOrder = prev.orders.find(o => o.id === orderId)
-
-            if (targetOrder) {
-                if (newStatus === 'Ready') {
-                    toast.success(`${targetOrder.items[0].productName} siparişiniz hazır! 🍽️`)
-                }
-
-                return {
-                    ...prev,
-                    orders: prev.orders.map(o =>
-                        o.id === orderId ? { ...o, status: newStatus as OrderStatusType } : o
-                    )
-                }
+            if (targetOrder && newStatus === 'Ready') {
+                toast.success(`${targetOrder.items[0]?.productName ?? 'Siparişiniz'} hazır! 🍽️`)
             }
-            return prev
+            return {
+                ...prev,
+                orders: prev.orders.map(o =>
+                    o.id === orderId ? { ...o, status: newStatus as OrderStatusType } : o
+                ),
+            }
         })
     }, [])
 
+    // tableNumber geçildi → JoinTableGroup çağrılacak
     useOrderHub({
-        onOrderStatusUpdated: handleStatusUpdate
+        tableNumber,
+        onOrderStatusUpdated: handleStatusUpdate,
     })
 
-    // 3. useEffect: Cascading renders uyarısı asenkron yapı ile giderildi
     useEffect(() => {
-        let isMounted = true
-
-        const loadInitialData = async () => {
-            if (!tableNumber) {
-                navigate('/menu')
-                return
-            }
-
-            if (isMounted) {
-                await fetchHistory()
-            }
+        if (!tableNumber) {
+            navigate('/menu')
+            return
         }
-
-        loadInitialData()
-
-        return () => {
-            isMounted = false
+        let cancelled = false
+        const load = async () => {
+            await fetchHistory()
+            if (!cancelled) await resolveSessionId()
         }
-    }, [tableNumber, fetchHistory, navigate])
+        load()
+        return () => { cancelled = true }
+    }, [tableNumber, fetchHistory, resolveSessionId, navigate])
 
     const handlePayment = async () => {
-        if (!history) return
         setPaymentLoading(true)
         try {
-            navigate(`/payment?table=${tableNumber}`)
+            const id = await resolveSessionId()
+            if (id) {
+                navigate(`/payment?session=${id}`)
+            } else {
+                toast.error('Oturum bulunamadı. Lütfen tekrar deneyin.')
+            }
         } finally {
             setPaymentLoading(false)
         }
@@ -108,7 +118,7 @@ export default function OrderStatus() {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
             <div className="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
                 <p className="font-bold">{error}</p>
-                <button onClick={() => fetchHistory()} className="mt-2 text-sm underline">Tekrar Dene</button>
+                <button onClick={fetchHistory} className="mt-2 text-sm underline">Tekrar Dene</button>
             </div>
         </div>
     )
@@ -151,7 +161,6 @@ export default function OrderStatus() {
                                 {statusLabel[order.status] ?? order.status}
                             </span>
                         </div>
-
                         <div className="p-5 flex flex-col gap-3">
                             {order.items.map((item) => (
                                 <div key={item.id} className="flex items-start justify-between">
@@ -169,7 +178,6 @@ export default function OrderStatus() {
                                 </div>
                             ))}
                         </div>
-
                         {order.note && (
                             <div className="px-5 pb-4">
                                 <p className="text-[11px] text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100 italic">

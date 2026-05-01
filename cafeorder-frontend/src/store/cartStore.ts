@@ -12,8 +12,10 @@ export interface CartItem {
 interface CartState {
     items: CartItem[]
     tableNumber: number | null
+    sessionId: string | null
 
     setTable: (tableNumber: number) => void
+    setSessionId: (id: string) => void
     addItem: (item: CartItem) => void
     removeItem: (index: number) => void
     clearCart: () => void
@@ -24,8 +26,11 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
     items: [],
     tableNumber: null,
+    sessionId: null,
 
     setTable: (tableNumber) => set({ tableNumber }),
+
+    setSessionId: (id) => set({ sessionId: id }),
 
     addItem: (item) =>
         set((state) => ({ items: [...state.items, item] })),
@@ -35,6 +40,7 @@ export const useCartStore = create<CartState>((set, get) => ({
             items: state.items.filter((_, i) => i !== index),
         })),
 
+    // sessionId kasýtlý korunuyor — ödeme sayfasýna geçiþte hâlâ gerekli
     clearCart: () => set({ items: [] }),
 
     getTotalPrice: () =>

@@ -1,52 +1,19 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useCallback } from 'react'
 import { orderApi } from '../api/order.api'
-import type { Order, CreateOrderRequest } from '../api/order.api'
+import type { OrderDto, OrderStatus, PlaceOrderRequest } from '../types/index'
 
+// Not: Bu hook mutfak/kasiyer ekranları için değil.
+// KitchenDisplay kendi fetch'ini yapıyor; bu hook genel amaçlı bırakıldı.
 export const useOrders = () => {
-    const [orders, setOrders] = useState<Order[]>([])
+    const [orders, setOrders] = useState<OrderDto[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    const fetchOrders = useCallback(async () => {
+    const createOrder = useCallback(async (data: PlaceOrderRequest) => {
         setLoading(true)
         setError(null)
         try {
-            const res = await orderApi.getOrders()
-            setOrders(res.data)
-        } catch {
-            setError('Siparişler yüklenemedi.')
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    useEffect(() => {
-        let cancelled = false
-
-        const load = async () => {
-            setLoading(true)
-            setError(null)
-            try {
-                const res = await orderApi.getOrders()
-                if (!cancelled) setOrders(res.data)
-            } catch {
-                if (!cancelled) setError('Siparişler yüklenemedi.')
-            } finally {
-                if (!cancelled) setLoading(false)
-            }
-        }
-
-        load()
-
-        return () => {
-            cancelled = true
-        }
-    }, [])
-
-    const createOrder = async (data: CreateOrderRequest) => {
-        setLoading(true)
-        try {
-            const res = await orderApi.createOrder(data)
+            const res = await orderApi.placeOrder(data)
             setOrders((prev) => [res.data, ...prev])
             return res.data
         } catch {
@@ -55,18 +22,18 @@ export const useOrders = () => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
 
-    const updateStatus = async (id: number, status: Order['status']) => {
+    const updateStatus = useCallback(async (id: string, status: OrderStatus) => {
         try {
-            const res = await orderApi.updateOrderStatus(id, status)
+            await orderApi.updateOrderStatus(id, status)
             setOrders((prev) =>
-                prev.map((o) => (o.id === id ? res.data : o))
+                prev.map((o) => (o.id === id ? { ...o, status } : o))
             )
         } catch {
             setError('Durum güncellenemedi.')
         }
-    }
+    }, [])
 
-    return { orders, loading, error, fetchOrders, createOrder, updateStatus }
+    return { orders, loading, error, createOrder, updateStatus }
 }

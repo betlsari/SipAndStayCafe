@@ -54,7 +54,7 @@ function SessionCard({
         <div
             onClick={() => onClick(session.sessionId)}
             className={`
-                relative bg-zinc-900 rounded-2xl p-4 flex flex-col gap-3 border 
+                relative bg-zinc-900 rounded-2xl p-4 flex flex-col gap-3 border
                 transition-all duration-300 cursor-pointer active:scale-95
                 ${highlight ? 'border-amber-400 shadow-[0_0_16px_rgba(251,191,36,0.15)]' : 'border-zinc-800'}
                 ${isCompleted ? 'opacity-50' : ''}
@@ -96,6 +96,12 @@ function SessionCard({
     )
 }
 
+// SignalR payload tipleri — hub'dan gelen veriler
+interface TableWaitingPayload {
+    tableNumber: number
+    totalAmount: number
+}
+
 export default function CashierPage() {
     const navigate = useNavigate()
     const [sessions, setSessions] = useState<CashierSessionDto[]>([])
@@ -119,30 +125,47 @@ export default function CashierPage() {
             setLoading(false)
         }
     }, [])
+
     useEffect(() => {
-        // State güncelleyen çağrıyı bir asenkron fonksiyon içine alarak cascading render uyarısını önlüyoruz
-        const initFetch = async () => {
-            await fetchSessions()
+        const load = async () => {
+            try {
+                const res = await cashierApi.getActiveSessions()
+                setSessions(res.data)
+            } catch {
+                setError('Masalar yüklenemedi.')
+            } finally {
+                setLoading(false)
+            }
         }
 
-        initFetch()
-    }, [fetchSessions]) // fetchSessions zaten useCallback ile sarıldığı için güvenle eklenebilir
-
+        load()
+    }, []) 
     const handleTableWaiting = useCallback(
-        ({ tableNumber }: { tableNumber: number; totalAmount: number }) => {
-            setHighlightedTables((prev) => new Set(prev).add(tableNumber))
+        (payload: unknown) => {
+            // SignalR'dan gelen payload'u güvenli şekilde parse et
+            const data = payload as TableWaitingPayload
+            if (typeof data?.tableNumber === 'number') {
+                setHighlightedTables((prev) => new Set(prev).add(data.tableNumber))
+            }
             fetchSessions()
         },
         [fetchSessions],
     )
 
     const handleSessionClosed = useCallback(
-        (tableNumber: number) => {
-            setHighlightedTables((prev) => {
-                const next = new Set(prev)
-                next.delete(tableNumber)
-                return next
-            })
+        (payload: unknown) => {
+            // Backend int tableNumber gönderiyor
+            const tableNumber = typeof payload === 'number'
+                ? payload
+                : (payload as { tableNumber?: number })?.tableNumber
+
+            if (typeof tableNumber === 'number') {
+                setHighlightedTables((prev) => {
+                    const next = new Set(prev)
+                    next.delete(tableNumber)
+                    return next
+                })
+            }
             fetchSessions()
         },
         [fetchSessions],

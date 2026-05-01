@@ -1,7 +1,7 @@
 ﻿import { useState, useEffect, useCallback } from 'react'
 import { orderApi } from '../../api/order.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
-import type { OrderDto, OrderItemDto, KitchenOrderDto } from '../../types/index'
+import type { OrderItemDto, KitchenOrderDto } from '../../types/index'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -15,15 +15,7 @@ interface KitchenCard {
     note?: string | null
 }
 
-interface NewOrderPayload {
-    Order: OrderDto
-    TableNumber: number
-}
 
-interface StatusUpdatedPayload {
-    OrderId: string
-    NewStatus: string
-}
 
 // ─── Column Config ────────────────────────────────────────────────────────────
 const COLUMNS: { status: KitchenCard['status']; label: string; color: string; dot: string }[] = [
@@ -63,7 +55,7 @@ function Card({
     const label = nextLabel(card.status)
 
     return (
-        <div className={`bg-zinc-900 border-l-4 ${COLUMNS.find(c => c.status === card.status)?.color} rounded-xl p-4 flex flex-col gap-3 shadow-lg animate-[fadeSlideIn_0.25s_ease-out]`}>
+        <div className={`bg-zinc-900 border-l-4 ${COLUMNS.find(c => c.status === card.status)?.color} rounded-xl p-4 flex flex-col gap-3 shadow-lg`}>
             <div className="flex items-center justify-between">
                 <span className="font-mono text-xl font-bold text-white">Masa {card.tableNumber}</span>
                 <span className="text-xs text-zinc-400 tabular-nums">{elapsed(card.createdAt)}</span>
@@ -117,13 +109,11 @@ export default function KitchenDisplay() {
     const [error, setError] = useState<string | null>(null)
     const [, setTick] = useState(0)
 
-    // Zamanlayıcı: 30 saniyede bir süreleri güncellemek için re-render tetikler
     useEffect(() => {
         const id = setInterval(() => setTick((t) => t + 1), 30_000)
         return () => clearInterval(id)
     }, [])
 
-    // İlk Yükleme: Aktif mutfak siparişlerini çek
     useEffect(() => {
         let cancelled = false
         const load = async () => {
@@ -150,49 +140,74 @@ export default function KitchenDisplay() {
         return () => { cancelled = true }
     }, [])
 
-    // SignalR: Yeni sipariş geldiğinde listeye ekle
-    const handleNewOrder = useCallback((payload: NewOrderPayload) => {
-        const { Order, TableNumber } = payload
+    const handleNewOrder = useCallback((payload: unknown) => {
+        // Backend OrderHub'dan: { Order: OrderDto, TableNumber: int }
+        // Hem PascalCase hem camelCase'i destekle
+        const raw = payload as Record<string, unknown>
+        const orderRaw = (raw['Order'] ?? raw['order']) as Record<string, unknown> | undefined
+        const tableNumber = (raw['TableNumber'] ?? raw['tableNumber']) as number | undefined
+
+        if (!orderRaw || typeof tableNumber !== 'number') return
+
+        const orderId = (orderRaw['id'] ?? orderRaw['Id']) as string | undefined
+        if (!orderId) return
+
         setCards((prev) => {
-            if (prev.some((c) => c.orderId === Order.id)) return prev
+            if (prev.some((c) => c.orderId === orderId)) return prev
             const card: KitchenCard = {
-                orderId: Order.id,
-                tableNumber: TableNumber,
-                status: Order.status as KitchenCard['status'],
-                items: Order.items,
-                total: Order.total,
-                createdAt: Order.createdAt,
-                note: Order.note,
+                orderId,
+                tableNumber,
+                status: ((orderRaw['status'] ?? orderRaw['Status']) as string ?? 'Received') as KitchenCard['status'],
+                items: (orderRaw['items'] ?? orderRaw['Items']) as OrderItemDto[] ?? [],
+                total: (orderRaw['total'] ?? orderRaw['Total']) as number ?? 0,
+                createdAt: (orderRaw['createdAt'] ?? orderRaw['CreatedAt']) as string ?? new Date().toISOString(),
+                note: (orderRaw['note'] ?? orderRaw['Note']) as string | null ?? null,
             }
             return [card, ...prev]
         })
     }, [])
 
-    // SignalR: Sipariş durumu güncellendiğinde kartı güncelle
-    const handleStatusUpdated = useCallback((payload: StatusUpdatedPayload) => {
+    const handleStatusUpdated = useCallback((payload: unknown) => {
+        // Backend'den: { OrderId: string, NewStatus: string } veya camelCase
+        const raw = payload as Record<string, unknown>
+        const orderId = (raw['OrderId'] ?? raw['orderId']) as string | undefined
+        const newStatus = (raw['NewStatus'] ?? raw['newStatus']) as string | undefined
+
+        if (!orderId || !newStatus) {
+            // Bazı hub implementasyonları parametreleri ayrı gönderebilir
+            // useOrderHub zaten (orderId: string, newStatus: string) şeklinde handler çağırıyor
+            return
+        }
+
         setCards((prev) =>
             prev.map((c) =>
-                c.orderId === payload.OrderId
-                    ? { ...c, status: payload.NewStatus as KitchenCard['status'] }
+                c.orderId === orderId
+                    ? { ...c, status: newStatus as KitchenCard['status'] }
                     : c,
             ),
         )
     }, [])
 
-    // Hub bağlantısı[cite: 1]
     const { connectionRef } = useOrderHub({
         joinKitchen: true,
-        onNewOrder: handleNewOrder as (o: unknown) => void,
+        onNewOrder: handleNewOrder,
+        onOrderStatusUpdated: (orderId, newStatus) => {
+            // useOrderHub bu handler'ı (string, string) olarak çağırıyor
+            setCards((prev) =>
+                prev.map((c) =>
+                    c.orderId === orderId
+                        ? { ...c, status: newStatus as KitchenCard['status'] }
+                        : c,
+                ),
+            )
+        },
     })
 
-    useEffect(() => {
-        const conn = connectionRef.current
-        if (!conn) return
-        conn.on('OrderStatusUpdated', handleStatusUpdated)
-        return () => { conn.off('OrderStatusUpdated', handleStatusUpdated) }
-    }, [connectionRef, handleStatusUpdated])
+    // handleStatusUpdated artık onOrderStatusUpdated üzerinden geliyor
+    // connectionRef.current.on ile ayrıca bağlamaya gerek yok
+    void connectionRef
+    void handleStatusUpdated
 
-    // Durum İlerletme Fonksiyonu[cite: 1]
     const handleAdvance = useCallback(async (orderId: string, next: KitchenCard['status']) => {
         setCards((prev) =>
             prev.map((c) => (c.orderId === orderId ? { ...c, status: next } : c)),
@@ -212,9 +227,7 @@ export default function KitchenDisplay() {
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
             <header className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <span className="text-xl font-bold tracking-tight font-mono text-purple-400">🍳 MUTFAK PANELI</span>
-                </div>
+                <span className="text-xl font-bold tracking-tight font-mono text-purple-400">🍳 MUTFAK PANELİ</span>
                 <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                     <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Canlı Bağlantı</span>
@@ -223,19 +236,18 @@ export default function KitchenDisplay() {
 
             <main className="flex-1 p-6">
                 {error && (
-                    <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                    <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
                         <span className="text-lg">⚠️</span>
                         <p className="font-medium">{error}</p>
-                        <button
-                            onClick={() => setError(null)}
-                            className="ml-auto hover:text-red-400 underline text-xs"
-                        >
+                        <button onClick={() => setError(null)} className="ml-auto hover:text-red-400 underline text-xs">
                             Kapat
                         </button>
                     </div>
                 )}
                 {loading ? (
-                    <div className="flex items-center justify-center h-64 text-zinc-500 italic">Siparişler hazırlanıyor...</div>
+                    <div className="flex items-center justify-center h-64 text-zinc-500 italic">
+                        Siparişler hazırlanıyor...
+                    </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {COLUMNS.map((col) => (
@@ -243,14 +255,18 @@ export default function KitchenDisplay() {
                                 <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
                                     <span className={`w-3 h-3 rounded-full ${col.dot}`} />
                                     <h2 className="text-sm font-black uppercase tracking-tighter text-zinc-400">{col.label}</h2>
-                                    <span className="ml-auto text-xs font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-md">{byStatus(col.status).length}</span>
+                                    <span className="ml-auto text-xs font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-md">
+                                        {byStatus(col.status).length}
+                                    </span>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     {byStatus(col.status).map((card) => (
                                         <Card key={card.orderId} card={card} onAdvance={handleAdvance} />
                                     ))}
                                     {byStatus(col.status).length === 0 && (
-                                        <div className="py-12 border-2 border-dashed border-zinc-900 rounded-2xl text-center text-zinc-700 text-xs">Bu aşamada sipariş yok</div>
+                                        <div className="py-12 border-2 border-dashed border-zinc-900 rounded-2xl text-center text-zinc-700 text-xs">
+                                            Bu aşamada sipariş yok
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -258,13 +274,6 @@ export default function KitchenDisplay() {
                     </div>
                 )}
             </main>
-
-            <style>{`
-                @keyframes fadeSlideIn {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </div>
     )
 }

@@ -1,11 +1,10 @@
-// src/hooks/useOrderHub.ts
 import { useEffect, useRef, useCallback } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { createOrderHubConnection } from '../api/signalr'
 
 interface UseOrderHubOptions {
     tableNumber?: number
-    onNewOrder?: (order: unknown) => void
+    onNewOrder?: (payload: unknown) => void
     onOrderStatusUpdated?: (orderId: string, newStatus: string) => void
     joinKitchen?: boolean
 }
@@ -18,56 +17,65 @@ export const useOrderHub = ({
 }: UseOrderHubOptions) => {
     const connectionRef = useRef<signalR.HubConnection | null>(null)
 
-    const startConnection = useCallback(async () => {
+    // Handler'larý ref'e al — connection kurulumu yeniden çalýþmadan handler'lar güncellenebilsin
+    const onNewOrderRef = useRef(onNewOrder)
+    const onStatusUpdatedRef = useRef(onOrderStatusUpdated)
+
+    useEffect(() => { onNewOrderRef.current = onNewOrder }, [onNewOrder])
+    useEffect(() => { onStatusUpdatedRef.current = onOrderStatusUpdated }, [onOrderStatusUpdated])
+
+    const joinGroups = useCallback(async (conn: signalR.HubConnection) => {
+        if (joinKitchen) {
+            await conn.invoke('JoinKitchenGroup').catch(console.error)
+        } else if (tableNumber) {
+            await conn.invoke('JoinTableGroup', tableNumber).catch(console.error)
+        }
+    }, [joinKitchen, tableNumber])
+
+    useEffect(() => {
         const connection = createOrderHubConnection()
         connectionRef.current = connection
 
-        if (onNewOrder) {
-            connection.on('ReceiveNewOrder', onNewOrder)
+        // Stable wrapper'lar — ref üzerinden güncel handler'ý çaðýrýr
+        const handleNewOrder = (payload: unknown) => {
+            onNewOrderRef.current?.(payload)
+        }
+        const handleStatusUpdated = (orderId: string, newStatus: string) => {
+            onStatusUpdatedRef.current?.(orderId, newStatus)
         }
 
-        if (onOrderStatusUpdated) {
-            connection.on('OrderStatusUpdated', onOrderStatusUpdated)
-        }
+        connection.on('ReceiveNewOrder', handleNewOrder)
+        connection.on('OrderStatusUpdated', handleStatusUpdated)
 
         connection.onreconnected(async () => {
-            if (joinKitchen) {
-                await connection.invoke('JoinKitchenGroup').catch(console.error)
-            } else if (tableNumber) {
-                await connection.invoke('JoinTableGroup', tableNumber).catch(console.error)
-            }
+            await joinGroups(connection)
         })
 
-        try {
-            await connection.start()
-
-            if (joinKitchen) {
-                await connection.invoke('JoinKitchenGroup')
-            } else if (tableNumber) {
-                await connection.invoke('JoinTableGroup', tableNumber)
+        const start = async () => {
+            try {
+                await connection.start()
+                await joinGroups(connection)
+            } catch (err) {
+                console.error('[useOrderHub] Connection error:', err)
             }
-        } catch (err) {
-            console.error('[useOrderHub] Connection error:', err)
         }
-    }, [tableNumber, joinKitchen]) // eslint-disable-line react-hooks/exhaustive-deps
 
-    useEffect(() => {
-        startConnection()
+        start()
 
         return () => {
-            const conn = connectionRef.current
-            if (!conn) return
+            connection.off('ReceiveNewOrder', handleNewOrder)
+            connection.off('OrderStatusUpdated', handleStatusUpdated)
 
             if (!joinKitchen && tableNumber) {
-                conn
+                connection
                     .invoke('LeaveTableGroup', tableNumber)
-                    .catch(console.error)
-                    .finally(() => conn.stop())
+                    .catch(() => { })
+                    .finally(() => connection.stop())
             } else {
-                conn.stop()
+                connection.stop()
             }
         }
-    }, [tableNumber, joinKitchen]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [joinKitchen, tableNumber, joinGroups])
 
     return { connectionRef }
 }
