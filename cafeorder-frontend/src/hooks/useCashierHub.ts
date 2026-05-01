@@ -1,60 +1,40 @@
-import { useEffect } from 'react';
-import { HubConnectionBuilder, LogLevel, HubConnection } from '@microsoft/signalr';
-import { useAuthStore } from '../store/authStore';
+import { useEffect } from 'react'
+import { useAuthStore } from '../store/authStore'
+import { createCashierHubConnection } from '../api/signalr'
 
 interface UseCashierHubProps {
-    onTableWaitingForPayment: (data: { tableNumber: number; totalAmount: number }) => void;
-    onTableSessionClosed: (tableNumber: number) => void;
+    onTableWaitingForPayment: (data: { tableNumber: number; totalAmount: number }) => void
+    onTableSessionClosed: (tableNumber: number) => void
 }
 
 export const useCashierHub = ({
     onTableWaitingForPayment,
     onTableSessionClosed,
 }: UseCashierHubProps) => {
-
     useEffect(() => {
-        const token = useAuthStore.getState().token;
-        if (!token) return;
+        const token = useAuthStore.getState().token
+        if (!token) return
 
-        let connection: HubConnection;
+        const connection = createCashierHubConnection()
 
-        const startConnection = async () => {
-            connection = new HubConnectionBuilder()
-                .withUrl(`${import.meta.env.VITE_API_URL}/hubs/cashier`, {
-                    accessTokenFactory: () => token,
-                })
-                .configureLogging(LogLevel.Information)
-                .withAutomaticReconnect()
-                .build();
+        connection.on('TableWaitingForPayment', onTableWaitingForPayment)
+        connection.on('TableSessionClosed', onTableSessionClosed)
 
-            // Handler'larý doðrudan connection üzerine baðlýyoruz
-            connection.on('ReceiveTableWaitingForPayment', (data: { tableNumber: number; totalAmount: number }) => {
-                console.log('SignalR: ReceiveTableWaitingForPayment', data);
-                onTableWaitingForPayment(data);
-            });
-
-            connection.on('ReceiveTableSessionClosed', (tableNumber: number) => {
-                console.log('SignalR: ReceiveTableSessionClosed', tableNumber);
-                onTableSessionClosed(tableNumber);
-            });
-
-            try {
-                await connection.start();
-                console.log('SignalR Connected (CashierHub)');
-            } catch (err) {
-                console.error('SignalR Connection Error (CashierHub): ', err);
-                setTimeout(startConnection, 5000);
-            }
-        };
-
-        startConnection();
+        connection.start().catch(console.error)
 
         return () => {
-            if (connection) {
-                connection.off('ReceiveTableWaitingForPayment');
-                connection.off('ReceiveTableSessionClosed');
-                connection.stop().then(() => console.log('SignalR Disconnected (CashierHub)'));
-            }
-        };
-    }, [onTableWaitingForPayment, onTableSessionClosed]); // Baðýmlýlýklarý ekledik
-};
+            connection.off('TableWaitingForPayment')
+            connection.off('TableSessionClosed')
+            connection.stop()
+        }
+    }, [onTableWaitingForPayment, onTableSessionClosed])
+}
+
+/* useEffect(() => {
+// State güncelleyen çaðrýyý bir asenkron fonksiyon içine alarak cascading render uyarýsýný önlüyoruz
+const initFetch = async () => {
+    await fetchSessions()
+}
+
+initFetch()
+}, [fetchSessions]) // fetchSessions zaten useCallback ile sarýldýðý için güvenle eklenebilir*/

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+ï»¿import { useState } from 'react'
 import { useCartStore } from '../../store/cartStore'
 import type { MenuItemDto, ModifierDto } from '../../types/index'
 
@@ -62,7 +62,7 @@ export default function ModifierModal({ item, onClose }: Props) {
             if (group.isRequired) {
                 const selected = selectedModifiers[group.id] ?? []
                 if (selected.length === 0) {
-                    setError(`"${group.name}" seçimi zorunludur.`)
+                    setError(`"${group.name}" seÃ§imi zorunludur.`)
                     return
                 }
             }
@@ -89,7 +89,7 @@ export default function ModifierModal({ item, onClose }: Props) {
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
                     >
-                        ×
+                        Ã—
                     </button>
                 </div>
 
@@ -117,7 +117,7 @@ export default function ModifierModal({ item, onClose }: Props) {
                                     </span>
                                 )}
                                 <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                                    {group.selectionType === 'Single' ? 'Tek seçim' : 'Çoklu seçim'}
+                                    {group.selectionType === 'Single' ? 'Tek seÃ§im' : 'Ã‡oklu seÃ§im'}
                                 </span>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -138,8 +138,7 @@ export default function ModifierModal({ item, onClose }: Props) {
                                                 <span className="text-sm text-gray-700">{mod.name}</span>
                                                 {mod.additionalPrice > 0 && (
                                                     <span className="text-sm text-purple-600 font-medium">
-                                                        +?{mod.additionalPrice.toFixed(2)}
-                                                    </span>
+                                                        +â‚º{mod.additionalPrice.toFixed(2)}                                                    </span>
                                                 )}
                                             </button>
                                         )
@@ -159,7 +158,7 @@ export default function ModifierModal({ item, onClose }: Props) {
                             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                             className="w-10 h-10 rounded-full bg-gray-100 text-xl font-bold text-gray-600 flex items-center justify-center"
                         >
-                            ?
+                            -
                         </button>
                         <span className="text-lg font-semibold text-gray-800">{quantity}</span>
                         <button
@@ -178,7 +177,7 @@ export default function ModifierModal({ item, onClose }: Props) {
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl flex items-center justify-between px-6"
                     >
                         <span>Sepete Ekle</span>
-                        <span>?{calculateTotal().toFixed(2)}</span>
+                        <span>â‚º{calculateTotal().toFixed(2)}</span>
                     </button>
                 </div>
             </div>

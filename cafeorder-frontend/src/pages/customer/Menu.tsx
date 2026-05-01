@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+ï»¿import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { menuApi } from '../../api/menu.api'
 import { useCartStore } from '../../store/cartStore'
@@ -30,7 +30,7 @@ export default function Menu() {
                 setCategories(res.data)
                 if (res.data.length > 0) setActiveCategory(res.data[0].id)
             } catch {
-                setError('Menü yüklenemedi.')
+                setError('MenÃ¼ yÃ¼klenemedi.')
             } finally {
                 setLoading(false)
             }
@@ -40,7 +40,7 @@ export default function Menu() {
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
-            <p className="text-gray-500">Menü yükleniyor...</p>
+            <p className="text-gray-500">MenÃ¼ yÃ¼kleniyor...</p>
         </div>
     )
 
@@ -56,7 +56,7 @@ export default function Menu() {
         <div className="min-h-screen bg-gray-50 pb-24">
             {/* Header */}
             <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3 flex items-center justify-between">
-                <h1 className="text-lg font-bold text-gray-800">Menü</h1>
+                <h1 className="text-lg font-bold text-gray-800">MenÃ¼</h1>
                 {tableNumber > 0 && (
                     <span className="text-sm text-gray-500">Masa {tableNumber}</span>
                 )}
@@ -110,7 +110,7 @@ export default function Menu() {
                                 <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
                             )}
                             <p className="text-purple-600 font-bold mt-1">
-                                ?{item.basePrice.toFixed(2)}
+                                â‚º{item.basePrice.toFixed(2)}
                             </p>
                         </div>
                     </button>

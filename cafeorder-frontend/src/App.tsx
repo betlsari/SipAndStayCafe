@@ -23,7 +23,7 @@ const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'))
 const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'))
 
 // Cashier (Cashier | Owner)
-const CashierDashboard = lazy(() => import('./pages/cashier/CashierDashboard'))
+const CashierPage = lazy(() => import('./pages/cashier/CashierPage'))
 
 // Admin (Owner)
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
@@ -65,7 +65,7 @@ export default function App() {
                             path="/cashier"
                             element={
                                 <ProtectedRoute roles={['Cashier', 'Owner']}>
-                                    <CashierDashboard />
+                                    <CashierPage />
                                 </ProtectedRoute>
                             }
                         />

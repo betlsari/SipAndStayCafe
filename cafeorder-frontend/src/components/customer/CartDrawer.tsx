@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+﻿import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../store/cartStore'
 import { orderApi } from '../../api/order.api'
 import { useState } from 'react'
@@ -57,7 +57,7 @@ export default function CartDrawer({ onClose }: Props) {
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
                     >
-                        �
+                        ×
                     </button>
                 </div>
 
@@ -78,14 +78,13 @@ export default function CartDrawer({ onClose }: Props) {
                                         </p>
                                     )}
                                     <p className="text-purple-600 font-bold text-sm mt-1">
-                                        ?{item.itemTotal.toFixed(2)}
-                                    </p>
+                                        ₺{item.itemTotal.toFixed(2)}                                    </p>
                                 </div>
                                 <button
                                     onClick={() => removeItem(index)}
                                     className="text-red-400 hover:text-red-600 text-lg ml-2"
                                 >
-                                    �
+                                    ×
                                 </button>
                             </div>
                         ))
@@ -112,7 +111,7 @@ export default function CartDrawer({ onClose }: Props) {
                         <div className="flex items-center justify-between">
                             <span className="text-gray-600 font-medium">Toplam</span>
                             <span className="text-purple-600 font-bold text-lg">
-                                ?{getTotalPrice().toFixed(2)}
+                                ₺{getTotalPrice().toFixed(2)}
                             </span>
                         </div>
                         <button
