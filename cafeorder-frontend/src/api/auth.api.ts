@@ -1,5 +1,5 @@
-﻿// cafeorder-frontend/src/api/auth.api.ts
-import axiosInstance from './axiosInstance';
+﻿import axiosInstance from './axiosInstance';
+import type { UserRole } from '../types';
 
 // ─── Request Types ────────────────────────────────────────────────────────────
 
@@ -12,8 +12,8 @@ export interface RegisterStaffRequest {
     email: string;
     password: string;
     displayName: string;
-    /** Must be one of: "Owner" | "Cashier" | "KitchenStaff" */
-    role: 'Owner' | 'Cashier' | 'KitchenStaff';
+    /** Must be bir tanesi: "Owner" | "Cashier" | "KitchenStaff" */
+    role: UserRole;
 }
 
 export interface RefreshTokenRequest {
@@ -29,24 +29,16 @@ export interface AuthResponse {
     accessTokenExpiry: string; // ISO 8601 UTC datetime string
     userId: string;
     displayName: string;
-    roles: string[];
+    roles: UserRole[]; // ✅ string[] yerine direkt UserRole[] yapıldı
 }
 
 /**
- * authApi.refreshToken() → axiosInstance'ın response interceptor'ı
- * { token, user } bekliyor.
- *
- * Backend AuthResponse'daki field'lardan:
- *   token  = accessToken
- *   user   = { userId, displayName, roles, refreshToken, accessTokenExpiry }
- *
- * Interceptor'da useAuthStore.getState().setAuth(user, token) çağrılıyor.
- * setAuth(user, token) imzasına göre user nesnesi AuthUser tipinde olmalı.
+ * useAuthStore.setAuth() metodu AuthUser tipinde bir nesne bekler.
  */
 export interface AuthUser {
     userId: string;
     displayName: string;
-    roles: string[];
+    roles: UserRole[];
     refreshToken: string;
     accessTokenExpiry: string;
 }
@@ -61,37 +53,32 @@ export interface RefreshResponse {
 export const authApi = {
     /**
      * POST /api/auth/login
-     * Returns full AuthResponse.
+     * Backend: AuthController.Login
      */
     login: (data: LoginRequest) =>
         axiosInstance.post<AuthResponse>('/auth/login', data),
 
     /**
      * POST /api/auth/register-staff
-     * Owner-only endpoint.
+     * Owner (Admin) yetkisi gerektirir.
+     * Backend: AuthController.RegisterStaff
      */
     registerStaff: (data: RegisterStaffRequest) =>
         axiosInstance.post<AuthResponse>('/auth/register-staff', data),
 
     /**
      * POST /api/auth/refresh
-     * Called by the axios response interceptor on 401.
-     * Returns { token, user } shaped response for the interceptor.
-     *
-     * Backend döner: AuthResponse { accessToken, refreshToken, ... }
-     * Interceptor beklediği: { token, user }
-     * Bu method o dönüşümü burada yaparak interceptor'ı basit tutar.
+     * 401 hatalarında Axios Interceptor tarafından tetiklenir.
+     * Backend: AuthController.RefreshToken
      */
     refreshToken: async (): Promise<{ data: RefreshResponse }> => {
-        // localStorage / sessionStorage kullanmıyoruz (artifact kısıtı yok ama
-        // güvenlik açısından refreshToken memory'de veya authStore'da tutulur).
-        // useAuthStore import döngüsünü kırmak için lazy import kullanıyoruz.
+        // Import döngüsünü engellemek için store'u fonksiyon içinde dinamik import ediyoruz
         const { useAuthStore } = await import('../store/authStore');
         const state = useAuthStore.getState();
 
         const payload: RefreshTokenRequest = {
             accessToken: state.token ?? '',
-            refreshToken: state.refreshToken ?? '',
+            refreshToken: state.user?.refreshToken ?? '',
         };
 
         const response = await axiosInstance.post<AuthResponse>(
@@ -101,13 +88,13 @@ export const authApi = {
 
         const raw = response.data;
 
-        // Backend AuthResponse → Interceptor'ın beklediği { token, user } şekline dönüştür
+        // Backend'den gelen ham veriyi Interceptor'ın işleyebileceği hale getiriyoruz
         const shaped: RefreshResponse = {
             token: raw.accessToken,
             user: {
                 userId: raw.userId,
                 displayName: raw.displayName,
-                roles: raw.roles,
+                roles: raw.roles as UserRole[], // ✅ Tip zorlaması (Casting) eklendi
                 refreshToken: raw.refreshToken,
                 accessTokenExpiry: raw.accessTokenExpiry,
             },
@@ -118,12 +105,16 @@ export const authApi = {
 
     /**
      * POST /api/auth/logout
-     * Sends the current refreshToken to revoke it server-side.
+     * Mevcut refresh token'ı server tarafında geçersiz kılar.
+     * Backend: AuthController.Logout[cite: 1]
      */
     logout: async (): Promise<void> => {
         const { useAuthStore } = await import('../store/authStore');
-        const refreshToken = useAuthStore.getState().refreshToken;
+        const state = useAuthStore.getState();
+        const refreshToken = state.user?.refreshToken;
+
         if (refreshToken) {
+            // Backend string tipinde bir body beklediği için stringify kullanıyoruz[cite: 1]
             await axiosInstance.post('/auth/logout', JSON.stringify(refreshToken), {
                 headers: { 'Content-Type': 'application/json' },
             });

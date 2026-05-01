@@ -1,70 +1,68 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster } from 'sonner'
-import { Suspense, lazy } from 'react'
-import './index.css'
+﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
+import { Suspense, lazy } from 'react';
+import './index.css';
 
-import { ProtectedRoute } from './components/ui/ProtectedRoute'
-import SessionDetailPage from './pages/cashier/SessionDetailPage'
-import { LoadingSpinner } from './components/ui/LoadingSpinner'
-import Payment from './components/customer/Payment'
-// Ekle
-import AdminLayout from './pages/admin/AdminLayout'
-import CategoryManagement from './pages/admin/CategoryManagement'
+// Components
+import { ProtectedRoute } from './components/ui/ProtectedRoute';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import Payment from './components/customer/Payment';
 
+// Hooks
+import { useRegisterSW } from './hooks/useRegisterSW';
 
+// Lazy Pages
+const Login = lazy(() => import('./pages/auth/Login'));
 
-import ErrorBoundary from './components/ui/ErrorBoundary'
-import { useRegisterSW } from './hooks/useRegisterSW'
+// Admin Pages
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const CategoryManagement = lazy(() => import('./pages/admin/CategoryManagement'));
+const ItemManagement = lazy(() => import('./pages/admin/ItemManagement'));
+const TableManagement = lazy(() => import('./pages/admin/TableManagement'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
+const ReportPage = lazy(() => import('./pages/admin/ReportPage'));
 
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
-// ─── Lazy pages ───────────────────────────────────────────────────────────────
-const Login = lazy(() => import('./pages/auth/Login'))
+// Kitchen Pages
+const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'));
 
-// Customer (anonymous)
-const Menu = lazy(() => import('./pages/customer/Menu'))
+// Cashier Pages
+const CashierPage = lazy(() => import('./pages/cashier/CashierPage'));
+const SessionDetailPage = lazy(() => import('./pages/cashier/SessionDetailPage'));
 
-const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'))
-const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'))
-const ItemManagement = lazy(() => import('./pages/admin/ItemManagement'))
+// Customer (Anonymous) Pages
+const Menu = lazy(() => import('./pages/customer/Menu'));
+const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'));
+const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'));
 
-const UserManagement = lazy(() => import('./pages/admin/UserManagement'))
-
-const TableManagement = lazy(() => import('./pages/admin/TableManagement'))
-
-// Kitchen (KitchenStaff)
-const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'))
-
-// Cashier (Cashier | Owner)
-const CashierPage = lazy(() => import('./pages/cashier/CashierPage'))
-
-const ReportPage = lazy(() => import('./pages/admin/ReportPage'))
-
-
-// ─── React Query client ───────────────────────────────────────────────────────
+// React Query client configuration
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 1000 * 60 * 5,
+            staleTime: 1000 * 60 * 5, // 5 minutes
             retry: 1,
         },
     },
-})
+});
 
-// ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
-    useRegisterSW()
+    useRegisterSW();
+
     return (
         <QueryClientProvider client={queryClient}>
             <BrowserRouter>
                 <Suspense fallback={<LoadingSpinner />}>
                     <Routes>
+                        {/* Public Routes */}
                         <Route path="/login" element={<Login />} />
-
                         <Route path="/menu" element={<Menu />} />
                         <Route path="/order-status" element={<OrderStatus />} />
                         <Route path="/payment" element={<Payment />} />
                         <Route path="/payment-result" element={<PaymentResult />} />
+
+                        {/* Kitchen Routes (Protected: KitchenStaff) */}
                         <Route
                             path="/kitchen"
                             element={
@@ -76,15 +74,7 @@ export default function App() {
                             }
                         />
 
-                        <Route
-                            path="/cashier/sessions/:id"
-                            element={
-                                <ErrorBoundary>
-                                    <SessionDetailPage />
-                                </ErrorBoundary>
-                            }
-                        />
-
+                        {/* Cashier Routes (Protected: Cashier or Owner) */}
                         <Route
                             path="/cashier"
                             element={
@@ -95,7 +85,18 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route
+                            path="/cashier/sessions/:id"
+                            element={
+                                <ProtectedRoute roles={['Cashier', 'Owner']}>
+                                    <ErrorBoundary>
+                                        <SessionDetailPage />
+                                    </ErrorBoundary>
+                                </ProtectedRoute>
+                            }
+                        />
 
+                        {/* Admin Routes (Protected: Owner Only) */}
                         <Route
                             path="/admin"
                             element={
@@ -114,10 +115,8 @@ export default function App() {
                             <Route path="users" element={<UserManagement />} />
                         </Route>
 
-                      
-
-
-                        <Route path="/" element={<Navigate to="/login" replace />} />
+                        {/* Default Redirects */}
+                        <Route path="/" element={<Navigate to="/menu" replace />} />
                         <Route path="*" element={<Navigate to="/login" replace />} />
                     </Routes>
                 </Suspense>
@@ -137,5 +136,5 @@ export default function App() {
                 />
             </BrowserRouter>
         </QueryClientProvider>
-    )
+    );
 }
