@@ -1,8 +1,8 @@
-import { useState } from 'react'
+ï»¿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authApi } from '../../api/auth.api'
 import { useAuthStore } from '../../store/authStore'
-import type { AuthUser } from '../../types/index'
+import type { AuthUser, UserRole } from '../../types/index'
 
 export default function Login() {
     const navigate = useNavigate()
@@ -12,7 +12,17 @@ export default function Login() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState<string | null>(null)
 
-    const getRoleRedirect = (roles: string[]) => {
+    // âœ… type olduÄŸu iÃ§in manuel liste
+    const validRoles: UserRole[] = ['Owner', 'Cashier', 'KitchenStaff']
+
+    // âœ… string[] â†’ UserRole[] dÃ¶nÃ¼ÅŸÃ¼mÃ¼ (type-safe)
+    const mapRoles = (roles: string[]): UserRole[] => {
+        return roles.filter((r): r is UserRole =>
+            validRoles.includes(r as UserRole)
+        )
+    }
+
+    const getRoleRedirect = (roles: UserRole[]) => {
         if (roles.includes('Owner')) return '/admin'
         if (roles.includes('Cashier')) return '/cashier'
         if (roles.includes('KitchenStaff')) return '/kitchen'
@@ -31,15 +41,18 @@ export default function Login() {
             const user: AuthUser = {
                 userId: raw.userId,
                 displayName: raw.displayName,
-                roles: raw.roles as AuthUser['roles'],
+                roles: mapRoles(raw.roles), // âœ… FIX
                 refreshToken: raw.refreshToken,
                 accessTokenExpiry: raw.accessTokenExpiry,
             }
 
             setAuth(user, raw.accessToken)
-            navigate(getRoleRedirect(raw.roles))
-        } catch {
-            setError('E-posta veya þifre hatalý.')
+
+            navigate(getRoleRedirect(user.roles))
+
+        } catch (err) {
+            console.error(err)
+            setError('E-posta veya ÅŸifre hatalÄ±.')
         } finally {
             setLoading(false)
         }
@@ -49,7 +62,7 @@ export default function Login() {
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-8">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                    Giriþ Yap
+                    GiriÅŸ Yap
                 </h1>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -69,7 +82,7 @@ export default function Login() {
 
                     <div className="flex flex-col gap-1">
                         <label className="text-sm font-medium text-gray-600">
-                            Þifre
+                            Åžifre
                         </label>
                         <input
                             type="password"
@@ -77,7 +90,7 @@ export default function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            placeholder="••••••••"
+                            placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                         />
                     </div>
 
@@ -90,7 +103,7 @@ export default function Login() {
                         disabled={isLoading}
                         className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-lg py-2 text-sm transition-colors"
                     >
-                        {isLoading ? 'Giriþ yapýlýyor...' : 'Giriþ Yap'}
+                        {isLoading ? 'GiriÅŸ yapÄ±lÄ±yor...' : 'GiriÅŸ Yap'}
                     </button>
                 </form>
             </div>
