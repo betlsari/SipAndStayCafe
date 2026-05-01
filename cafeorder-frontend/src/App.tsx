@@ -7,7 +7,10 @@ import { ProtectedRoute } from './components/ui/ProtectedRoute'
 import SessionDetailPage from './pages/cashier/SessionDetailPage'
 import { LoadingSpinner } from './components/ui/LoadingSpinner'
 import Payment from './components/customer/Payment'
-
+// Ekle
+import AdminLayout from './pages/admin/AdminLayout'
+import CategoryManagement from './pages/admin/CategoryManagement'
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
 const Login = lazy(() => import('./pages/auth/Login'))
 
@@ -16,17 +19,16 @@ const Menu = lazy(() => import('./pages/customer/Menu'))
 
 const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'))
 const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'))
+const ItemManagement = lazy(() => import('./pages/admin/ItemManagement'))
 
 
+const TableManagement = lazy(() => import('./pages/admin/TableManagement'))
 
 // Kitchen (KitchenStaff)
 const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'))
 
 // Cashier (Cashier | Owner)
 const CashierPage = lazy(() => import('./pages/cashier/CashierPage'))
-
-// Admin (Owner)
-const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 
 // ─── React Query client ───────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -60,6 +62,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+                        <Route path="/cashier/sessions/:id" element={<SessionDetailPage />} />
 
                         <Route
                             path="/cashier"
@@ -69,15 +72,21 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
-                        <Route path="/cashier/sessions/:id" element={<SessionDetailPage />} />
                         <Route
-                            path="/admin/*"
+                            path="/admin"
                             element={
                                 <ProtectedRoute roles={['Owner']}>
-                                    <AdminDashboard />
+                                    <AdminLayout />
                                 </ProtectedRoute>
                             }
-                        />
+                        >
+                            <Route index element={<AdminDashboard />} />
+                            <Route path="categories" element={<CategoryManagement />} />
+                            <Route path="items" element={<ItemManagement />} />
+                            <Route path="tables" element={<TableManagement />} />
+                        </Route>
+
+                      
 
 
                         <Route path="/" element={<Navigate to="/login" replace />} />
