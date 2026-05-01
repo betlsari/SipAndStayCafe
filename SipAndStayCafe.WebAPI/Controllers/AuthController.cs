@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using SipAndStayCafe.Application.DTOs.Auth;
 using SipAndStayCafe.Application.Features.Auth;
 using SipAndStayCafe.Domain.Common;
-
+using Microsoft.AspNetCore.Identity;
+using SipAndStayCafe.Infrastructure.Persistence;
 namespace SipAndStayCafe.WebAPI.Controllers;
 
 /// <summary>
