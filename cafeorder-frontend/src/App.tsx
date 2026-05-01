@@ -28,6 +28,7 @@ const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'))
 const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'))
 const ItemManagement = lazy(() => import('./pages/admin/ItemManagement'))
 
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'))
 
 const TableManagement = lazy(() => import('./pages/admin/TableManagement'))
 
@@ -110,6 +111,7 @@ export default function App() {
                             <Route path="items" element={<ItemManagement />} />
                             <Route path="tables" element={<TableManagement />} />
                             <Route path="reports" element={<ReportPage />} />
+                            <Route path="users" element={<UserManagement />} />
                         </Route>
 
                       
