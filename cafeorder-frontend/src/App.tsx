@@ -2,6 +2,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import { Suspense, lazy } from 'react'
+import './index.css'
 
 import { ProtectedRoute } from './components/ui/ProtectedRoute'
 import SessionDetailPage from './pages/cashier/SessionDetailPage'
