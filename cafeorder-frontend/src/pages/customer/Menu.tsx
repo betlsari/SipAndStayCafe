@@ -91,30 +91,49 @@ export default function Menu() {
 
             {/* Items */}
             <div className="px-4 py-4 flex flex-col gap-3">
-                {activeItems.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setSelectedItem(item)}
-                        className="w-full bg-white rounded-xl shadow-sm p-4 flex items-center gap-4 text-left"
-                    >
-                        {item.imageUrl && (
-                            <img
-                                src={item.imageUrl}
-                                alt={item.name}
-                                className="w-16 h-16 rounded-lg object-cover shrink-0"
-                            />
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-gray-800 truncate">{item.name}</p>
-                            {item.description && (
-                                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
-                            )}
-                            <p className="text-purple-600 font-bold mt-1">
-                                ₺{item.basePrice.toFixed(2)}
-                            </p>
-                        </div>
-                    </button>
-                ))}
+// Menu.tsx — items map bloğunu bununla değiştir
+                {activeItems.map((item) => {
+                    const unavailable = !item.isAvailable
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => !unavailable && setSelectedItem(item)}
+                            disabled={unavailable}
+                            className={`w-full bg-white rounded-xl shadow-sm p-4 flex items-center gap-4 text-left transition-opacity ${unavailable ? 'opacity-60 cursor-not-allowed' : ''
+                                }`}
+                        >
+                            <div className="relative shrink-0">
+                                {item.imageUrl && (
+                                    <img
+                                        src={item.imageUrl}
+                                        alt={item.name}
+                                        className={`w-16 h-16 rounded-lg object-cover ${unavailable ? 'grayscale' : ''}`}
+                                    />
+                                )}
+                                {unavailable && (
+                                    <div className="absolute inset-0 rounded-lg bg-black/40 flex items-center justify-center">
+                                        <span className="text-[10px] font-black text-white uppercase tracking-wider leading-tight text-center px-1">
+                                            Tükendi
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className={`font-semibold truncate ${unavailable ? 'text-gray-400' : 'text-gray-800'}`}>
+                                    {item.name}
+                                </p>
+                                {item.description && (
+                                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
+                                )}
+                                {unavailable ? (
+                                    <p className="text-xs text-red-400 font-medium mt-1">Bugün mevcut değil</p>
+                                ) : (
+                                    <p className="text-purple-600 font-bold mt-1">₺{item.basePrice.toFixed(2)}</p>
+                                )}
+                            </div>
+                        </button>
+                    )
+                })}
             </div>
 
             {/* Modifier Modal */}

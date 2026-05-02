@@ -37,16 +37,18 @@ export default function Payment() {
                 const res = await paymentApi.initiateOnlinePayment({ sessionId })
                 setCheckoutHtml(res.data.checkoutFormContent)
             }
-        } catch (err) {
+        }  catch (err) {
             const axiosErr = err as AxiosError<PaymentErrorResponse>
             const code = axiosErr?.response?.data?.code
             if (code === 'Payment.AlreadyLocked') {
                 setError('Bu masa için zaten bir ödeme işlemi başlatılmış.')
             } else if (code === 'Session.AlreadyClosed') {
-                setError('Bu oturum zaten kapatılmış.')
+                // Session kapanmış → result sayfasına yönlendir, durum bilgisiyle
+                navigate('/payment-result?status=session-closed')
             } else {
                 setError('Ödeme başlatılamadı. Lütfen tekrar deneyin.')
             }
+        
         } finally {
             setLoading(false)
         }

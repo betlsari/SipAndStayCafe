@@ -8,15 +8,14 @@ import './index.css';
 import { ProtectedRoute } from './components/ui/ProtectedRoute';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import ErrorBoundary from './components/ui/ErrorBoundary';
-import Payment from './components/customer/Payment';
 
 // Hooks
 import { useRegisterSW } from './hooks/useRegisterSW';
 
-// Lazy Pages
+// Lazy Pages — Auth
 const Login = lazy(() => import('./pages/auth/Login'));
 
-// Admin Pages
+// Lazy Pages — Admin
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
 const CategoryManagement = lazy(() => import('./pages/admin/CategoryManagement'));
@@ -25,23 +24,26 @@ const TableManagement = lazy(() => import('./pages/admin/TableManagement'));
 const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
 const ReportPage = lazy(() => import('./pages/admin/ReportPage'));
 
-// Kitchen Pages
+// Lazy Pages — Kitchen
 const KitchenDisplay = lazy(() => import('./pages/kitchen/KitchenDisplay'));
 
-// Cashier Pages
+// Lazy Pages — Cashier
 const CashierPage = lazy(() => import('./pages/cashier/CashierPage'));
 const SessionDetailPage = lazy(() => import('./pages/cashier/SessionDetailPage'));
 
-// Customer (Anonymous) Pages
+// Lazy Pages — Customer
 const Menu = lazy(() => import('./pages/customer/Menu'));
 const OrderStatus = lazy(() => import('./pages/customer/OrderStatus'));
+const Payment = lazy(() => import('./pages/customer/Payment'));
 const PaymentResult = lazy(() => import('./pages/customer/PaymentResult'));
+const WelcomeSplash = lazy(() => import('./pages/customer/WelcomeSplash'));
+const TableGuard = lazy(() => import('./components/customer/TableGuard'));
 
 // React Query client configuration
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 1000 * 60 * 5, // 5 minutes
+            staleTime: 1000 * 60 * 5,
             retry: 1,
         },
     },
@@ -57,7 +59,23 @@ export default function App() {
                     <Routes>
                         {/* Public Routes */}
                         <Route path="/login" element={<Login />} />
-                        <Route path="/menu" element={<Menu />} />
+
+                        <Route
+                            path="/welcome"
+                            element={
+                                <TableGuard>
+                                    <WelcomeSplash />
+                                </TableGuard>
+                            }
+                        />
+                        <Route
+                            path="/menu"
+                            element={
+                                <TableGuard>
+                                    <Menu />
+                                </TableGuard>
+                            }
+                        />
                         <Route path="/order-status" element={<OrderStatus />} />
                         <Route path="/payment" element={<Payment />} />
                         <Route path="/payment-result" element={<PaymentResult />} />
