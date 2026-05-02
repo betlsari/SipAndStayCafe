@@ -91,7 +91,7 @@ export default function Menu() {
 
             {/* Items */}
             <div className="px-4 py-4 flex flex-col gap-3">
-// Menu.tsx — items map bloğunu bununla değiştir
+
                 {activeItems.map((item) => {
                     const unavailable = !item.isAvailable
                     return (

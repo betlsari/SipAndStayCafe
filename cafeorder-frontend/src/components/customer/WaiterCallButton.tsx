@@ -1,47 +1,45 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { orderApi } from '../../api/order.api'
+import { toast } from 'sonner'
 
 interface Props {
     tableNumber: number
 }
 
 export default function WaiterCallButton({ tableNumber }: Props) {
-    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+    const [loading, setLoading] = useState(false)
+    const [called, setCalled] = useState(false)
 
     const handleCall = async () => {
-        if (status === 'loading' || status === 'success') return
-        setStatus('loading')
+        if (loading || called) return
+        setLoading(true)
         try {
             await orderApi.callWaiter({ tableNumber })
-            setStatus('success')
-            setTimeout(() => setStatus('idle'), 3000)
+            setCalled(true)
+            toast.success('Garson çağrıldı! En kısa sürede gelecek.')
+            // 30 saniye sonra tekrar çağırılabilsin
+            setTimeout(() => setCalled(false), 30_000)
         } catch {
-            setStatus('error')
-            setTimeout(() => setStatus('idle'), 3000)
+            toast.error('Garson çağrılamadı, lütfen tekrar deneyin.')
+        } finally {
+            setLoading(false)
         }
     }
-
-    const label = {
-        idle: 'Garson �a��r',
-        loading: '�a�r�l�yor...',
-        success: '�a�r� G�nderildi',
-        error: 'Hata, Tekrar Dene',
-    }[status]
-
-    const styles = {
-        idle: 'bg-gray-100 hover:bg-gray-200 text-gray-700',
-        loading: 'bg-gray-100 text-gray-400 cursor-not-allowed',
-        success: 'bg-green-100 text-green-700 cursor-default',
-        error: 'bg-red-100 text-red-600',
-    }[status]
 
     return (
         <button
             onClick={handleCall}
-            disabled={status === 'loading' || status === 'success'}
-            className={`flex-1 font-semibold py-3 rounded-xl transition-colors text-sm ${styles}`}
+            disabled={loading || called}
+            className={`
+        font-black text-sm uppercase tracking-wider py-4 rounded-2xl
+        transition-all active:scale-[0.98]
+        ${called
+                    ? 'bg-zinc-200 text-zinc-400 cursor-default'
+                    : 'bg-white border-2 border-zinc-200 text-zinc-700 hover:border-purple-300 hover:text-purple-700'
+                }
+      `}
         >
-            {label}
+            {loading ? 'Çağrılıyor...' : called ? '✓ Garson Çağrıldı' : '🔔 Garson Çağır'}
         </button>
     )
 }

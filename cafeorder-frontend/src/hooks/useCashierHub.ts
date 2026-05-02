@@ -1,40 +1,56 @@
-import { useEffect } from 'react'
-import { useAuthStore } from '../store/authStore'
+import { useEffect, useRef, useCallback } from 'react'
+import * as signalR from '@microsoft/signalr'
 import { createCashierHubConnection } from '../api/signalr'
 
-interface UseCashierHubProps {
-    onTableWaitingForPayment: (data: { tableNumber: number; totalAmount: number }) => void
-    onTableSessionClosed: (tableNumber: number) => void
+interface UseCashierHubOptions {
+    onTableWaitingForPayment?: (payload: unknown) => void
+    onTableSessionClosed?: (payload: unknown) => void
+    onWaiterCalled?: (payload: { tableNumber: number; note?: string | null }) => void
 }
 
-export const useCashierHub = ({
+export function useCashierHub({
     onTableWaitingForPayment,
     onTableSessionClosed,
-}: UseCashierHubProps) => {
-    useEffect(() => {
-        const token = useAuthStore.getState().token
-        if (!token) return
+    onWaiterCalled,
+}: UseCashierHubOptions) {
+    const connectionRef = useRef<signalR.HubConnection | null>(null)
+    const waitingRef = useRef(onTableWaitingForPayment)
+    const closedRef = useRef(onTableSessionClosed)
+    const waiterRef = useRef(onWaiterCalled)
 
-        const connection = createCashierHubConnection()
+    useEffect(() => { waitingRef.current = onTableWaitingForPayment }, [onTableWaitingForPayment])
+    useEffect(() => { closedRef.current = onTableSessionClosed }, [onTableSessionClosed])
+    useEffect(() => { waiterRef.current = onWaiterCalled }, [onWaiterCalled])
 
-        connection.on('TableWaitingForPayment', onTableWaitingForPayment)
-        connection.on('TableSessionClosed', onTableSessionClosed)
+    const startConnection = useCallback(async () => {
+        const conn = createCashierHubConnection()
+        connectionRef.current = conn
 
-        connection.start().catch(console.error)
+        conn.on('TableWaitingForPayment', (tableNumber: number, totalAmount: number) => {
+            waitingRef.current?.({ tableNumber, totalAmount })
+        })
 
-        return () => {
-            connection.off('TableWaitingForPayment')
-            connection.off('TableSessionClosed')
-            connection.stop()
+        conn.on('TableSessionClosed', (tableNumber: number) => {
+            closedRef.current?.(tableNumber)
+        })
+
+        conn.on('WaiterCalled', (payload: { tableNumber: number; note?: string | null }) => {
+            waiterRef.current?.(payload)
+        })
+
+        try {
+            await conn.start()
+        } catch {
+            // silently fail
         }
-    }, [onTableWaitingForPayment, onTableSessionClosed])
-}
+    }, [])
 
-/* useEffect(() => {
-// State güncelleyen çaðrýyý bir asenkron fonksiyon içine alarak cascading render uyarýsýný önlüyoruz
-const initFetch = async () => {
-    await fetchSessions()
-}
+    useEffect(() => {
+        startConnection()
+        return () => {
+            connectionRef.current?.stop().catch(() => { })
+        }
+    }, [startConnection])
 
-initFetch()
-}, [fetchSessions]) // fetchSessions zaten useCallback ile sarýldýðý için güvenle eklenebilir*/
+    return { connectionRef }
+}

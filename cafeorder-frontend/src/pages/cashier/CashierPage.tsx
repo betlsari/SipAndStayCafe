@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { cashierApi } from '../../api/cashier.api'
 import { useCashierHub } from '../../hooks/useCashierHub'
 import type { CashierSessionDto, PaymentStatus, PaymentMethod } from '../../types/index'
+import { toast } from 'sonner'
 
 const formatTime = (iso: string) =>
     new Date(iso).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
@@ -22,11 +23,7 @@ const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { label: string; cls: string 
 
 function PaymentBadge({ status }: { status: PaymentStatus }) {
     const cfg = PAYMENT_STATUS_CONFIG[status]
-    return (
-        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${cfg.cls}`}>
-            {cfg.label}
-        </span>
-    )
+    return <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${cfg.cls}`}>{cfg.label}</span>
 }
 
 function MethodBadge({ method }: { method: PaymentMethod | null }) {
@@ -54,11 +51,11 @@ function SessionCard({
         <div
             onClick={() => onClick(session.sessionId)}
             className={`
-                relative bg-zinc-900 rounded-2xl p-4 flex flex-col gap-3 border
-                transition-all duration-300 cursor-pointer active:scale-95
-                ${highlight ? 'border-amber-400 shadow-[0_0_16px_rgba(251,191,36,0.15)]' : 'border-zinc-800'}
-                ${isCompleted ? 'opacity-50' : ''}
-            `}
+        relative bg-zinc-900 rounded-2xl p-4 flex flex-col gap-3 border
+        transition-all duration-300 cursor-pointer active:scale-95
+        ${highlight ? 'border-amber-400 shadow-[0_0_16px_rgba(251,191,36,0.15)]' : 'border-zinc-800'}
+        ${isCompleted ? 'opacity-50' : ''}
+      `}
         >
             {highlight && (
                 <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
@@ -66,22 +63,16 @@ function SessionCard({
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
                 </span>
             )}
-
             <div className="flex items-start justify-between pr-5">
                 <div>
-                    <span className="font-mono text-2xl font-bold text-white leading-none">
-                        {session.tableNumber}
-                    </span>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                        {formatTime(session.openedAt)} · {mins}dk
-                    </p>
+                    <span className="font-mono text-2xl font-bold text-white leading-none">{session.tableNumber}</span>
+                    <p className="text-xs text-zinc-500 mt-0.5">{formatTime(session.openedAt)} · {mins}dk</p>
                 </div>
                 <div className="flex flex-col items-end gap-1.5">
                     <PaymentBadge status={session.paymentStatus} />
                     <MethodBadge method={session.paymentMethod} />
                 </div>
             </div>
-
             <div className="flex items-center gap-4 text-sm border-t border-zinc-800 pt-3">
                 <div>
                     <p className="text-zinc-500 text-xs">Sipariş</p>
@@ -94,12 +85,6 @@ function SessionCard({
             </div>
         </div>
     )
-}
-
-// SignalR payload tipleri — hub'dan gelen veriler
-interface TableWaitingPayload {
-    tableNumber: number
-    totalAmount: number
 }
 
 export default function CashierPage() {
@@ -126,39 +111,25 @@ export default function CashierPage() {
         }
     }, [])
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const res = await cashierApi.getActiveSessions()
-                setSessions(res.data)
-            } catch {
-                setError('Masalar yüklenemedi.')
-            } finally {
-                setLoading(false)
-            }
-        }
+    
 
-        load()
-    }, []) 
     const handleTableWaiting = useCallback(
         (payload: unknown) => {
-            // SignalR'dan gelen payload'u güvenli şekilde parse et
-            const data = payload as TableWaitingPayload
+            const data = payload as { tableNumber?: number }
             if (typeof data?.tableNumber === 'number') {
-                setHighlightedTables((prev) => new Set(prev).add(data.tableNumber))
+                setHighlightedTables((prev) => new Set(prev).add(data.tableNumber!))
             }
             fetchSessions()
         },
-        [fetchSessions],
+        [fetchSessions]
     )
 
     const handleSessionClosed = useCallback(
         (payload: unknown) => {
-            // Backend int tableNumber gönderiyor
-            const tableNumber = typeof payload === 'number'
-                ? payload
-                : (payload as { tableNumber?: number })?.tableNumber
-
+            const tableNumber =
+                typeof payload === 'number'
+                    ? payload
+                    : (payload as { tableNumber?: number })?.tableNumber
             if (typeof tableNumber === 'number') {
                 setHighlightedTables((prev) => {
                     const next = new Set(prev)
@@ -168,17 +139,29 @@ export default function CashierPage() {
             }
             fetchSessions()
         },
-        [fetchSessions],
+        [fetchSessions]
+    )
+
+    const handleWaiterCalled = useCallback(
+        (payload: { tableNumber: number; note?: string | null }) => {
+            toast(`🔔 Masa ${payload.tableNumber} garson istiyor!`, {
+                description: payload.note ? `Not: ${payload.note}` : undefined,
+                duration: 10_000,
+                style: {
+                    background: '#78350f',
+                    border: '1px solid #d97706',
+                    color: '#fef3c7',
+                },
+            })
+        },
+        []
     )
 
     useCashierHub({
         onTableWaitingForPayment: handleTableWaiting,
         onTableSessionClosed: handleSessionClosed,
+        onWaiterCalled: handleWaiterCalled,
     })
-
-    const handleCardClick = (sessionId: string) => {
-        navigate(`/cashier/sessions/${sessionId}`)
-    }
 
     const active = sessions.filter((s) => s.paymentStatus !== 'Completed')
     const pending = active.filter((s) => s.paymentStatus === 'Pending')
@@ -203,15 +186,11 @@ export default function CashierPage() {
 
             <main className="flex-1 p-4 flex flex-col gap-6">
                 {loading && (
-                    <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">
-                        Yükleniyor…
-                    </div>
+                    <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Yükleniyor…</div>
                 )}
 
                 {error && (
-                    <div className="bg-red-900/30 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">
-                        {error}
-                    </div>
+                    <div className="bg-red-900/30 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">{error}</div>
                 )}
 
                 {!loading && (
@@ -227,7 +206,7 @@ export default function CashierPage() {
                                             key={s.sessionId}
                                             session={s}
                                             highlight={highlightedTables.has(s.tableNumber)}
-                                            onClick={handleCardClick}
+                                            onClick={(id) => navigate(`/cashier/sessions/${id}`)}
                                         />
                                     ))}
                                 </div>
@@ -251,7 +230,7 @@ export default function CashierPage() {
                                                 key={s.sessionId}
                                                 session={s}
                                                 highlight={highlightedTables.has(s.tableNumber)}
-                                                onClick={handleCardClick}
+                                                onClick={(id) => navigate(`/cashier/sessions/${id}`)}
                                             />
                                         ))}
                                 </div>

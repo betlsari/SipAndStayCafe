@@ -9,7 +9,7 @@ namespace SipAndStayCafe.WebAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TablesController : ControllerBase // RESTful standartlarına uygun olarak çoğul isimlendirme (Tables) kullanıldı
+public class TablesController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly IQrCodeService _qrCodeService;
@@ -29,6 +29,23 @@ public class TablesController : ControllerBase // RESTful standartlarına uygun 
         return Ok(tables);
     }
 
+    // GET /api/tables/verify/{tableNumber}  ← YENİ: Müşteri masa doğrulama (anonim)
+    [HttpGet("verify/{tableNumber:int}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> VerifyTable(int tableNumber, CancellationToken ct)
+    {
+        var tables = await _mediator.Send(new GetAllTablesQuery(), ct);
+        var table = tables.FirstOrDefault(t => t.TableNumber == tableNumber);
+
+        if (table == null)
+            return NotFound(new { message = "Masa bulunamadı." });
+
+        if (!table.IsActive)
+            return BadRequest(new { message = "inactive" });
+
+        return Ok(table);
+    }
+
     // GET /api/tables/{id}
     [HttpGet("{id:guid}")]
     [Authorize(Roles = "Owner")]
@@ -43,11 +60,8 @@ public class TablesController : ControllerBase // RESTful standartlarına uygun 
     [Authorize(Roles = "Owner")]
     public async Task<IActionResult> CreateTable([FromBody] CreateTableRequest request, CancellationToken ct)
     {
-        // Dinamik olarak host bilgisini alıyoruz (örn: https://localhost:5001 veya https://api.cafeorder.com)
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
-
         var createdTable = await _mediator.Send(new CreateTableCommand(request, baseUrl), ct);
-
         return CreatedAtAction(nameof(GetTableById), new { id = createdTable.Id }, createdTable);
     }
 
@@ -76,7 +90,6 @@ public class TablesController : ControllerBase // RESTful standartlarına uygun 
     {
         var table = await _mediator.Send(new GetTableByIdQuery(id), ct);
         var imageBytes = _qrCodeService.GenerateQrCodeImage(table.QRCodeUrl);
-
         return File(imageBytes, "image/png", $"table-{table.TableNumber}-qr.png");
     }
 
@@ -88,7 +101,7 @@ public class TablesController : ControllerBase // RESTful standartlarına uygun 
         var session = await _mediator.Send(new GetActiveTableSessionQuery(id), ct);
 
         if (session == null)
-            return NoContent(); // Aktif oturum yoksa 204 döner
+            return NoContent();
 
         return Ok(session);
     }
@@ -107,18 +120,13 @@ public class TablesController : ControllerBase // RESTful standartlarına uygun 
     [Authorize(Roles = "Cashier")]
     public async Task<IActionResult> CloseSession(Guid id, [FromBody] CloseSessionRequest body, CancellationToken ct)
     {
-        // Route'daki {id} TableId'yi temsil eder. 
-        // Command doğrudan SessionId beklediği için SessionId'yi body'den alıyoruz.
         var result = await _mediator.Send(new CloseTableSessionCommand(body.SessionId), ct);
 
         if (!result.IsSuccess)
-        {
             return BadRequest(new { Error = result.Error.Message });
-        }
 
         return Ok(new { Message = "Masa oturumu başarıyla kapatıldı." });
     }
 }
 
-// Close session işlemi için basit bir DTO
 public record CloseSessionRequest(Guid SessionId);

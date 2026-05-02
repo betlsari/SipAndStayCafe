@@ -3,7 +3,8 @@ import { orderApi } from '../../api/order.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
 import type { OrderItemDto, KitchenOrderDto } from '../../types/index'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// Ready siparişler kaç dakika sonra ekrandan kaldırılsın
+const READY_AUTO_CLEAR_MS = 5 * 60 * 1000 // 5 dakika
 
 interface KitchenCard {
     orderId: string
@@ -12,19 +13,16 @@ interface KitchenCard {
     items: OrderItemDto[]
     total: number
     createdAt: string
+    readyAt?: number // timestamp — otomatik temizleme için
     note?: string | null
 }
 
-
-
-// ─── Column Config ────────────────────────────────────────────────────────────
 const COLUMNS: { status: KitchenCard['status']; label: string; color: string; dot: string }[] = [
     { status: 'Received', label: 'Yeni', color: 'border-amber-400', dot: 'bg-amber-400' },
     { status: 'BeingPrepared', label: 'Hazırlanıyor', color: 'border-blue-400', dot: 'bg-blue-400' },
     { status: 'Ready', label: 'Hazır', color: 'border-emerald-400', dot: 'bg-emerald-400' },
 ]
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const elapsed = (iso: string) => {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
     if (diff < 60) return `${diff}s`
@@ -37,30 +35,27 @@ const nextStatus = (s: KitchenCard['status']): KitchenCard['status'] | null => {
     return null
 }
 
-const nextLabel = (s: KitchenCard['status']) => {
-    if (s === 'Received') return 'Hazırlamaya Başla'
-    if (s === 'BeingPrepared') return 'Hazır'
-    return null
-}
-
-// ─── Card Component ──────────────────────────────────────────────────────────
-function Card({
-    card,
-    onAdvance,
-}: {
-    card: KitchenCard
-    onAdvance: (id: string, next: KitchenCard['status']) => void
-}) {
+function Card({ card, onAdvance }: { card: KitchenCard; onAdvance: (id: string, next: KitchenCard['status']) => void }) {
     const next = nextStatus(card.status)
-    const label = nextLabel(card.status)
+    const [remainSec, setRemainSec] = useState<number | null>(null)
+
+    useEffect(() => {
+        if (card.status !== 'Ready' || !card.readyAt) return
+        const tick = () => {
+            const diff = Math.ceil((card.readyAt! + READY_AUTO_CLEAR_MS - Date.now()) / 1000)
+            setRemainSec(Math.max(0, diff))
+        }
+        tick()
+        const id = setInterval(tick, 1000)
+        return () => clearInterval(id)
+    }, [card.status, card.readyAt])
 
     return (
-        <div className={`bg-zinc-900 border-l-4 ${COLUMNS.find(c => c.status === card.status)?.color} rounded-xl p-4 flex flex-col gap-3 shadow-lg`}>
+        <div className={`bg-zinc-900 border-l-4 ${COLUMNS.find((c) => c.status === card.status)?.color} rounded-xl p-4 flex flex-col gap-3 shadow-lg`}>
             <div className="flex items-center justify-between">
                 <span className="font-mono text-xl font-bold text-white">Masa {card.tableNumber}</span>
                 <span className="text-xs text-zinc-400 tabular-nums">{elapsed(card.createdAt)}</span>
             </div>
-
             <ul className="flex flex-col gap-1.5">
                 {card.items.map((item) => (
                     <li key={item.id} className="text-sm">
@@ -76,60 +71,73 @@ function Card({
                     </li>
                 ))}
             </ul>
-
             {card.note && (
                 <p className="text-xs text-amber-300 bg-amber-400/10 rounded-lg px-3 py-1.5 border border-amber-400/20">
                     📝 {card.note}
                 </p>
             )}
-
-            {next && label && (
+            {next && (
                 <button
                     onClick={() => onAdvance(card.orderId, next)}
                     className={`w-full mt-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all active:scale-95 ${card.status === 'Received' ? 'bg-blue-500 hover:bg-blue-400' : 'bg-emerald-500 hover:bg-emerald-400'
                         } text-white`}
                 >
-                    {label}
+                    {card.status === 'Received' ? 'Hazırlamaya Başla' : 'Hazır'}
                 </button>
             )}
-
             {card.status === 'Ready' && (
-                <div className="w-full py-2.5 rounded-lg text-sm font-semibold text-center text-emerald-400 border border-emerald-400/30 bg-emerald-400/5">
-                    ✓ Hazır
+                <div className="w-full py-2 rounded-lg text-xs font-semibold text-center text-emerald-400 border border-emerald-400/30 bg-emerald-400/5">
+                    ✓ Hazır{remainSec !== null ? ` · ${remainSec}s sonra temizlenir` : ''}
                 </div>
             )}
         </div>
     )
 }
 
-// ─── Main Component ──────────────────────────────────────────────────────────
 export default function KitchenDisplay() {
     const [cards, setCards] = useState<KitchenCard[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [connected, setConnected] = useState(true)
     const [, setTick] = useState(0)
 
+    // Elapsed timer
     useEffect(() => {
         const id = setInterval(() => setTick((t) => t + 1), 30_000)
         return () => clearInterval(id)
     }, [])
 
+    // Auto-clear Ready orders after READY_AUTO_CLEAR_MS
+    useEffect(() => {
+        const id = setInterval(() => {
+            setCards((prev) =>
+                prev.filter((c) => {
+                    if (c.status !== 'Ready' || !c.readyAt) return true
+                    return Date.now() - c.readyAt < READY_AUTO_CLEAR_MS
+                })
+            )
+        }, 10_000)
+        return () => clearInterval(id)
+    }, [])
+
+    // Initial load
     useEffect(() => {
         let cancelled = false
         const load = async () => {
             try {
                 const res = await orderApi.getKitchenActiveOrders()
                 if (cancelled) return
-                const initial: KitchenCard[] = res.data.map((o: KitchenOrderDto) => ({
-                    orderId: o.orderId,
-                    tableNumber: o.tableNumber,
-                    status: o.status as KitchenCard['status'],
-                    items: o.items,
-                    total: o.total,
-                    createdAt: o.createdAt,
-                    note: o.note,
-                }))
-                setCards(initial)
+                setCards(
+                    res.data.map((o: KitchenOrderDto) => ({
+                        orderId: o.orderId,
+                        tableNumber: o.tableNumber,
+                        status: o.status as KitchenCard['status'],
+                        items: o.items,
+                        total: o.total,
+                        createdAt: o.createdAt,
+                        note: o.note,
+                    }))
+                )
             } catch {
                 if (!cancelled) setError('Siparişler yüklenemedi.')
             } finally {
@@ -141,16 +149,26 @@ export default function KitchenDisplay() {
     }, [])
 
     const handleNewOrder = useCallback((payload: unknown) => {
-        // Backend OrderHub'dan: { Order: OrderDto, TableNumber: int }
-        // Hem PascalCase hem camelCase'i destekle
         const raw = payload as Record<string, unknown>
         const orderRaw = (raw['Order'] ?? raw['order']) as Record<string, unknown> | undefined
         const tableNumber = (raw['TableNumber'] ?? raw['tableNumber']) as number | undefined
-
         if (!orderRaw || typeof tableNumber !== 'number') return
-
         const orderId = (orderRaw['id'] ?? orderRaw['Id']) as string | undefined
         if (!orderId) return
+
+        // Play a subtle audio cue
+        try {
+            const ctx = new AudioContext()
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+            osc.connect(gain)
+            gain.connect(ctx.destination)
+            osc.frequency.value = 880
+            gain.gain.setValueAtTime(0.3, ctx.currentTime)
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
+            osc.start()
+            osc.stop(ctx.currentTime + 0.4)
+        } catch { /* ignore */ }
 
         setCards((prev) => {
             if (prev.some((c) => c.orderId === orderId)) return prev
@@ -167,50 +185,45 @@ export default function KitchenDisplay() {
         })
     }, [])
 
-    const handleStatusUpdated = useCallback((payload: unknown) => {
-        // Backend'den: { OrderId: string, NewStatus: string } veya camelCase
-        const raw = payload as Record<string, unknown>
-        const orderId = (raw['OrderId'] ?? raw['orderId']) as string | undefined
-        const newStatus = (raw['NewStatus'] ?? raw['newStatus']) as string | undefined
-
-        if (!orderId || !newStatus) {
-            // Bazı hub implementasyonları parametreleri ayrı gönderebilir
-            // useOrderHub zaten (orderId: string, newStatus: string) şeklinde handler çağırıyor
-            return
-        }
-
+    const handleStatusUpdated = useCallback((orderId: string, newStatus: string) => {
         setCards((prev) =>
             prev.map((c) =>
                 c.orderId === orderId
-                    ? { ...c, status: newStatus as KitchenCard['status'] }
-                    : c,
-            ),
+                    ? {
+                        ...c,
+                        status: newStatus as KitchenCard['status'],
+                        readyAt: newStatus === 'Ready' ? Date.now() : c.readyAt,
+                    }
+                    : c
+            )
         )
     }, [])
 
     const { connectionRef } = useOrderHub({
         joinKitchen: true,
         onNewOrder: handleNewOrder,
-        onOrderStatusUpdated: (orderId, newStatus) => {
-            // useOrderHub bu handler'ı (string, string) olarak çağırıyor
-            setCards((prev) =>
-                prev.map((c) =>
-                    c.orderId === orderId
-                        ? { ...c, status: newStatus as KitchenCard['status'] }
-                        : c,
-                ),
-            )
-        },
+        onOrderStatusUpdated: handleStatusUpdated,
     })
 
-    // handleStatusUpdated artık onOrderStatusUpdated üzerinden geliyor
-    // connectionRef.current.on ile ayrıca bağlamaya gerek yok
-    void connectionRef
-    void handleStatusUpdated
+    // Monitor connection state
+    useEffect(() => {
+        const conn = connectionRef.current
+        if (!conn) return
+        const onClose = () => setConnected(false)
+        const onReconnecting = () => setConnected(false)
+        const onReconnected = () => setConnected(true)
+        conn.onclose(onClose)
+        conn.onreconnecting(onReconnecting)
+        conn.onreconnected(onReconnected)
+    }, [connectionRef])
 
     const handleAdvance = useCallback(async (orderId: string, next: KitchenCard['status']) => {
         setCards((prev) =>
-            prev.map((c) => (c.orderId === orderId ? { ...c, status: next } : c)),
+            prev.map((c) =>
+                c.orderId === orderId
+                    ? { ...c, status: next, readyAt: next === 'Ready' ? Date.now() : c.readyAt }
+                    : c
+            )
         )
         try {
             await orderApi.updateOrderStatus(orderId, next)
@@ -220,34 +233,31 @@ export default function KitchenDisplay() {
     }, [])
 
     const byStatus = (s: KitchenCard['status']) =>
-        cards
-            .filter((c) => c.status === s)
-            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        cards.filter((c) => c.status === s).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
             <header className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
                 <span className="text-xl font-bold tracking-tight font-mono text-purple-400">🍳 MUTFAK PANELİ</span>
-                <div className="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Canlı Bağlantı</span>
+                <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${connected ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+                    <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400 animate-pulse'}`} />
+                    <span className={`text-[10px] font-bold uppercase tracking-widest ${connected ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {connected ? 'Canlı Bağlantı' : 'Bağlantı Kesildi…'}
+                    </span>
                 </div>
             </header>
 
             <main className="flex-1 p-6">
                 {error && (
                     <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
-                        <span className="text-lg">⚠️</span>
+                        <span>⚠️</span>
                         <p className="font-medium">{error}</p>
-                        <button onClick={() => setError(null)} className="ml-auto hover:text-red-400 underline text-xs">
-                            Kapat
-                        </button>
+                        <button onClick={() => setError(null)} className="ml-auto hover:text-red-400 underline text-xs">Kapat</button>
                     </div>
                 )}
+
                 {loading ? (
-                    <div className="flex items-center justify-center h-64 text-zinc-500 italic">
-                        Siparişler hazırlanıyor...
-                    </div>
+                    <div className="flex items-center justify-center h-64 text-zinc-500 italic">Siparişler hazırlanıyor...</div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {COLUMNS.map((col) => (

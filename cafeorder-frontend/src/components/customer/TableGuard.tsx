@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { tableApi } from '../../api/table.api'
+import axiosInstance from '../../api/axiosInstance'
 
 type GuardState = 'checking' | 'valid' | 'invalid' | 'inactive' | 'error'
 
@@ -13,32 +13,30 @@ export default function TableGuard({ children }: Props) {
     const navigate = useNavigate()
     const tableNumber = Number(searchParams.get('table'))
 
-    // Derive initial state synchronously — no effect needed for the param check
     const isParamValid = tableNumber > 0 && !isNaN(tableNumber)
     const [state, setState] = useState<GuardState>(isParamValid ? 'checking' : 'invalid')
 
     useEffect(() => {
-        // Skip API call if param was already invalid
         if (!isParamValid) return
 
         let cancelled = false
 
         const verify = async () => {
             try {
-                const res = await tableApi.getAll()
+                await axiosInstance.get(`/tables/verify/${tableNumber}`)
+                if (!cancelled) setState('valid')
+            } catch (err: unknown) {
                 if (cancelled) return
+                const status = (err as { response?: { status?: number; data?: { message?: string } } })?.response?.status
+                const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
 
-                const table = res.data.find((t) => t.tableNumber === tableNumber)
-
-                if (!table) {
+                if (status === 404) {
                     setState('invalid')
-                } else if (!table.isActive) {
+                } else if (status === 400 && message === 'inactive') {
                     setState('inactive')
                 } else {
-                    setState('valid')
+                    setState('error')
                 }
-            } catch {
-                if (!cancelled) setState('error')
             }
         }
 
@@ -49,7 +47,6 @@ export default function TableGuard({ children }: Props) {
     if (state === 'checking') {
         return (
             <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4">
-                {/* Animated coffee cup */}
                 <div className="relative">
                     <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-3xl animate-pulse">
                         ☕
@@ -65,7 +62,6 @@ export default function TableGuard({ children }: Props) {
         return <>{children}</>
     }
 
-    // --- Error states ---
     const config = {
         invalid: {
             emoji: '🔍',
@@ -89,7 +85,6 @@ export default function TableGuard({ children }: Props) {
 
     return (
         <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6">
-            {/* Background subtle pattern */}
             <div
                 className="absolute inset-0 opacity-[0.03]"
                 style={{
@@ -99,18 +94,15 @@ export default function TableGuard({ children }: Props) {
             />
 
             <div className="relative z-10 w-full max-w-sm flex flex-col items-center gap-6 text-center">
-                {/* Icon */}
                 <div className="w-24 h-24 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-5xl shadow-2xl">
                     {config.emoji}
                 </div>
 
-                {/* Text */}
                 <div className="flex flex-col gap-2">
                     <h1 className="text-xl font-bold text-white tracking-tight">{config.title}</h1>
                     <p className="text-sm text-zinc-400 leading-relaxed">{config.desc}</p>
                 </div>
 
-                {/* QR hint card */}
                 <div className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-xl">
                         📱
@@ -120,7 +112,6 @@ export default function TableGuard({ children }: Props) {
                     </p>
                 </div>
 
-                {/* Actions */}
                 <div className="flex flex-col gap-3 w-full">
                     {config.action === 'retry' && (
                         <button
@@ -138,10 +129,7 @@ export default function TableGuard({ children }: Props) {
                     </button>
                 </div>
 
-                {/* Footer */}
-                <p className="text-xs text-zinc-600">
-                    ☕ Sip & Stay Cafe
-                </p>
+                <p className="text-xs text-zinc-600">☕ Sip & Stay Cafe</p>
             </div>
         </div>
     )
