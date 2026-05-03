@@ -11,32 +11,14 @@ using SipAndStayCafe.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ────────────────────────────────────────────────────────────────────────────
-// 1. Application layer (MediatR, FluentValidation, AutoMapper)
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddApplication();
 
-// ────────────────────────────────────────────────────────────────────────────
-// 2. Infrastructure layer (EF Core, Identity, JWT, Redis, Hangfire)
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddInfrastructure(builder.Configuration);
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-// ────────────────────────────────────────────────────────────────────────────
-// 3. Hub proxy adapter'ları — WebAPI katmanında kayıt zorunlu.
-//
-//    IOrderHubContext  → OrderHubContextAdapter  (IHubContext<OrderHub> kullanır)
-//    ICashierHubContext → CashierHubContextAdapter (IHubContext<CashierHub> kullanır)
-//
-//    Bu kayıtlar Infrastructure.DependencyInjection'da YAPILMAZ çünkü
-//    OrderHub / CashierHub WebAPI katmanında tanımlı; Infrastructure bu tipleri
-//    bilmez ve bilmemeli (Clean Architecture).
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IOrderHubContext, OrderHubContextAdapter>();
 builder.Services.AddScoped<ICashierHubContext, CashierHubContextAdapter>();
 
-// ────────────────────────────────────────────────────────────────────────────
-// 4. Controllers + JSON options
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
@@ -45,9 +27,6 @@ builder.Services
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
-// ────────────────────────────────────────────────────────────────────────────
-// 5. Swagger / OpenAPI
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts =>
 {
@@ -79,14 +58,8 @@ builder.Services.AddSwaggerGen(opts =>
     });
 });
 
-// ────────────────────────────────────────────────────────────────────────────
-// 6. SignalR
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddSignalR();
 
-// ────────────────────────────────────────────────────────────────────────────
-// 7. CORS
-// ────────────────────────────────────────────────────────────────────────────
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowReactDev", policy =>
@@ -94,7 +67,7 @@ builder.Services.AddCors(opts =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "http://localhost:5174",  // Vite bazen bu portu da kullanır
+                "http://localhost:5174",
                 "https://localhost:5173"
             )
             .AllowAnyHeader()
@@ -103,21 +76,11 @@ builder.Services.AddCors(opts =>
     });
 });
 
-// ────────────────────────────────────────────────────────────────────────────
-// BUILD
-// ────────────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
-// ────────────────────────────────────────────────────────────────────────────
-// Seed roles and initial owner account
-// ────────────────────────────────────────────────────────────────────────────
 await RoleSeeder.SeedAsync(app);
 
-// ────────────────────────────────────────────────────────────────────────────
-// MIDDLEWARE PIPELINE
-// ────────────────────────────────────────────────────────────────────────────
-
-// 1. Global exception handler — must be first
+// 1. Global exception handler
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // 2. Development tools
@@ -137,7 +100,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-// 4. CORS — must be before auth
+// 4. CORS — auth'dan önce olmalı
 app.UseCors("AllowReactDev");
 
 // 5. Authentication → Authorization
@@ -167,7 +130,9 @@ RecurringJob.AddOrUpdate<WeeklyReportJob>(
 app.MapControllers();
 
 // 9. SignalR hubs
-app.MapHub<OrderHub>("/hubs/orders");
+// OrderHub: müşteriler anonymous bağlanabilmeli → AllowAnonymous zorunlu
+app.MapHub<OrderHub>("/hubs/orders").AllowAnonymous();
+// CashierHub: sadece staff erişir → token gerekli
 app.MapHub<CashierHub>("/hubs/cashier");
 
 app.Run();

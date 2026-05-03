@@ -25,16 +25,12 @@ export default function Login() {
         return '/login';
     };
 
-    console.log('Submit clicked, calling API...')
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setLoading(true);
 
         try {
-            // Doğrudan authApi.login çağrısı — axiosInstance interceptor'ı
-            // 401'de refresh tetiklemez çünkü /auth/login isAuthEndpoint listesinde
             const res = await authApi.login({ email, password });
             const raw = res.data;
 
@@ -121,7 +117,6 @@ export default function Login() {
                         </div>
                     )}
 
-                    {/* Geliştirme ortamı için hızlı giriş ipucu */}
                     {import.meta.env.DEV && (
                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
                             <p className="font-semibold mb-1">🔑 Varsayılan Giriş:</p>

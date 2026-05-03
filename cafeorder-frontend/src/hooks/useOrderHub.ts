@@ -1,6 +1,6 @@
 ﻿import { useEffect, useRef, useCallback } from 'react'
 import * as signalR from '@microsoft/signalr'
-import { createOrderHubConnection } from '../api/signalr'
+import { createOrderHubConnection, createKitchenHubConnection } from '../api/signalr'
 
 interface UseOrderHubOptions {
     tableNumber?: number
@@ -23,7 +23,12 @@ export function useOrderHub({
     useEffect(() => { onStatusRef.current = onOrderStatusUpdated }, [onOrderStatusUpdated])
 
     const startConnection = useCallback(async () => {
-        const conn = createOrderHubConnection()
+        // joinKitchen=true ise KitchenStaff token'ı ile bağlan
+        // joinKitchen=false ise müşteri olarak anonymous bağlan
+        const conn = joinKitchen
+            ? createKitchenHubConnection()
+            : createOrderHubConnection()
+
         connectionRef.current = conn
 
         conn.on('ReceiveNewOrder', (payload: unknown) => {
@@ -50,6 +55,7 @@ export function useOrderHub({
 
         try {
             await conn.start()
+
             if (tableNumber) {
                 await conn.invoke('JoinTableGroup', tableNumber).catch(() => { })
             }
@@ -57,7 +63,7 @@ export function useOrderHub({
                 await conn.invoke('JoinKitchenGroup').catch(() => { })
             }
         } catch {
-            // silently fail — reconnect will retry
+            // Sessizce geç — reconnect devreye girer
         }
     }, [tableNumber, joinKitchen])
 

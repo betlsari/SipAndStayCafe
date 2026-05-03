@@ -13,27 +13,37 @@ public sealed class ReportRepository : IReportRepository
         _context = context;
     }
 
+    // DateTime.Kind=Unspecified olan deðerleri UTC'ye çevirir
+    private static DateTime ToUtc(DateTime dt)
+        => dt.Kind == DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+
     public async Task<DailySalesReportDto> GetDailySalesReportAsync(DateTime date, CancellationToken cancellationToken)
     {
-        var startOfDay = date.Date;
-        var endOfDay = startOfDay.AddDays(1).AddTicks(-1);
+        var startOfDay = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+        var endOfDay = DateTime.SpecifyKind(date.Date.AddDays(1).AddTicks(-1), DateTimeKind.Utc);
 
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
             .Where(o => o.CreatedAt >= startOfDay && o.CreatedAt <= endOfDay)
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var totalRevenue = orders.SelectMany(o => o.OrderItems).Sum(oi => oi.ItemTotal);
+        var allItems = orders.SelectMany(o => o.OrderItems).ToList();
+
+        var totalRevenue = allItems.Sum(oi => oi.ItemTotal);
         var totalOrders = orders.Count;
 
-        // Get hourly sales breakdown
-        var hourlyGroups = orders.SelectMany(o => o.OrderItems)
-            .GroupBy(oi => oi.CreatedAt.Hour)
-            .Select(g => new HourlySalesDto(g.Key, g.Count(), g.Sum(oi => oi.ItemTotal)))
+        var hourlyGroups = orders
+            .GroupBy(o => o.CreatedAt.Hour)
+            .Select(g => new HourlySalesDto(
+                g.Key,
+                g.Count(),
+                g.SelectMany(o => o.OrderItems).Sum(oi => oi.ItemTotal)
+            ))
+            .OrderBy(x => x.Hour)
             .ToList();
 
-        // Get top selling items for the day
-        var topSellingItems = orders.SelectMany(o => o.OrderItems)
+        var topSellingItems = allItems
             .GroupBy(oi => new { oi.MenuItemId, oi.MenuItemNameSnapshot })
             .Select(g => new TopSellingItemDto(
                 g.Key.MenuItemId,
@@ -54,17 +64,23 @@ public sealed class ReportRepository : IReportRepository
         );
     }
 
-    public async Task<WeeklySalesReportDto> GetWeeklySalesReportAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+    public async Task<WeeklySalesReportDto> GetWeeklySalesReportAsync(
+        DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
     {
+        var start = ToUtc(startDate);
+        var end = ToUtc(endDate);
+
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
-            .Where(o => o.CreatedAt >= startDate && o.CreatedAt <= endDate)
+            .Where(o => o.CreatedAt >= start && o.CreatedAt <= end)
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var totalRevenue = orders.SelectMany(o => o.OrderItems).Sum(oi => oi.ItemTotal);
+        var allItems = orders.SelectMany(o => o.OrderItems).ToList();
+
+        var totalRevenue = allItems.Sum(oi => oi.ItemTotal);
         var totalOrders = orders.Count;
 
-        // Group by date for daily summaries
         var dailySales = orders
             .GroupBy(o => o.CreatedAt.Date)
             .Select(g => new DailySalesSummaryDto(
@@ -75,8 +91,7 @@ public sealed class ReportRepository : IReportRepository
             .OrderBy(x => x.Date)
             .ToList();
 
-        // Get top selling items for the week
-        var topSellingItems = orders.SelectMany(o => o.OrderItems)
+        var topSellingItems = allItems
             .GroupBy(oi => new { oi.MenuItemId, oi.MenuItemNameSnapshot })
             .Select(g => new TopSellingItemDto(
                 g.Key.MenuItemId,
@@ -98,12 +113,20 @@ public sealed class ReportRepository : IReportRepository
         );
     }
 
-    public async Task<List<TopSellingItemDto>> GetTopSellingItemsAsync(DateTime startDate, DateTime endDate, int count, CancellationToken cancellationToken)
+    public async Task<List<TopSellingItemDto>> GetTopSellingItemsAsync(
+        DateTime startDate, DateTime endDate, int count, CancellationToken cancellationToken)
     {
-        var topItems = await _context.Orders
+        var start = ToUtc(startDate);
+        var end = ToUtc(endDate);
+
+        var items = await _context.Orders
             .Include(o => o.OrderItems)
-            .Where(o => o.CreatedAt >= startDate && o.CreatedAt <= endDate)
+            .Where(o => o.CreatedAt >= start && o.CreatedAt <= end)
+            .AsNoTracking()
             .SelectMany(o => o.OrderItems)
+            .ToListAsync(cancellationToken);
+
+        var topItems = items
             .GroupBy(oi => new { oi.MenuItemId, oi.MenuItemNameSnapshot })
             .Select(g => new TopSellingItemDto(
                 g.Key.MenuItemId,
@@ -113,24 +136,29 @@ public sealed class ReportRepository : IReportRepository
             ))
             .OrderByDescending(x => x.TotalQuantitySold)
             .Take(count)
-            .ToListAsync(cancellationToken);
+            .ToList();
 
         return topItems;
     }
 
-    public async Task<List<HourlySalesDto>> GetPeakHoursAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
+    public async Task<List<HourlySalesDto>> GetPeakHoursAsync(
+        DateTime startDate, DateTime endDate, CancellationToken cancellationToken)
     {
+        var start = ToUtc(startDate);
+        var end = ToUtc(endDate);
+
         var orders = await _context.Orders
             .Include(o => o.OrderItems)
-            .Where(o => o.CreatedAt >= startDate && o.CreatedAt <= endDate)
+            .Where(o => o.CreatedAt >= start && o.CreatedAt <= end)
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        var hourlySales = orders.SelectMany(o => o.OrderItems)
-            .GroupBy(oi => oi.CreatedAt.Hour)
+        var hourlySales = orders
+            .GroupBy(o => o.CreatedAt.Hour)
             .Select(g => new HourlySalesDto(
                 g.Key,
                 g.Count(),
-                g.Sum(oi => oi.ItemTotal)
+                g.SelectMany(o => o.OrderItems).Sum(oi => oi.ItemTotal)
             ))
             .OrderBy(x => x.Hour)
             .ToList();

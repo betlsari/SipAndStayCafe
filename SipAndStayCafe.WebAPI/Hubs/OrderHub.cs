@@ -22,14 +22,12 @@ public sealed class OrderHub : Hub
     /// <summary>
     /// Mutfak ekranı kitchen grubuna katılır.
     /// Sadece KitchenStaff rolündeki kullanıcılar kabul edilir.
-    /// Hub [AllowAnonymous] olduğu için rol kontrolü burada yapılır.
+    /// Exception fırlatmak bağlantıyı koparır — yetkisiz kullanıcı sessizce görmezden gelinir.
     /// </summary>
     public async Task JoinKitchenGroup()
     {
-        if (!Context.User?.IsInRole("KitchenStaff") ?? true)
-        {
-            throw new HubException("Bu işlem için KitchenStaff rolü gereklidir.");
-        }
+        if (Context.User?.IsInRole("KitchenStaff") != true)
+            return; // throw değil — bağlantı kopmaz
 
         await Groups.AddToGroupAsync(Context.ConnectionId, KitchenGroup);
     }
@@ -57,7 +55,6 @@ public sealed class OrderHub : Hub
     // -----------------------------------------------------------------------
 
     public const string KitchenGroup = "kitchen";
-
     public static string TableGroupName(int tableNumber) => $"table-{tableNumber}";
 
     // -----------------------------------------------------------------------

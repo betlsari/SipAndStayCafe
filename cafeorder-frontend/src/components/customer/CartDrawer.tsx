@@ -1,7 +1,6 @@
 ﻿import { useNavigate } from 'react-router-dom'
 import { useCartStore } from '../../store/cartStore'
 import { orderApi } from '../../api/order.api'
-import { tableApi } from '../../api/table.api'
 import { useState } from 'react'
 
 interface Props {
@@ -23,7 +22,7 @@ export default function CartDrawer({ onClose }: Props) {
         setError(null)
 
         try {
-            await orderApi.placeOrder({
+            const res = await orderApi.placeOrder({
                 tableNumber,
                 items: items.map((i) => ({
                     menuItemId: i.menuItem.id,
@@ -33,18 +32,11 @@ export default function CartDrawer({ onClose }: Props) {
                 note: note || undefined,
             })
 
-            // Sipariş başarılıysa aktif session'ı bul ve sakla
-            try {
-                const tablesRes = await tableApi.getAll()
-                const table = tablesRes.data.find(t => t.tableNumber === tableNumber)
-                if (table) {
-                    const sessionRes = await tableApi.getActiveSession(table.id)
-                    if (sessionRes.data) {
-                        setSessionId(sessionRes.data.id)
-                    }
-                }
-            } catch {
-                // sessionId alınamazsa devam et — OrderStatus sayfası tekrar dener
+            // PlaceOrder response'undan sessionId'yi al (backend bunu dönüyorsa)
+            // Yoksa OrderStatus sayfası kendi resolve eder
+            const sessionId = (res.data as { sessionId?: string })?.sessionId
+            if (sessionId) {
+                setSessionId(sessionId)
             }
 
             clearCart()

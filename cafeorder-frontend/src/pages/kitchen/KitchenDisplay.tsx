@@ -1,10 +1,11 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿// src/pages/kitchen/KitchenDisplay.tsx
+import { useState, useEffect, useCallback } from 'react'
 import { orderApi } from '../../api/order.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
 import type { OrderItemDto, KitchenOrderDto } from '../../types/index'
 
 // Ready siparişler kaç dakika sonra ekrandan kaldırılsın
-const READY_AUTO_CLEAR_MS = 5 * 60 * 1000 // 5 dakika
+const READY_AUTO_CLEAR_MS = 2 * 60 * 1000 // 2 dakika (daha kısa)
 
 interface KitchenCard {
     orderId: string
@@ -13,14 +14,14 @@ interface KitchenCard {
     items: OrderItemDto[]
     total: number
     createdAt: string
-    readyAt?: number // timestamp — otomatik temizleme için
+    readyAt?: number
     note?: string | null
 }
 
 const COLUMNS: { status: KitchenCard['status']; label: string; color: string; dot: string }[] = [
-    { status: 'Received', label: 'Yeni', color: 'border-amber-400', dot: 'bg-amber-400' },
+    { status: 'Received', label: 'Yeni Siparişler', color: 'border-amber-400', dot: 'bg-amber-400' },
     { status: 'BeingPrepared', label: 'Hazırlanıyor', color: 'border-blue-400', dot: 'bg-blue-400' },
-    { status: 'Ready', label: 'Hazır', color: 'border-emerald-400', dot: 'bg-emerald-400' },
+    { status: 'Ready', label: 'Hazır / Teslim', color: 'border-emerald-400', dot: 'bg-emerald-400' },
 ]
 
 const elapsed = (iso: string) => {
@@ -76,20 +77,28 @@ function Card({ card, onAdvance }: { card: KitchenCard; onAdvance: (id: string, 
                     📝 {card.note}
                 </p>
             )}
-            {next && (
-                <button
-                    onClick={() => onAdvance(card.orderId, next)}
-                    className={`w-full mt-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all active:scale-95 ${card.status === 'Received' ? 'bg-blue-500 hover:bg-blue-400' : 'bg-emerald-500 hover:bg-emerald-400'
-                        } text-white`}
-                >
-                    {card.status === 'Received' ? 'Hazırlamaya Başla' : 'Hazır'}
-                </button>
-            )}
-            {card.status === 'Ready' && (
-                <div className="w-full py-2 rounded-lg text-xs font-semibold text-center text-emerald-400 border border-emerald-400/30 bg-emerald-400/5">
-                    ✓ Hazır{remainSec !== null ? ` · ${remainSec}s sonra temizlenir` : ''}
-                </div>
-            )}
+            {/* Aksiyon butonları */}
+            <div className="flex gap-2 pt-1">
+                {next && (
+                    <button
+                        onClick={() => onAdvance(card.orderId, next)}
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all active:scale-95 ${card.status === 'Received'
+                                ? 'bg-blue-500 hover:bg-blue-400'
+                                : 'bg-emerald-500 hover:bg-emerald-400'
+                            } text-white`}
+                    >
+                        {card.status === 'Received' ? '▶ Hazırlamaya Başla' : '✓ Hazır'}
+                    </button>
+                )}
+                {card.status === 'Ready' && (
+                    <div className="flex-1 py-2 rounded-lg text-xs font-semibold text-center text-emerald-400 border border-emerald-400/30 bg-emerald-400/5">
+                        ✓ Teslim Bekleniyor
+                        {remainSec !== null && remainSec > 0 && (
+                            <span className="text-zinc-500 ml-1">· {remainSec}s</span>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
@@ -116,11 +125,11 @@ export default function KitchenDisplay() {
                     return Date.now() - c.readyAt < READY_AUTO_CLEAR_MS
                 })
             )
-        }, 10_000)
+        }, 5_000)
         return () => clearInterval(id)
     }, [])
 
-    // Initial load
+    // Initial load - sadece Received ve BeingPrepared durumundaki siparişleri yükle
     useEffect(() => {
         let cancelled = false
         const load = async () => {
@@ -128,15 +137,18 @@ export default function KitchenDisplay() {
                 const res = await orderApi.getKitchenActiveOrders()
                 if (cancelled) return
                 setCards(
-                    res.data.map((o: KitchenOrderDto) => ({
-                        orderId: o.orderId,
-                        tableNumber: o.tableNumber,
-                        status: o.status as KitchenCard['status'],
-                        items: o.items,
-                        total: o.total,
-                        createdAt: o.createdAt,
-                        note: o.note,
-                    }))
+                    res.data
+                        // Ready olanları başlangıçta yükleme (zaten teslim edilmiş sayılır)
+                        .filter((o: KitchenOrderDto) => o.status !== 'Ready')
+                        .map((o: KitchenOrderDto) => ({
+                            orderId: o.orderId,
+                            tableNumber: o.tableNumber,
+                            status: o.status as KitchenCard['status'],
+                            items: o.items,
+                            total: o.total,
+                            createdAt: o.createdAt,
+                            note: o.note,
+                        }))
                 )
             } catch {
                 if (!cancelled) setError('Siparişler yüklenemedi.')
@@ -156,7 +168,7 @@ export default function KitchenDisplay() {
         const orderId = (orderRaw['id'] ?? orderRaw['Id']) as string | undefined
         if (!orderId) return
 
-        // Play a subtle audio cue
+        // Ses bildirimi
         try {
             const ctx = new AudioContext()
             const osc = ctx.createOscillator()
@@ -192,6 +204,7 @@ export default function KitchenDisplay() {
                     ? {
                         ...c,
                         status: newStatus as KitchenCard['status'],
+                        // Ready olunca timestamp kaydet (otomatik temizleme için)
                         readyAt: newStatus === 'Ready' ? Date.now() : c.readyAt,
                     }
                     : c
@@ -205,19 +218,17 @@ export default function KitchenDisplay() {
         onOrderStatusUpdated: handleStatusUpdated,
     })
 
-    // Monitor connection state
+    // Bağlantı durumu izleme
     useEffect(() => {
         const conn = connectionRef.current
         if (!conn) return
-        const onClose = () => setConnected(false)
-        const onReconnecting = () => setConnected(false)
-        const onReconnected = () => setConnected(true)
-        conn.onclose(onClose)
-        conn.onreconnecting(onReconnecting)
-        conn.onreconnected(onReconnected)
+        conn.onclose(() => setConnected(false))
+        conn.onreconnecting(() => setConnected(false))
+        conn.onreconnected(() => setConnected(true))
     }, [connectionRef])
 
     const handleAdvance = useCallback(async (orderId: string, next: KitchenCard['status']) => {
+        // Optimistic update
         setCards((prev) =>
             prev.map((c) =>
                 c.orderId === orderId
@@ -229,11 +240,40 @@ export default function KitchenDisplay() {
             await orderApi.updateOrderStatus(orderId, next)
         } catch {
             setError('Durum güncellenemedi.')
+            // Hata durumunda yeniden yükle
+            try {
+                const res = await orderApi.getKitchenActiveOrders()
+                setCards(
+                    res.data
+                        .filter((o: KitchenOrderDto) => o.status !== 'Ready')
+                        .map((o: KitchenOrderDto) => ({
+                            orderId: o.orderId,
+                            tableNumber: o.tableNumber,
+                            status: o.status as KitchenCard['status'],
+                            items: o.items,
+                            total: o.total,
+                            createdAt: o.createdAt,
+                            note: o.note,
+                        }))
+                )
+            } catch { /* ignore */ }
         }
     }, [])
 
-    const byStatus = (s: KitchenCard['status']) =>
-        cards.filter((c) => c.status === s).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    // Kolona göre filtrele - Ready'ler sadece readyAt varsa göster
+    const byStatus = (s: KitchenCard['status']) => {
+        return cards
+            .filter((c) => {
+                if (c.status !== s) return false
+                // Ready olanları sadece readyAt varsa göster ve süre dolmadıysa
+                if (s === 'Ready') {
+                    if (!c.readyAt) return true
+                    return Date.now() - c.readyAt < READY_AUTO_CLEAR_MS
+                }
+                return true
+            })
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    }
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
@@ -275,7 +315,7 @@ export default function KitchenDisplay() {
                                     ))}
                                     {byStatus(col.status).length === 0 && (
                                         <div className="py-12 border-2 border-dashed border-zinc-900 rounded-2xl text-center text-zinc-700 text-xs">
-                                            Bu aşamada sipariş yok
+                                            {col.status === 'Ready' ? 'Teslim bekleyen yok' : 'Bu aşamada sipariş yok'}
                                         </div>
                                     )}
                                 </div>

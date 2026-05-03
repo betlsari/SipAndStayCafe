@@ -20,7 +20,7 @@ const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { label: string; cls: string 
 const ORDER_STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
     Received: { label: 'Alındı', cls: 'text-amber-400 bg-amber-400/10' },
     BeingPrepared: { label: 'Hazırlanıyor', cls: 'text-blue-400 bg-blue-400/10' },
-    Ready: { label: 'Hazır', cls: 'text-emerald-400 bg-emerald-400/10' },
+    Ready: { label: 'Hazır ✓', cls: 'text-emerald-400 bg-emerald-400/10' },
 }
 
 export default function SessionDetailPage() {
@@ -45,20 +45,28 @@ export default function SessionDetailPage() {
     }, [id])
 
     useEffect(() => {
-        // Always use an async function inside useEffect, not directly in the effect body
         const fetch = async () => {
             await fetchDetail()
         }
         fetch()
     }, [fetchDetail])
+
     const handleConfirm = async () => {
         if (!id) return
         setConfirming(true)
+        setError(null)
         try {
             await cashierApi.confirmPayment(id)
             await fetchDetail()
-        } catch {
-            setError('Ödeme onaylanamadı.')
+        } catch (err: unknown) {
+            // Backend'den gelen hata mesajını göster
+            const axiosErr = err as { response?: { data?: { error?: string; message?: string } } }
+            const backendMsg = axiosErr?.response?.data?.error ?? axiosErr?.response?.data?.message
+            if (backendMsg?.includes('NotReady') || backendMsg?.includes('hazırlanmamış')) {
+                setError('Tüm siparişler "Hazır" durumuna geçmeden ödeme onaylanamaz.')
+            } else {
+                setError(backendMsg ?? 'Ödeme onaylanamadı.')
+            }
         } finally {
             setConfirming(false)
         }
@@ -70,15 +78,27 @@ export default function SessionDetailPage() {
         </div>
     )
 
-    if (error || !session) return (
+    if (error && !session) return (
         <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-6">
-            <p className="text-red-400 text-sm">{error ?? 'Bulunamadı.'}</p>
+            <p className="text-red-400 text-sm">{error}</p>
+            <button onClick={() => navigate(-1)} className="text-zinc-400 text-sm underline">Geri Dön</button>
+        </div>
+    )
+
+    if (!session) return (
+        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-6">
+            <p className="text-red-400 text-sm">Bulunamadı.</p>
             <button onClick={() => navigate(-1)} className="text-zinc-400 text-sm underline">Geri Dön</button>
         </div>
     )
 
     const statusCfg = PAYMENT_STATUS_CONFIG[session.paymentStatus]
     const canConfirm = session.paymentStatus !== 'Completed' && session.paymentStatus !== 'Failed'
+
+    // Hazır olmayan siparişler var mı?
+    const notReadyOrders = session.orderRounds.filter(r => r.status !== 'Ready')
+    const allOrdersReady = notReadyOrders.length === 0 && session.orderRounds.length > 0
+    const confirmBlocked = !allOrdersReady
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
@@ -119,20 +139,42 @@ export default function SessionDetailPage() {
                     </div>
                 </div>
 
+                {/* Not ready warning */}
+                {canConfirm && confirmBlocked && session.orderRounds.length > 0 && (
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 flex items-start gap-3">
+                        <span className="text-amber-400 text-lg shrink-0">⚠️</span>
+                        <div>
+                            <p className="text-amber-300 text-sm font-semibold">Hazırlanmamış sipariş var</p>
+                            <p className="text-amber-400/70 text-xs mt-0.5">
+                                {notReadyOrders.length} sipariş turu henüz "Hazır" durumuna geçmedi. Tüm siparişler hazır olmadan ödeme onaylanamaz.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Confirm button */}
                 {canConfirm && (
                     <button
-                        disabled={confirming}
+                        disabled={confirming || confirmBlocked}
                         onClick={handleConfirm}
-                        className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60
-                            text-white font-semibold text-sm transition-all duration-150 active:scale-95"
+                        className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-150 active:scale-95
+                            ${confirmBlocked
+                                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                                : 'bg-emerald-500 hover:bg-emerald-400 text-white'
+                            } disabled:opacity-60`}
                     >
-                        {confirming ? 'İşleniyor…' : '✓ Ödemeyi Onayla ve Masayı Kapat'}
+                        {confirming
+                            ? 'İşleniyor…'
+                            : confirmBlocked
+                                ? '🔒 Siparişler Hazır Değil'
+                                : '✓ Ödemeyi Onayla ve Masayı Kapat'}
                     </button>
                 )}
 
                 {error && (
-                    <p className="text-red-400 text-sm text-center">{error}</p>
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+                        <p className="text-red-400 text-sm text-center">{error}</p>
+                    </div>
                 )}
 
                 {/* Order rounds */}
@@ -154,7 +196,7 @@ export default function SessionDetailPage() {
                                 {/* Round header */}
                                 <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-xs font-mono text-zinc-500">#{session.orderRounds.length - idx}</span>
+                                        <span className="text-xs font-mono text-zinc-500">#{session.orderRounds.length - idx}. Tur</span>
                                         <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${orderStatus.cls}`}>
                                             {orderStatus.label}
                                         </span>
@@ -190,19 +232,3 @@ export default function SessionDetailPage() {
         </div>
     )
 }
-
-                                                /* 
-                                            Yapılacaklar
-Yeni Oluşturulacak Dosyalar:
-
-src/api/cashier.api.ts — GET /api/cashier/sessions/{id} ve POST /api/cashier/sessions/{id}/confirm-payment endpoint'leri
-src/pages/cashier/SessionDetailPage.tsx — /cashier/sessions/:id rotası için ana sayfa bileşeni
-
-src/components/cashier/SessionDetailCard.tsx — CashierSessionDetailDto verilerini gösteren kart (masa no, toplam, ödeme durumu)
-src/components/cashier/OrderRoundList.tsx — CashierOrderRoundDto[] listesini render eden bileşen
-src/components/cashier/ConfirmPaymentButton.tsx — Ödeme onaylama butonu + loading/error state yönetimi
-
-Güncellenecek Dosyalar:
-
-src/pages/cashier/CashierDashboard.tsx — Masa kartlarına tıklanınca /cashier/sessions/:id rotasına yönlendirme eklenmeli
-src/App.tsx (veya router dosyası) — /cashier/sessions/:id rotası eklenmeli*/

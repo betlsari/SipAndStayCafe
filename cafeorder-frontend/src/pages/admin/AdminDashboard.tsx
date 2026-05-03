@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react'
+﻿// src/pages/admin/AdminDashboard.tsx
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { menuApi } from '../../api/menu.api'
 import { tableApi } from '../../api/table.api'
@@ -62,20 +63,22 @@ export default function AdminDashboard() {
             href: '/admin/tables',
         },
         {
+            // Açık oturum → kasiyer paneli (doğru yönlendirme)
             label: 'Açık Oturum',
             value: activeSessionCount,
             sub: 'şu an masada müşteri var',
             icon: Tag,
             iconCls: 'bg-amber-500/20 text-amber-400',
-            href: '/admin/reports',
+            href: '/cashier',
         },
         {
+            // Açık masa cirosu → kasiyer paneli (aktif masalar orada görünür)
             label: 'Açık Masa Cirosu',
             value: revenue,
             sub: 'henüz kapanmamış oturumlar',
             icon: TrendingUp,
             iconCls: 'bg-emerald-500/20 text-emerald-400',
-            href: '/admin/reports',
+            href: '/cashier',
         },
     ]
 

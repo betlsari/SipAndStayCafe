@@ -1,9 +1,10 @@
 import * as signalR from '@microsoft/signalr'
 import { useAuthStore } from '../store/authStore'
+
 const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5291'
 
 const buildConnection = (hubPath: string, anonymous = false) => {
-    const builder = new signalR.HubConnectionBuilder()
+    return new signalR.HubConnectionBuilder()
         .withUrl(`${BASE_URL}${hubPath}`, {
             accessTokenFactory: anonymous
                 ? undefined
@@ -11,9 +12,14 @@ const buildConnection = (hubPath: string, anonymous = false) => {
         })
         .withAutomaticReconnect()
         .configureLogging(signalR.LogLevel.Warning)
-
-    return builder.build()
+        .build()
 }
 
-export const createOrderHubConnection = () => buildConnection('/hubs/orders', false)
+// Müþteri sayfalarý: anonymous (token yok)
+export const createOrderHubConnection = () => buildConnection('/hubs/orders', true)
+
+// Mutfak ekraný: KitchenStaff token ile
+export const createKitchenHubConnection = () => buildConnection('/hubs/orders', false)
+
+// Kasiyer paneli: Cashier/Owner token ile
 export const createCashierHubConnection = () => buildConnection('/hubs/cashier', false)

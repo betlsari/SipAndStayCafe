@@ -44,7 +44,6 @@ public class GetActiveSessionsHandler : IRequestHandler<GetActiveSessionsQuery, 
             SessionId: s.Id,
             OpenedAt: s.OpenedAt,
             TotalAmount: s.TotalAmount,
-            // Enum None ise null dön, aksi halde string'e çevir
             PaymentMethod: s.PaymentMethod == PaymentMethod.None ? null : s.PaymentMethod.ToString(),
             PaymentStatus: s.PaymentStatus.ToString(),
             OrderCount: s.Orders.Count
@@ -95,7 +94,6 @@ public class GetSessionDetailHandler : IRequestHandler<GetSessionDetailQuery, Ca
             SessionId: session.Id,
             OpenedAt: session.OpenedAt,
             PaymentStatus: session.PaymentStatus.ToString(),
-            // Enum None ise null dön, aksi halde string'e çevir
             PaymentMethod: session.PaymentMethod == PaymentMethod.None ? null : session.PaymentMethod.ToString(),
             GrandTotal: session.TotalAmount,
             OrderRounds: orderRoundDtos
@@ -126,15 +124,15 @@ public class GetPendingCashierPaymentsHandler : IRequestHandler<GetPendingCashie
             SessionId: s.Id,
             OpenedAt: s.OpenedAt,
             TotalAmount: s.TotalAmount,
-            // Burada zaten Cashier filtresi var, kesin dolu olduğu için null kontrolüne gerek yok
             PaymentMethod: s.PaymentMethod.ToString(),
             PaymentStatus: s.PaymentStatus.ToString(),
             OrderCount: s.Orders.Count
         )).ToList();
     }
-}// Add this to the QUERIES section with other records:
+}
+
 // ==========================================
-// 3. COMMANDS & YAZMA İŞLEMLERİ (YENİ EKLENEN)
+// 3. COMMANDS
 // ==========================================
 
 public record ConfirmCashierPaymentCommand(Guid SessionId) : IRequest<Result<bool>>;
@@ -160,10 +158,10 @@ public class ConfirmCashierPaymentHandler : IRequestHandler<ConfirmCashierPaymen
 
     public async Task<Result<bool>> Handle(ConfirmCashierPaymentCommand request, CancellationToken cancellationToken)
     {
-        // 1. Session'ı ve bağlı olduğu masayı (TableNumber için) Eager Load ile getiriyoruz
+        // 1. Session + Table + Orders'ı Eager Load ile getir
         var session = await _queryableSessionRepo.GetByIdWithIncludesAsync(
             request.SessionId,
-            q => q.Include(s => s.Table),
+            q => q.Include(s => s.Table).Include(s => s.Orders),
             cancellationToken);
 
         if (session == null)
@@ -172,22 +170,32 @@ public class ConfirmCashierPaymentHandler : IRequestHandler<ConfirmCashierPaymen
         if (session.ClosedAt.HasValue)
             return Result<bool>.Failure(Error.Create("Session.AlreadyClosed", "Bu masa oturumu zaten kapatılmış."));
 
-        // 2. Müşteri kendi telefonundan "Kasiyerde Öde" tuşuna basmadıysa bile,
-        // kasiyer işlemi onaylarken ödeme yöntemini 'Cashier' olarak belirliyoruz.
+        // 2. Tüm siparişlerin "Ready" durumunda olup olmadığını kontrol et
+        var notReadyOrders = session.Orders
+            .Where(o => o.Status != OrderStatus.Ready)
+            .ToList();
+
+        if (notReadyOrders.Any())
+        {
+            return Result<bool>.Failure(Error.Create(
+                "Orders.NotReady",
+                $"Henüz hazırlanmamış {notReadyOrders.Count} sipariş bulunuyor. " +
+                "Tüm siparişler 'Hazır' durumuna geçmeden ödeme onaylanamaz."));
+        }
+
+        // 3. Müşteri kasiyerden ödemcd e seçmediyse bile kasiyer onaylayabilir
         if (session.PaymentMethod == PaymentMethod.None)
         {
-            // Bu metot arka planda PaymentMethod = Cashier ve PaymentStatus = Pending yapar
             session.InitiateCashierPayment();
         }
 
-        // 3. Entity içindeki kapsüllenmiş ve idempotent olan kapatma metodunu çağırıyoruz.
-        // Bu metot arka planda PaymentStatus = Completed yapar ve ClosedAt değerini atar.
+        // 4. Oturumu kapat
         session.Close();
 
         _sessionRepo.Update(session);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // 4. Kapanış bildirimini gönderiyoruz (SignalR üzerinden ekranları güncelleyecek)
+        // 5. Kasiyer ekranına kapanış bildirimi gönder
         await _paymentNotificationService.NotifyTableSessionClosedAsync(session.Table.TableNumber, cancellationToken);
 
         return Result<bool>.Success(true);
