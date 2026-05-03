@@ -1,24 +1,40 @@
 ﻿using Hangfire;
 using SipAndStayCafe.Application;
+using SipAndStayCafe.Application.Interfaces;
 using SipAndStayCafe.Application.Interfaces.Hubs;
+
 using SipAndStayCafe.Infrastructure;
 using SipAndStayCafe.Infrastructure.Hangfire;
 using SipAndStayCafe.Infrastructure.Jobs;
-using SipAndStayCafe.Infrastructure.Seed;
+using SipAndStayCafe.Infrastructure.Persistence;
+using SipAndStayCafe.Infrastructure.Persistence.Repositories;
+using SipAndStayCafe.Infrastructure.Services;
+
 using SipAndStayCafe.WebAPI.Adapters;
 using SipAndStayCafe.WebAPI.Hubs;
 using SipAndStayCafe.WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ── Layers ─────────────────────────────────────────────────────
 builder.Services.AddApplication();
-
 builder.Services.AddInfrastructure(builder.Configuration);
+
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+// ── Hub Adapters ───────────────────────────────────────────────
 builder.Services.AddScoped<IOrderHubContext, OrderHubContextAdapter>();
 builder.Services.AddScoped<ICashierHubContext, CashierHubContextAdapter>();
 
+// ── Application Services ───────────────────────────────────────
+
+builder.Services.AddScoped<IIyzicoService, IyzicoService>();
+
+
+// ── Unit of Work ───────────────────────────────────────────────
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// ── Controllers ────────────────────────────────────────────────
 builder.Services
     .AddControllers()
     .AddJsonOptions(opts =>
@@ -27,6 +43,7 @@ builder.Services
             new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 
+// ── Swagger ────────────────────────────────────────────────────
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opts =>
 {
@@ -58,8 +75,10 @@ builder.Services.AddSwaggerGen(opts =>
     });
 });
 
+// ── SignalR ────────────────────────────────────────────────────
 builder.Services.AddSignalR();
 
+// ── CORS ───────────────────────────────────────────────────────
 builder.Services.AddCors(opts =>
 {
     opts.AddPolicy("AllowReactDev", policy =>
@@ -78,12 +97,12 @@ builder.Services.AddCors(opts =>
 
 var app = builder.Build();
 
-await RoleSeeder.SeedAsync(app);
+// ❌ BURAYI SİLDİK (çünkü sende yoktu)
+// await RoleSeeder.SeedAsync(app);
 
-// 1. Global exception handler
+// ── Middleware ─────────────────────────────────────────────────
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// 2. Development tools
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -94,45 +113,38 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// 3. HTTPS redirect
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
-// 4. CORS — auth'dan önce olmalı
 app.UseCors("AllowReactDev");
 
-// 5. Authentication → Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 6. Hangfire dashboard
+// ── Hangfire ───────────────────────────────────────────────────
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
     Authorization = [new OwnerHangfireAuthFilter()]
 });
 
-// 7. Recurring jobs
 RecurringJob.AddOrUpdate<StockResetJob>(
-    recurringJobId: "nightly-stock-reset",
-    methodCall: job => job.ExecuteAsync(CancellationToken.None),
-    cronExpression: Cron.Daily(0, 0),
-    options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+    "nightly-stock-reset",
+    job => job.ExecuteAsync(CancellationToken.None),
+    Cron.Daily(0, 0),
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
 RecurringJob.AddOrUpdate<WeeklyReportJob>(
-    recurringJobId: "weekly-sales-report",
-    methodCall: job => job.ExecuteAsync(CancellationToken.None),
-    cronExpression: "0 0 * * 1",
-    options: new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+    "weekly-sales-report",
+    job => job.ExecuteAsync(CancellationToken.None),
+    "0 0 * * 1",
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
-// 8. Controllers
+// ── Endpoints ──────────────────────────────────────────────────
 app.MapControllers();
 
-// 9. SignalR hubs
-// OrderHub: müşteriler anonymous bağlanabilmeli → AllowAnonymous zorunlu
 app.MapHub<OrderHub>("/hubs/orders").AllowAnonymous();
-// CashierHub: sadece staff erişir → token gerekli
 app.MapHub<CashierHub>("/hubs/cashier");
 
 app.Run();

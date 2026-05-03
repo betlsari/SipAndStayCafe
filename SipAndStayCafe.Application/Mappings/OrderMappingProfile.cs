@@ -19,6 +19,7 @@ public class OrderMappingProfile : Profile
 
         // 2. Order -> OrderDto Mapping
         CreateMap<Order, OrderDto>()
+            .ForCtorParam("SessionId", opt => opt.MapFrom(src => src.TableSessionId))  // ← EKLENDİ
             .ForCtorParam("Status", opt => opt.MapFrom(src => src.Status.ToString()))
             .ForCtorParam("CreatedAt", opt => opt.MapFrom(src => src.CreatedAt))
             .ForCtorParam("Note", opt => opt.MapFrom(src => src.Note))

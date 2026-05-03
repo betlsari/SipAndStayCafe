@@ -138,4 +138,16 @@ public sealed class TableSession : BaseEntity
         PaymentMethod = PaymentMethod.None;   // unlock — allow retry
         PaymentLockedAt = null;
     }
+    /// <summary>
+    /// Müşteri ödeme yöntemini değiştirmek istediğinde kilidi sıfırlar.
+    /// Sadece ödeme henüz tamamlanmamışsa çalışır.
+    /// </summary>
+    public bool ResetPaymentLock()
+    {
+        if (IsPaid || ClosedAt.HasValue) return false;
+        PaymentMethod = PaymentMethod.None;
+        PaymentStatus = PaymentStatus.None;
+        PaymentLockedAt = null;
+        return true;
+    }
 }

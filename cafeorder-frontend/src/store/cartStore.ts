@@ -41,7 +41,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         })),
 
     // sessionId kasýtlý korunuyor — ödeme sayfasýna geçiþte hâlâ gerekli
-    clearCart: () => set({ items: [] }),
+    clearCart: () => set({ items: [], sessionId: null }),
 
     getTotalPrice: () =>
         get().items.reduce((sum, item) => sum + item.itemTotal, 0),

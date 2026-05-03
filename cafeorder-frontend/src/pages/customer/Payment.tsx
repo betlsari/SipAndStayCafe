@@ -4,8 +4,10 @@ import { paymentApi } from '../../api/payment.api'
 import type { AxiosError } from 'axios'
 
 interface PaymentErrorResponse {
-    code: string
-    message: string
+    code?: string
+    message?: string
+    detail?: string
+    errors?: Record<string, string[]>
 }
 
 type PaymentMethod = 'cashier' | 'online'
@@ -37,18 +39,48 @@ export default function Payment() {
                 const res = await paymentApi.initiateOnlinePayment({ sessionId })
                 setCheckoutHtml(res.data.checkoutFormContent)
             }
-        }  catch (err) {
+        } catch (err) {
             const axiosErr = err as AxiosError<PaymentErrorResponse>
-            const code = axiosErr?.response?.data?.code
+            const data = axiosErr?.response?.data
+            const code = data?.code
+
+            // Cashier endpoint returns { code, message }
             if (code === 'Payment.AlreadyLocked') {
                 setError('Bu masa için zaten bir ödeme işlemi başlatılmış.')
-            } else if (code === 'Session.AlreadyClosed') {
-                // Session kapanmış → result sayfasına yönlendir, durum bilgisiyle
-                navigate('/payment-result?status=session-closed')
-            } else {
-                setError('Ödeme başlatılamadı. Lütfen tekrar deneyin.')
+                return
             }
-        
+            if (code === 'Session.AlreadyClosed') {
+                navigate('/payment-result?status=session-closed')
+                return
+            }
+
+            // Online endpoint throws ValidationException → ProblemDetails format
+            // Extract first error message from errors dict, or fall back to detail
+            const errorsDict = data?.errors
+            if (errorsDict) {
+                const firstMsg = Object.values(errorsDict).flat()[0]
+                if (firstMsg) {
+                    setError(firstMsg)
+                    return
+                }
+            }
+
+            const detail = data?.detail
+            if (detail) {
+                // Map known backend messages to user-friendly Turkish
+                if (detail.includes('zaten kapatılmış') || detail.includes('AlreadyClosed')) {
+                    navigate('/payment-result?status=session-closed')
+                    return
+                }
+                if (detail.includes('zaten') && detail.includes('ödeme')) {
+                    setError('Bu masa için zaten bir ödeme işlemi başlatılmış.')
+                    return
+                }
+                setError(detail)
+                return
+            }
+
+            setError('Ödeme başlatılamadı. Lütfen tekrar deneyin.')
         } finally {
             setLoading(false)
         }
@@ -80,7 +112,8 @@ export default function Payment() {
 
                 <button
                     onClick={() => setSelected('cashier')}
-                    className={`w-full bg-white rounded-xl shadow-sm p-5 flex items-center gap-4 border-2 transition-colors text-left ${selected === 'cashier' ? 'border-purple-500' : 'border-transparent'}`}
+                    className={`w-full bg-white rounded-xl shadow-sm p-5 flex items-center gap-4 border-2 transition-colors text-left ${selected === 'cashier' ? 'border-purple-500' : 'border-transparent'
+                        }`}
                 >
                     <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0 text-2xl">🧾</div>
                     <div>
@@ -92,7 +125,8 @@ export default function Payment() {
 
                 <button
                     onClick={() => setSelected('online')}
-                    className={`w-full bg-white rounded-xl shadow-sm p-5 flex items-center gap-4 border-2 transition-colors text-left ${selected === 'online' ? 'border-purple-500' : 'border-transparent'}`}
+                    className={`w-full bg-white rounded-xl shadow-sm p-5 flex items-center gap-4 border-2 transition-colors text-left ${selected === 'online' ? 'border-purple-500' : 'border-transparent'
+                        }`}
                 >
                     <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0 text-2xl">💳</div>
                     <div>
@@ -102,7 +136,11 @@ export default function Payment() {
                     {selected === 'online' && <span className="ml-auto text-purple-500 text-xl">✓</span>}
                 </button>
 
-                {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                        <p className="text-sm text-red-600 text-center">{error}</p>
+                    </div>
+                )}
             </div>
 
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4">

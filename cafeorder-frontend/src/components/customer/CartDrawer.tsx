@@ -32,11 +32,10 @@ export default function CartDrawer({ onClose }: Props) {
                 note: note || undefined,
             })
 
-            // PlaceOrder response'undan sessionId'yi al (backend bunu dönüyorsa)
-            // Yoksa OrderStatus sayfası kendi resolve eder
-            const sessionId = (res.data as { sessionId?: string })?.sessionId
-            if (sessionId) {
-                setSessionId(sessionId)
+            // Backend artık OrderDto içinde sessionId döndürüyor
+            // res.data.sessionId → Guid (string olarak gelir)
+            if (res.data.sessionId) {
+                setSessionId(res.data.sessionId)
             }
 
             clearCart()

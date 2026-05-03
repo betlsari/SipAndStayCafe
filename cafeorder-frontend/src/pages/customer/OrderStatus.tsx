@@ -1,7 +1,6 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { orderApi } from '../../api/order.api'
-import { tableApi } from '../../api/table.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
 import { useCartStore } from '../../store/cartStore'
 import type { TableOrderHistoryDto, OrderDto, OrderStatus as OrderStatusType } from '../../types/index'
@@ -25,7 +24,6 @@ export default function OrderStatus() {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
 
-    // NaN guard: '?table=abc' veya parametre yoksa 0 döner, aşağıda yakalanır
     const tableNumber = Number(searchParams.get('table')) || 0
 
     const { sessionId: storedSessionId, setSessionId } = useCartStore()
@@ -34,33 +32,9 @@ export default function OrderStatus() {
     const [error, setError] = useState<string | null>(null)
     const [paymentLoading, setPaymentLoading] = useState(false)
 
-    const fetchHistory = useCallback(async () => {
-        try {
-            const res = await orderApi.getTableOrderHistory(tableNumber)
-            setHistory(res.data)
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Sipariş geçmişi yüklenemedi.'
-            setError(message)
-        } finally {
-            setLoading(false)
-        }
-    }, [tableNumber])
-
-    // sessionId store'da yoksa tableApi üzerinden çek
-    const resolveSessionId = useCallback(async (): Promise<string | null> => {
-        if (storedSessionId) return storedSessionId
-        try {
-            const tablesRes = await tableApi.getAll()
-            const table = tablesRes.data.find(t => t.tableNumber === tableNumber)
-            if (!table) return null
-            const sessionRes = await tableApi.getActiveSession(table.id)
-            const id = sessionRes.data?.id ?? null
-            if (id) setSessionId(id)
-            return id
-        } catch {
-            return null
-        }
-    }, [tableNumber, storedSessionId, setSessionId])
+    // ref ile en güncel sessionId'yi effect bağımlılığı olmadan okuyabiliyoruz
+    const sessionIdRef = useRef(storedSessionId)
+    useEffect(() => { sessionIdRef.current = storedSessionId }, [storedSessionId])
 
     const handleStatusUpdate = useCallback((orderId: string, newStatus: string) => {
         setHistory((prev) => {
@@ -78,25 +52,56 @@ export default function OrderStatus() {
         })
     }, [])
 
-    // tableNumber geçildi → JoinTableGroup çağrılacak
     useOrderHub({
         tableNumber,
         onOrderStatusUpdated: handleStatusUpdate,
     })
 
+    // Veri çekme ve sessionId kaydetme tek bir async effect içinde.
+    // setState çağrıları await sonrasında (async context) yapıldığından
+    // linter "synchronous setState in effect" uyarısı vermez.
     useEffect(() => {
         if (!tableNumber) {
             navigate('/menu')
             return
         }
+
         let cancelled = false
+
         const load = async () => {
-            await fetchHistory()
-            if (!cancelled) await resolveSessionId()
+            try {
+                const res = await orderApi.getTableOrderHistory(tableNumber)
+                if (cancelled) return
+
+                setHistory(res.data)
+
+                if (!sessionIdRef.current) {
+                    const sid = res.data.orders[0]?.sessionId
+                    if (sid) setSessionId(sid)
+                }
+            } catch (err: unknown) {
+                if (cancelled) return
+                const message = err instanceof Error ? err.message : 'Sipariş geçmişi yüklenemedi.'
+                setError(message)
+            } finally {
+                if (!cancelled) setLoading(false)
+            }
         }
+
         load()
         return () => { cancelled = true }
-    }, [tableNumber, fetchHistory, resolveSessionId, navigate])
+    }, [tableNumber, navigate, setSessionId])
+
+    const resolveSessionId = useCallback(async (): Promise<string | null> => {
+        if (sessionIdRef.current) return sessionIdRef.current
+        if (history?.orders[0]?.sessionId) return history.orders[0].sessionId
+        try {
+            const res = await orderApi.getTableOrderHistory(tableNumber)
+            return res.data.orders[0]?.sessionId ?? null
+        } catch {
+            return null
+        }
+    }, [tableNumber, history])
 
     const handlePayment = async () => {
         setPaymentLoading(true)
@@ -118,7 +123,12 @@ export default function OrderStatus() {
         <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
             <div className="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
                 <p className="font-bold">{error}</p>
-                <button onClick={fetchHistory} className="mt-2 text-sm underline">Tekrar Dene</button>
+                <button
+                    onClick={() => { setLoading(true); setError(null) }}
+                    className="mt-2 text-sm underline"
+                >
+                    Tekrar Dene
+                </button>
             </div>
         </div>
     )

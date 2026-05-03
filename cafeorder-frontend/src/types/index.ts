@@ -174,6 +174,7 @@ export interface OrderItemDto {
 
 export interface OrderDto {
     id: string
+    sessionId: string 
     status: OrderStatus
     items: OrderItemDto[]
     total: number

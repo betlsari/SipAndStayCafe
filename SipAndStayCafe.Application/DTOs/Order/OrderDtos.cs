@@ -48,11 +48,13 @@ public sealed record OrderItemDto(
 /// </summary>
 public sealed record OrderDto(
     Guid Id,
+    Guid SessionId,
     string Status,
     List<OrderItemDto> Items,
     decimal Total,
     DateTime CreatedAt,
     string? Note);
+
 
 /// <summary>
 /// Masa özeti gibi listelemelerde kullanılacak hafif (lightweight) sipariş nesnesi.
