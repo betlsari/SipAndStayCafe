@@ -8,17 +8,182 @@ import WaiterCallButton from '../../components/customer/WaiterCallButton'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { toast } from 'sonner'
 
-const statusLabel: Record<string, string> = {
-    Received: 'Alındı',
-    BeingPrepared: 'Hazırlanıyor',
-    Ready: 'Hazır',
+// ── Status config ────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
+    Received: {
+        label: 'Alındı',
+        bg: '#FEF6EE',
+        color: '#7A5C1A',
+        border: 'rgba(245,158,11,0.2)',
+    },
+    BeingPrepared: {
+        label: 'Hazırlanıyor',
+        bg: '#EEF4FE',
+        color: '#2B5FA0',
+        border: 'rgba(59,130,246,0.18)',
+    },
+    Ready: {
+        label: 'Hazır ✓',
+        bg: '#EFF5EC',
+        color: '#3D5C34',
+        border: 'rgba(82,167,107,0.2)',
+    },
 }
 
-const statusColor: Record<string, string> = {
-    Received: 'bg-amber-100 text-amber-700 border border-amber-200',
-    BeingPrepared: 'bg-blue-100 text-blue-700 border border-blue-200',
-    Ready: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: string }) {
+    const cfg = STATUS_CONFIG[status] ?? {
+        label: status,
+        bg: '#F0ECE4',
+        color: '#6A6560',
+        border: '#D8D4CC',
+    }
+    return (
+        <span
+            style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '4px 12px',
+                borderRadius: '20px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                background: cfg.bg,
+                color: cfg.color,
+                border: `1px solid ${cfg.border}`,
+            }}
+        >
+            {cfg.label}
+        </span>
+    )
 }
+
+function OrderCard({ order }: { order: OrderDto }) {
+    return (
+        <div
+            style={{
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid #EDE9E0',
+                overflow: 'hidden',
+                transition: 'box-shadow 0.2s',
+            }}
+        >
+            {/* Card header */}
+            <div
+                style={{
+                    padding: '11px 18px',
+                    background: '#FDFCF9',
+                    borderBottom: '1px solid #EDE9E0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <span
+                    style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: '#B0AB9E',
+                        letterSpacing: '0.04em',
+                    }}
+                >
+                    {new Date(order.createdAt).toLocaleTimeString('tr-TR', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    })}
+                </span>
+                <StatusBadge status={order.status} />
+            </div>
+
+            {/* Items */}
+            <div
+                style={{
+                    padding: '16px 18px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                }}
+            >
+                {order.items.map((item) => (
+                    <div
+                        key={item.id}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-between',
+                            gap: '12px',
+                        }}
+                    >
+                        <div style={{ flex: 1 }}>
+                            <p
+                                style={{
+                                    fontSize: '14px',
+                                    fontWeight: 500,
+                                    color: '#2C3528',
+                                    margin: 0,
+                                }}
+                            >
+                                <span style={{ color: '#5F7154', fontWeight: 700, marginRight: '4px' }}>
+                                    {item.quantity}×
+                                </span>
+                                {item.productName}
+                            </p>
+                            {item.modifierSnapshots.length > 0 && (
+                                <p
+                                    style={{
+                                        fontSize: '11px',
+                                        color: '#8A8478',
+                                        margin: '3px 0 0',
+                                        fontStyle: 'italic',
+                                    }}
+                                >
+                                    {item.modifierSnapshots.join(', ')}
+                                </p>
+                            )}
+                        </div>
+                        <p
+                            style={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                color: '#4A4840',
+                                margin: 0,
+                                flexShrink: 0,
+                            }}
+                        >
+                            ₺{item.itemTotal.toFixed(2)}
+                        </p>
+                    </div>
+                ))}
+            </div>
+
+            {/* Note */}
+            {order.note && (
+                <div
+                    style={{
+                        margin: '0 18px 14px',
+                        background: '#FEF6EE',
+                        border: '1px solid rgba(245,158,11,0.2)',
+                        borderRadius: '10px',
+                        padding: '9px 13px',
+                        fontSize: '12px',
+                        color: '#7A5C1A',
+                        fontStyle: 'italic',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '6px',
+                    }}
+                >
+                    <span style={{ flexShrink: 0 }}>📝</span>
+                    <span>{order.note}</span>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export default function OrderStatus() {
     const [searchParams] = useSearchParams()
@@ -32,49 +197,38 @@ export default function OrderStatus() {
     const [error, setError] = useState<string | null>(null)
     const [paymentLoading, setPaymentLoading] = useState(false)
 
-    // ref ile en güncel sessionId'yi effect bağımlılığı olmadan okuyabiliyoruz
     const sessionIdRef = useRef(storedSessionId)
     useEffect(() => { sessionIdRef.current = storedSessionId }, [storedSessionId])
 
     const handleStatusUpdate = useCallback((orderId: string, newStatus: string) => {
         setHistory((prev) => {
             if (!prev) return null
-            const targetOrder = prev.orders.find(o => o.id === orderId)
+            const targetOrder = prev.orders.find((o) => o.id === orderId)
             if (targetOrder && newStatus === 'Ready') {
                 toast.success(`${targetOrder.items[0]?.productName ?? 'Siparişiniz'} hazır! 🍽️`)
             }
             return {
                 ...prev,
-                orders: prev.orders.map(o =>
+                orders: prev.orders.map((o) =>
                     o.id === orderId ? { ...o, status: newStatus as OrderStatusType } : o
                 ),
             }
         })
     }, [])
 
-    useOrderHub({
-        tableNumber,
-        onOrderStatusUpdated: handleStatusUpdate,
-    })
+    useOrderHub({ tableNumber, onOrderStatusUpdated: handleStatusUpdate })
 
-    // Veri çekme ve sessionId kaydetme tek bir async effect içinde.
-    // setState çağrıları await sonrasında (async context) yapıldığından
-    // linter "synchronous setState in effect" uyarısı vermez.
     useEffect(() => {
         if (!tableNumber) {
             navigate('/menu')
             return
         }
-
         let cancelled = false
-
         const load = async () => {
             try {
                 const res = await orderApi.getTableOrderHistory(tableNumber)
                 if (cancelled) return
-
                 setHistory(res.data)
-
                 if (!sessionIdRef.current) {
                     const sid = res.data.orders[0]?.sessionId
                     if (sid) setSessionId(sid)
@@ -87,7 +241,6 @@ export default function OrderStatus() {
                 if (!cancelled) setLoading(false)
             }
         }
-
         load()
         return () => { cancelled = true }
     }, [tableNumber, navigate, setSessionId])
@@ -117,15 +270,46 @@ export default function OrderStatus() {
         }
     }
 
+    // ── Loading / error / empty states ────────────────────────────────────────
+
     if (loading) return <LoadingSpinner />
 
     if (error) return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-            <div className="bg-red-50 text-red-600 p-4 rounded-2xl border border-red-100">
-                <p className="font-bold">{error}</p>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#F7F5F0',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px',
+                fontFamily: 'system-ui, sans-serif',
+            }}
+        >
+            <div
+                style={{
+                    background: '#FEF0EE',
+                    border: '1px solid rgba(224,144,112,0.4)',
+                    borderRadius: '14px',
+                    padding: '18px 24px',
+                    textAlign: 'center',
+                }}
+            >
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#7A3530', margin: '0 0 10px' }}>
+                    {error}
+                </p>
                 <button
                     onClick={() => { setLoading(true); setError(null) }}
-                    className="mt-2 text-sm underline"
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '13px',
+                        color: '#5F7154',
+                        cursor: 'pointer',
+                        textDecoration: 'underline',
+                        fontFamily: 'inherit',
+                    }}
                 >
                     Tekrar Dene
                 </button>
@@ -134,91 +318,227 @@ export default function OrderStatus() {
     )
 
     if (!history || history.orders.length === 0) return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-            <p className="text-gray-400 font-medium">Henüz siparişiniz bulunmuyor.</p>
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#F7F5F0',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '24px',
+                fontFamily: 'system-ui, sans-serif',
+                textAlign: 'center',
+                gap: '16px',
+            }}
+        >
+            <div style={{ fontSize: '32px' }}>🛒</div>
+            <p style={{ fontSize: '14px', color: '#8A8478', fontWeight: 500 }}>
+                Henüz siparişiniz bulunmuyor.
+            </p>
             <button
                 onClick={() => navigate(`/menu?table=${tableNumber}`)}
-                className="mt-4 bg-purple-600 text-white px-6 py-2 rounded-xl text-sm font-bold"
+                style={{
+                    background: '#5F7154',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '11px 24px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                }}
             >
                 Menüye Dön
             </button>
         </div>
     )
 
+    // ── Main render ───────────────────────────────────────────────────────────
+
     return (
-        <div className="min-h-screen bg-zinc-50 pb-40">
-            <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-zinc-100 px-6 py-4 flex items-center justify-between">
+        <div
+            style={{
+                minHeight: '100vh',
+                background: '#F7F5F0',
+                paddingBottom: '160px',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+            }}
+        >
+            {/* ── Header ── */}
+            <header
+                style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 20,
+                    background: 'rgba(247,245,240,0.94)',
+                    backdropFilter: 'blur(10px)',
+                    borderBottom: '1px solid #EDE9E0',
+                    padding: '14px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
                 <div>
-                    <h1 className="text-xl font-black text-zinc-900 tracking-tight">SİPARİŞLERİM</h1>
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Canlı Takip</span>
+                    <h1
+                        style={{
+                            fontSize: '17px',
+                            fontWeight: 600,
+                            color: '#2C3528',
+                            margin: 0,
+                            letterSpacing: '-0.01em',
+                        }}
+                    >
+                        Siparişlerim
+                    </h1>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' }}>
+                        <span
+                            style={{
+                                width: '7px',
+                                height: '7px',
+                                borderRadius: '50%',
+                                background: '#5F7154',
+                                display: 'inline-block',
+                                animation: 'pulse 2s infinite',
+                            }}
+                        />
+                        <span
+                            style={{
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                color: '#8A8478',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                            }}
+                        >
+                            Canlı Takip
+                        </span>
                     </div>
                 </div>
-                <div className="bg-zinc-100 px-3 py-1.5 rounded-lg border border-zinc-200">
-                    <span className="text-xs font-bold text-zinc-600">MASA {tableNumber}</span>
+
+                <div
+                    style={{
+                        background: '#EDF2E8',
+                        border: '1px solid #C8D5C0',
+                        borderRadius: '10px',
+                        padding: '6px 14px',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: '#3D4A36',
+                        letterSpacing: '0.05em',
+                    }}
+                >
+                    Masa {tableNumber}
                 </div>
             </header>
 
-            <div className="px-4 py-6 flex flex-col gap-4 max-w-2xl mx-auto">
+            {/* ── Order cards ── */}
+            <div
+                style={{
+                    padding: '20px',
+                    maxWidth: '560px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                }}
+            >
                 {history.orders.map((order: OrderDto) => (
-                    <div key={order.id} className="bg-white rounded-2xl border border-zinc-100 shadow-sm overflow-hidden">
-                        <div className="px-5 py-3 bg-zinc-50/50 border-b border-zinc-100 flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-zinc-400 uppercase">
-                                {new Date(order.createdAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full ${statusColor[order.status] ?? 'bg-zinc-100 text-zinc-600'}`}>
-                                {statusLabel[order.status] ?? order.status}
-                            </span>
-                        </div>
-                        <div className="p-5 flex flex-col gap-3">
-                            {order.items.map((item) => (
-                                <div key={item.id} className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold text-zinc-800">
-                                            {item.quantity}× {item.productName}
-                                        </p>
-                                        {item.modifierSnapshots.length > 0 && (
-                                            <p className="text-[11px] text-zinc-400 mt-0.5 italic">
-                                                {item.modifierSnapshots.join(', ')}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <p className="text-sm font-bold text-zinc-700">₺{item.itemTotal.toFixed(2)}</p>
-                                </div>
-                            ))}
-                        </div>
-                        {order.note && (
-                            <div className="px-5 pb-4">
-                                <p className="text-[11px] text-amber-600 bg-amber-50 p-2 rounded-lg border border-amber-100 italic">
-                                    Not: {order.note}
-                                </p>
-                            </div>
-                        )}
-                    </div>
+                    <OrderCard key={order.id} order={order} />
                 ))}
             </div>
 
-            <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-zinc-100 p-6 shadow-[0_-10px_40px_rgba(0,0,0,0.04)]">
-                <div className="max-w-2xl mx-auto flex flex-col gap-4">
-                    <div className="flex items-center justify-between px-1">
-                        <span className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Toplam Tutar</span>
-                        <span className="text-2xl font-black text-purple-600 tracking-tighter">
+            {/* ── Sticky footer ── */}
+            <div
+                style={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    zIndex: 30,
+                    background: 'rgba(247,245,240,0.97)',
+                    backdropFilter: 'blur(8px)',
+                    borderTop: '1px solid #EDE9E0',
+                    padding: '18px 20px',
+                }}
+            >
+                <div
+                    style={{
+                        maxWidth: '560px',
+                        margin: '0 auto',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '14px',
+                    }}
+                >
+                    {/* Total row */}
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0 2px',
+                        }}
+                    >
+                        <span
+                            style={{
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                color: '#8A8478',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                            }}
+                        >
+                            Toplam Tutar
+                        </span>
+                        <span
+                            style={{
+                                fontSize: '26px',
+                                fontWeight: 700,
+                                color: '#2C3528',
+                                letterSpacing: '-0.02em',
+                            }}
+                        >
                             ₺{history.grandTotal.toFixed(2)}
                         </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+
+                    {/* Action buttons */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                        {/* Waiter call — pink accent, secondary action */}
                         <WaiterCallButton tableNumber={tableNumber} />
+
+                        {/* Payment — green primary */}
                         <button
                             onClick={handlePayment}
                             disabled={paymentLoading}
-                            className="bg-purple-600 hover:bg-purple-700 disabled:bg-purple-300 text-white font-black text-sm uppercase tracking-wider py-4 rounded-2xl transition-all active:scale-[0.98]"
+                            style={{
+                                background: paymentLoading ? '#8FAF80' : '#5F7154',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                borderRadius: '14px',
+                                padding: '14px',
+                                fontSize: '13px',
+                                fontWeight: 600,
+                                cursor: paymentLoading ? 'not-allowed' : 'pointer',
+                                fontFamily: 'system-ui, sans-serif',
+                                transition: 'background 0.15s',
+                            }}
                         >
-                            {paymentLoading ? 'İşleniyor...' : 'Ödeme Yap'}
+                            {paymentLoading ? 'İşleniyor…' : 'Ödeme Yap'}
                         </button>
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.45; }
+                }
+            `}</style>
         </div>
     )
 }
