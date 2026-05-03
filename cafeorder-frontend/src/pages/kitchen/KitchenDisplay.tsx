@@ -1,11 +1,9 @@
-﻿// src/pages/kitchen/KitchenDisplay.tsx
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { orderApi } from '../../api/order.api'
 import { useOrderHub } from '../../hooks/useOrderHub'
 import type { OrderItemDto, KitchenOrderDto } from '../../types/index'
 
-// Ready siparişler kaç dakika sonra ekrandan kaldırılsın
-const READY_AUTO_CLEAR_MS = 2 * 60 * 1000 // 2 dakika (daha kısa)
+const READY_AUTO_CLEAR_MS = 2 * 60 * 1000
 
 interface KitchenCard {
     orderId: string
@@ -18,16 +16,16 @@ interface KitchenCard {
     note?: string | null
 }
 
-const COLUMNS: { status: KitchenCard['status']; label: string; color: string; dot: string }[] = [
-    { status: 'Received', label: 'Yeni Siparişler', color: 'border-amber-400', dot: 'bg-amber-400' },
-    { status: 'BeingPrepared', label: 'Hazırlanıyor', color: 'border-blue-400', dot: 'bg-blue-400' },
-    { status: 'Ready', label: 'Hazır / Teslim', color: 'border-emerald-400', dot: 'bg-emerald-400' },
+const COLUMNS: { status: KitchenCard['status']; label: string; accent: string; dot: string; bg: string }[] = [
+    { status: 'Received', label: 'Yeni Siparişler', accent: '#C8853A', dot: '#C8853A', bg: '#FEF6EE' },
+    { status: 'BeingPrepared', label: 'Hazırlanıyor', accent: '#3A7FC8', dot: '#3A7FC8', bg: '#EEF4FE' },
+    { status: 'Ready', label: 'Hazır / Teslim', accent: '#5F7154', dot: '#5F7154', bg: '#EFF5EC' },
 ]
 
 const elapsed = (iso: string) => {
     const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
     if (diff < 60) return `${diff}s`
-    return `${Math.floor(diff / 60)}d ${diff % 60}s`
+    return `${Math.floor(diff / 60)}dk ${diff % 60}s`
 }
 
 const nextStatus = (s: KitchenCard['status']): KitchenCard['status'] | null => {
@@ -38,6 +36,7 @@ const nextStatus = (s: KitchenCard['status']): KitchenCard['status'] | null => {
 
 function Card({ card, onAdvance }: { card: KitchenCard; onAdvance: (id: string, next: KitchenCard['status']) => void }) {
     const next = nextStatus(card.status)
+    const col = COLUMNS.find((c) => c.status === card.status)!
     const [remainSec, setRemainSec] = useState<number | null>(null)
 
     useEffect(() => {
@@ -52,49 +51,109 @@ function Card({ card, onAdvance }: { card: KitchenCard; onAdvance: (id: string, 
     }, [card.status, card.readyAt])
 
     return (
-        <div className={`bg-zinc-900 border-l-4 ${COLUMNS.find((c) => c.status === card.status)?.color} rounded-xl p-4 flex flex-col gap-3 shadow-lg`}>
-            <div className="flex items-center justify-between">
-                <span className="font-mono text-xl font-bold text-white">Masa {card.tableNumber}</span>
-                <span className="text-xs text-zinc-400 tabular-nums">{elapsed(card.createdAt)}</span>
+        <div style={{
+            background: '#FFFFFF',
+            border: `1px solid ${col.accent}30`,
+            borderLeft: `4px solid ${col.accent}`,
+            borderRadius: '14px',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            boxShadow: '0 2px 8px rgba(95,113,84,0.06)',
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                        fontFamily: 'system-ui, sans-serif',
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        color: '#2C3528',
+                        letterSpacing: '-0.02em',
+                    }}>Masa {card.tableNumber}</span>
+                    <span style={{
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: col.accent,
+                        background: `${col.accent}15`,
+                        padding: '2px 8px',
+                        borderRadius: '20px',
+                        textTransform: 'uppercase' as const,
+                        letterSpacing: '0.05em',
+                    }}>{col.label}</span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#8A8478' }}>{elapsed(card.createdAt)}</span>
             </div>
-            <ul className="flex flex-col gap-1.5">
+
+            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {card.items.map((item) => (
-                    <li key={item.id} className="text-sm">
-                        <div className="flex items-baseline gap-2">
-                            <span className="font-semibold text-zinc-100">{item.quantity}×</span>
-                            <span className="text-zinc-200">{item.productName}</span>
+                    <li key={item.id} style={{ fontSize: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                            <span style={{ fontWeight: 700, color: '#5F7154' }}>{item.quantity}×</span>
+                            <span style={{ color: '#2C3528', fontWeight: 500 }}>{item.productName}</span>
                         </div>
                         {item.modifierSnapshots.length > 0 && (
-                            <p className="ml-5 text-xs text-zinc-500 leading-relaxed italic">
+                            <p style={{ margin: '2px 0 0 22px', fontSize: '12px', color: '#9A8E80', fontStyle: 'italic' }}>
                                 {item.modifierSnapshots.join(', ')}
                             </p>
                         )}
                     </li>
                 ))}
             </ul>
+
             {card.note && (
-                <p className="text-xs text-amber-300 bg-amber-400/10 rounded-lg px-3 py-1.5 border border-amber-400/20">
-                    📝 {card.note}
-                </p>
+                <div style={{
+                    background: '#FEF9EE',
+                    border: '1px solid #F2D998',
+                    borderRadius: '10px',
+                    padding: '8px 12px',
+                    fontSize: '12px',
+                    color: '#7A5C1A',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '6px',
+                }}>
+                    <span>📝</span>
+                    <span>{card.note}</span>
+                </div>
             )}
-            {/* Aksiyon butonları */}
-            <div className="flex gap-2 pt-1">
+
+            <div style={{ display: 'flex', gap: '8px', paddingTop: '4px' }}>
                 {next && (
                     <button
                         onClick={() => onAdvance(card.orderId, next)}
-                        className={`flex-1 py-2.5 rounded-lg text-sm font-semibold tracking-wide transition-all active:scale-95 ${card.status === 'Received'
-                                ? 'bg-blue-500 hover:bg-blue-400'
-                                : 'bg-emerald-500 hover:bg-emerald-400'
-                            } text-white`}
+                        style={{
+                            flex: 1,
+                            padding: '10px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            background: card.status === 'Received' ? '#3A7FC8' : '#5F7154',
+                            color: '#fff',
+                            fontSize: '13px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                            transition: 'opacity 0.15s',
+                        }}
                     >
                         {card.status === 'Received' ? '▶ Hazırlamaya Başla' : '✓ Hazır'}
                     </button>
                 )}
                 {card.status === 'Ready' && (
-                    <div className="flex-1 py-2 rounded-lg text-xs font-semibold text-center text-emerald-400 border border-emerald-400/30 bg-emerald-400/5">
+                    <div style={{
+                        flex: 1,
+                        padding: '10px',
+                        borderRadius: '10px',
+                        border: '1px solid #5F715430',
+                        background: '#EFF5EC',
+                        textAlign: 'center',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#5F7154',
+                    }}>
                         ✓ Teslim Bekleniyor
                         {remainSec !== null && remainSec > 0 && (
-                            <span className="text-zinc-500 ml-1">· {remainSec}s</span>
+                            <span style={{ color: '#9A8E80', marginLeft: '6px', fontWeight: 400 }}>· {remainSec}s</span>
                         )}
                     </div>
                 )}
@@ -110,13 +169,11 @@ export default function KitchenDisplay() {
     const [connected, setConnected] = useState(true)
     const [, setTick] = useState(0)
 
-    // Elapsed timer
     useEffect(() => {
         const id = setInterval(() => setTick((t) => t + 1), 30_000)
         return () => clearInterval(id)
     }, [])
 
-    // Auto-clear Ready orders after READY_AUTO_CLEAR_MS
     useEffect(() => {
         const id = setInterval(() => {
             setCards((prev) =>
@@ -129,7 +186,6 @@ export default function KitchenDisplay() {
         return () => clearInterval(id)
     }, [])
 
-    // Initial load - sadece Received ve BeingPrepared durumundaki siparişleri yükle
     useEffect(() => {
         let cancelled = false
         const load = async () => {
@@ -138,7 +194,6 @@ export default function KitchenDisplay() {
                 if (cancelled) return
                 setCards(
                     res.data
-                        // Ready olanları başlangıçta yükleme (zaten teslim edilmiş sayılır)
                         .filter((o: KitchenOrderDto) => o.status !== 'Ready')
                         .map((o: KitchenOrderDto) => ({
                             orderId: o.orderId,
@@ -168,7 +223,6 @@ export default function KitchenDisplay() {
         const orderId = (orderRaw['id'] ?? orderRaw['Id']) as string | undefined
         if (!orderId) return
 
-        // Ses bildirimi
         try {
             const ctx = new AudioContext()
             const osc = ctx.createOscillator()
@@ -201,12 +255,7 @@ export default function KitchenDisplay() {
         setCards((prev) =>
             prev.map((c) =>
                 c.orderId === orderId
-                    ? {
-                        ...c,
-                        status: newStatus as KitchenCard['status'],
-                        // Ready olunca timestamp kaydet (otomatik temizleme için)
-                        readyAt: newStatus === 'Ready' ? Date.now() : c.readyAt,
-                    }
+                    ? { ...c, status: newStatus as KitchenCard['status'], readyAt: newStatus === 'Ready' ? Date.now() : c.readyAt }
                     : c
             )
         )
@@ -218,7 +267,6 @@ export default function KitchenDisplay() {
         onOrderStatusUpdated: handleStatusUpdated,
     })
 
-    // Bağlantı durumu izleme
     useEffect(() => {
         const conn = connectionRef.current
         if (!conn) return
@@ -228,7 +276,6 @@ export default function KitchenDisplay() {
     }, [connectionRef])
 
     const handleAdvance = useCallback(async (orderId: string, next: KitchenCard['status']) => {
-        // Optimistic update
         setCards((prev) =>
             prev.map((c) =>
                 c.orderId === orderId
@@ -240,7 +287,6 @@ export default function KitchenDisplay() {
             await orderApi.updateOrderStatus(orderId, next)
         } catch {
             setError('Durum güncellenemedi.')
-            // Hata durumunda yeniden yükle
             try {
                 const res = await orderApi.getKitchenActiveOrders()
                 setCards(
@@ -260,12 +306,10 @@ export default function KitchenDisplay() {
         }
     }, [])
 
-    // Kolona göre filtrele - Ready'ler sadece readyAt varsa göster
     const byStatus = (s: KitchenCard['status']) => {
         return cards
             .filter((c) => {
                 if (c.status !== s) return false
-                // Ready olanları sadece readyAt varsa göster ve süre dolmadıysa
                 if (s === 'Ready') {
                     if (!c.readyAt) return true
                     return Date.now() - c.readyAt < READY_AUTO_CLEAR_MS
@@ -276,45 +320,155 @@ export default function KitchenDisplay() {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans">
-            <header className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
-                <span className="text-xl font-bold tracking-tight font-mono text-purple-400">🍳 MUTFAK PANELİ</span>
-                <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${connected ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
-                    <span className={`w-2 h-2 rounded-full ${connected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400 animate-pulse'}`} />
-                    <span className={`text-[10px] font-bold uppercase tracking-widest ${connected ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {connected ? 'Canlı Bağlantı' : 'Bağlantı Kesildi…'}
+        <div style={{
+            minHeight: '100vh',
+            background: '#F7F5F0',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
+            {/* Header */}
+            <header style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 10,
+                background: 'rgba(247,245,240,0.95)',
+                backdropFilter: 'blur(8px)',
+                borderBottom: '1px solid #E0DDD6',
+                padding: '14px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                        width: '36px', height: '36px',
+                        background: '#5F7154',
+                        borderRadius: '10px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '18px',
+                    }}>🍳</div>
+                    <div>
+                        <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.01em' }}>
+                            Mutfak Paneli
+                        </h1>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#8A8478' }}>
+                            {cards.length} aktif sipariş
+                        </p>
+                    </div>
+                </div>
+                <div style={{
+                    display: 'flex', alignItems: 'center', gap: '6px',
+                    background: connected ? '#EFF5EC' : '#FEF0EE',
+                    border: `1px solid ${connected ? '#82A76B40' : '#E0907040'}`,
+                    borderRadius: '20px',
+                    padding: '6px 12px',
+                }}>
+                    <span style={{
+                        width: '8px', height: '8px',
+                        borderRadius: '50%',
+                        background: connected ? '#5F7154' : '#C86050',
+                        display: 'inline-block',
+                        animation: 'pulse 2s infinite',
+                    }} />
+                    <span style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: connected ? '#3D4A36' : '#7A3530',
+                        textTransform: 'uppercase' as const,
+                        letterSpacing: '0.06em',
+                    }}>
+                        {connected ? 'Canlı' : 'Bağlantı Kesildi'}
                     </span>
                 </div>
             </header>
 
-            <main className="flex-1 p-6">
+            {/* Content */}
+            <main style={{ flex: 1, padding: '24px' }}>
                 {error && (
-                    <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+                    <div style={{
+                        marginBottom: '20px',
+                        background: '#FEF0EE',
+                        border: '1px solid #E8B0A0',
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        fontSize: '14px', color: '#7A3530',
+                    }}>
                         <span>⚠️</span>
-                        <p className="font-medium">{error}</p>
-                        <button onClick={() => setError(null)} className="ml-auto hover:text-red-400 underline text-xs">Kapat</button>
+                        <span style={{ flex: 1 }}>{error}</span>
+                        <button
+                            onClick={() => setError(null)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#7A3530', fontSize: '18px' }}
+                        >×</button>
                     </div>
                 )}
 
                 {loading ? (
-                    <div className="flex items-center justify-center h-64 text-zinc-500 italic">Siparişler hazırlanıyor...</div>
+                    <div style={{
+                        display: 'flex', flexDirection: 'column',
+                        alignItems: 'center', justifyContent: 'center',
+                        height: '300px', gap: '12px',
+                    }}>
+                        <div style={{ fontSize: '32px' }}>🍳</div>
+                        <p style={{ color: '#8A8478', fontSize: '14px', fontWeight: 500 }}>Siparişler yükleniyor…</p>
+                    </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '20px',
+                    }}>
                         {COLUMNS.map((col) => (
-                            <div key={col.status} className="flex flex-col gap-4">
-                                <div className="flex items-center gap-2 border-b border-zinc-800 pb-2">
-                                    <span className={`w-3 h-3 rounded-full ${col.dot}`} />
-                                    <h2 className="text-sm font-black uppercase tracking-tighter text-zinc-400">{col.label}</h2>
-                                    <span className="ml-auto text-xs font-mono text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-md">
-                                        {byStatus(col.status).length}
-                                    </span>
+                            <div key={col.status}>
+                                {/* Column Header */}
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    marginBottom: '16px',
+                                    paddingBottom: '12px',
+                                    borderBottom: `2px solid ${col.accent}25`,
+                                }}>
+                                    <span style={{
+                                        width: '10px', height: '10px',
+                                        borderRadius: '50%',
+                                        background: col.dot,
+                                        display: 'inline-block',
+                                        flexShrink: 0,
+                                    }} />
+                                    <h2 style={{
+                                        margin: 0,
+                                        fontSize: '13px',
+                                        fontWeight: 700,
+                                        color: '#4A4840',
+                                        textTransform: 'uppercase' as const,
+                                        letterSpacing: '0.08em',
+                                        flex: 1,
+                                    }}>{col.label}</h2>
+                                    <span style={{
+                                        fontSize: '13px',
+                                        fontWeight: 700,
+                                        color: col.accent,
+                                        background: `${col.accent}15`,
+                                        padding: '2px 10px',
+                                        borderRadius: '20px',
+                                    }}>{byStatus(col.status).length}</span>
                                 </div>
-                                <div className="flex flex-col gap-4">
+
+                                {/* Cards */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {byStatus(col.status).map((card) => (
                                         <Card key={card.orderId} card={card} onAdvance={handleAdvance} />
                                     ))}
                                     {byStatus(col.status).length === 0 && (
-                                        <div className="py-12 border-2 border-dashed border-zinc-900 rounded-2xl text-center text-zinc-700 text-xs">
+                                        <div style={{
+                                            padding: '40px 20px',
+                                            border: '1.5px dashed #D8D4CC',
+                                            borderRadius: '14px',
+                                            textAlign: 'center',
+                                            color: '#B0AB9E',
+                                            fontSize: '13px',
+                                            background: '#FDFCF9',
+                                        }}>
                                             {col.status === 'Ready' ? 'Teslim bekleyen yok' : 'Bu aşamada sipariş yok'}
                                         </div>
                                     )}
@@ -324,6 +478,13 @@ export default function KitchenDisplay() {
                     </div>
                 )}
             </main>
+
+            <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
         </div>
     )
 }

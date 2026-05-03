@@ -1,8 +1,7 @@
-﻿// src/pages/cashier/SessionDetailPage.tsx
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { cashierApi } from '../../api/cashier.api'
-import type { CashierSessionDetailDto, PaymentStatus, } from '../../types/index'
+import type { CashierSessionDetailDto, PaymentStatus } from '../../types/index'
 
 const formatCurrency = (n: number) =>
     new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n)
@@ -10,17 +9,17 @@ const formatCurrency = (n: number) =>
 const formatDateTime = (iso: string) =>
     new Date(iso).toLocaleString('tr-TR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' })
 
-const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { label: string; cls: string }> = {
-    None: { label: 'Bekliyor', cls: 'bg-zinc-700 text-zinc-300' },
-    Pending: { label: 'Ödeme Talep', cls: 'bg-amber-500/20 text-amber-300 border border-amber-500/40' },
-    Completed: { label: 'Ödendi', cls: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' },
-    Failed: { label: 'Başarısız', cls: 'bg-red-500/20 text-red-300 border border-red-500/40' },
+const PAYMENT_STATUS_CONFIG: Record<PaymentStatus, { label: string; bg: string; color: string; border: string }> = {
+    None: { label: 'Bekliyor', bg: '#F0ECE4', color: '#6A6560', border: '#D8D4CC' },
+    Pending: { label: 'Ödeme Talep', bg: '#FEF6EE', color: '#A05C1A', border: '#F0C88080' },
+    Completed: { label: 'Ödendi', bg: '#EFF5EC', color: '#3D5C34', border: '#82A76B40' },
+    Failed: { label: 'Başarısız', bg: '#FEF0EE', color: '#7A3530', border: '#E0907040' },
 }
 
-const ORDER_STATUS_CONFIG: Record<string, { label: string; cls: string }> = {
-    Received: { label: 'Alındı', cls: 'text-amber-400 bg-amber-400/10' },
-    BeingPrepared: { label: 'Hazırlanıyor', cls: 'text-blue-400 bg-blue-400/10' },
-    Ready: { label: 'Hazır ✓', cls: 'text-emerald-400 bg-emerald-400/10' },
+const ORDER_STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
+    Received: { label: 'Alındı', color: '#A05C1A', bg: '#FEF6EE' },
+    BeingPrepared: { label: 'Hazırlanıyor', color: '#2B5FA0', bg: '#EEF4FE' },
+    Ready: { label: 'Hazır ✓', color: '#3D5C34', bg: '#EFF5EC' },
 }
 
 export default function SessionDetailPage() {
@@ -45,9 +44,7 @@ export default function SessionDetailPage() {
     }, [id])
 
     useEffect(() => {
-        const fetch = async () => {
-            await fetchDetail()
-        }
+        const fetch = async () => { await fetchDetail() }
         fetch()
     }, [fetchDetail])
 
@@ -59,7 +56,6 @@ export default function SessionDetailPage() {
             await cashierApi.confirmPayment(id)
             await fetchDetail()
         } catch (err: unknown) {
-            // Backend'den gelen hata mesajını göster
             const axiosErr = err as { response?: { data?: { error?: string; message?: string } } }
             const backendMsg = axiosErr?.response?.data?.error ?? axiosErr?.response?.data?.message
             if (backendMsg?.includes('NotReady') || backendMsg?.includes('hazırlanmamış')) {
@@ -73,154 +69,214 @@ export default function SessionDetailPage() {
     }
 
     if (loading) return (
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500 text-sm">
-            Yükleniyor…
-        </div>
-    )
-
-    if (error && !session) return (
-        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-6">
-            <p className="text-red-400 text-sm">{error}</p>
-            <button onClick={() => navigate(-1)} className="text-zinc-400 text-sm underline">Geri Dön</button>
+        <div style={{
+            minHeight: '100vh', background: '#F7F5F0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexDirection: 'column', gap: '12px',
+            fontFamily: 'system-ui, sans-serif',
+        }}>
+            <div style={{ fontSize: '28px' }}>☕</div>
+            <p style={{ color: '#8A8478', fontSize: '14px' }}>Yükleniyor…</p>
         </div>
     )
 
     if (!session) return (
-        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4 p-6">
-            <p className="text-red-400 text-sm">Bulunamadı.</p>
-            <button onClick={() => navigate(-1)} className="text-zinc-400 text-sm underline">Geri Dön</button>
+        <div style={{ minHeight: '100vh', background: '#F7F5F0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
+            <p style={{ color: '#7A3530', fontSize: '14px' }}>{error ?? 'Bulunamadı.'}</p>
+            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F7154', textDecoration: 'underline', fontSize: '14px', fontFamily: 'inherit' }}>Geri Dön</button>
         </div>
     )
 
     const statusCfg = PAYMENT_STATUS_CONFIG[session.paymentStatus]
     const canConfirm = session.paymentStatus !== 'Completed' && session.paymentStatus !== 'Failed'
-
-    // Hazır olmayan siparişler var mı?
     const notReadyOrders = session.orderRounds.filter(r => r.status !== 'Ready')
-    const allOrdersReady = notReadyOrders.length === 0 && session.orderRounds.length > 0
-    const confirmBlocked = !allOrdersReady
+    const confirmBlocked = notReadyOrders.length > 0 || session.orderRounds.length === 0
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
+        <div style={{ minHeight: '100vh', background: '#F7F5F0', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <header className="sticky top-0 z-10 bg-zinc-950/90 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center gap-3">
+            <header style={{
+                position: 'sticky', top: 0, zIndex: 10,
+                background: 'rgba(247,245,240,0.95)',
+                backdropFilter: 'blur(8px)',
+                borderBottom: '1px solid #E0DDD6',
+                padding: '14px 20px',
+                display: 'flex', alignItems: 'center', gap: '12px',
+            }}>
                 <button
                     onClick={() => navigate(-1)}
-                    className="text-zinc-400 hover:text-white transition-colors p-1 -ml-1"
-                    aria-label="Geri"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <div className="flex-1">
-                    <h1 className="font-bold text-base tracking-tight">Masa {session.tableNumber}</h1>
-                    <p className="text-xs text-zinc-500">{formatDateTime(session.openedAt)}'den beri açık</p>
+                    style={{
+                        width: '34px', height: '34px',
+                        background: '#FFFFFF',
+                        border: '1px solid #E0DDD6',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: '#5F7154',
+                        fontSize: '16px',
+                    }}
+                >←</button>
+                <div style={{ flex: 1 }}>
+                    <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.01em' }}>
+                        Masa {session.tableNumber}
+                    </h1>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#8A8478' }}>
+                        {formatDateTime(session.openedAt)}'den beri açık
+                    </p>
                 </div>
-                <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${statusCfg.cls}`}>
-                    {statusCfg.label}
-                </span>
+                <span style={{
+                    fontSize: '12px', fontWeight: 600,
+                    padding: '5px 12px',
+                    borderRadius: '20px',
+                    background: statusCfg.bg,
+                    color: statusCfg.color,
+                    border: `1px solid ${statusCfg.border}`,
+                }}>{statusCfg.label}</span>
             </header>
 
-            <main className="flex-1 p-4 flex flex-col gap-4">
-                {/* Summary card */}
-                <div className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800 flex items-center justify-between">
+            <main style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Summary */}
+                <div style={{
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid #E8E4DC',
+                    padding: '18px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    boxShadow: '0 2px 8px rgba(95,113,84,0.05)',
+                }}>
                     <div>
-                        <p className="text-xs text-zinc-500 mb-0.5">Genel Toplam</p>
-                        <p className="text-2xl font-bold text-white">{formatCurrency(session.grandTotal)}</p>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80' }}>Genel Toplam</p>
+                        <p style={{ margin: '4px 0 0', fontSize: '28px', fontWeight: 800, color: '#2C3528', letterSpacing: '-0.02em' }}>
+                            {formatCurrency(session.grandTotal)}
+                        </p>
                     </div>
-                    <div className="text-right">
-                        <p className="text-xs text-zinc-500 mb-0.5">Ödeme Yöntemi</p>
-                        <p className="text-sm font-medium text-zinc-200">
+                    <div style={{ textAlign: 'right' }}>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80' }}>Ödeme Yöntemi</p>
+                        <p style={{ margin: '4px 0 0', fontSize: '15px', fontWeight: 500, color: '#4A4840' }}>
                             {!session.paymentMethod || session.paymentMethod === 'None'
                                 ? '—'
-                                : session.paymentMethod === 'Cashier' ? 'Kasa' : 'Online'}
+                                : session.paymentMethod === 'Cashier' ? '🧾 Kasa' : '💳 Online'}
                         </p>
                     </div>
                 </div>
 
-                {/* Not ready warning */}
+                {/* Warning */}
                 {canConfirm && confirmBlocked && session.orderRounds.length > 0 && (
-                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 flex items-start gap-3">
-                        <span className="text-amber-400 text-lg shrink-0">⚠️</span>
+                    <div style={{
+                        background: '#FEF6EE',
+                        border: '1px solid #F0C880',
+                        borderRadius: '12px',
+                        padding: '14px 16px',
+                        display: 'flex', alignItems: 'flex-start', gap: '10px',
+                    }}>
+                        <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
                         <div>
-                            <p className="text-amber-300 text-sm font-semibold">Hazırlanmamış sipariş var</p>
-                            <p className="text-amber-400/70 text-xs mt-0.5">
-                                {notReadyOrders.length} sipariş turu henüz "Hazır" durumuna geçmedi. Tüm siparişler hazır olmadan ödeme onaylanamaz.
+                            <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#7A5C1A' }}>Hazırlanmamış sipariş var</p>
+                            <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#9A7040', lineHeight: 1.5 }}>
+                                {notReadyOrders.length} sipariş turu henüz hazır değil. Tüm siparişler hazır olmadan ödeme onaylanamaz.
                             </p>
                         </div>
                     </div>
                 )}
 
-                {/* Confirm button */}
+                {/* Confirm Button */}
                 {canConfirm && (
                     <button
                         disabled={confirming || confirmBlocked}
                         onClick={handleConfirm}
-                        className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all duration-150 active:scale-95
-                            ${confirmBlocked
-                                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                                : 'bg-emerald-500 hover:bg-emerald-400 text-white'
-                            } disabled:opacity-60`}
+                        style={{
+                            width: '100%',
+                            padding: '14px',
+                            borderRadius: '14px',
+                            border: 'none',
+                            background: confirmBlocked ? '#E8E4DC' : '#5F7154',
+                            color: confirmBlocked ? '#9A8E80' : '#FFFFFF',
+                            fontSize: '15px',
+                            fontWeight: 600,
+                            cursor: confirmBlocked ? 'not-allowed' : 'pointer',
+                            fontFamily: 'inherit',
+                            transition: 'background 0.15s',
+                            opacity: confirming ? 0.7 : 1,
+                        }}
                     >
-                        {confirming
-                            ? 'İşleniyor…'
-                            : confirmBlocked
-                                ? '🔒 Siparişler Hazır Değil'
-                                : '✓ Ödemeyi Onayla ve Masayı Kapat'}
+                        {confirming ? 'İşleniyor…' : confirmBlocked ? '🔒 Siparişler Hazır Değil' : '✓ Ödemeyi Onayla ve Masayı Kapat'}
                     </button>
                 )}
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-                        <p className="text-red-400 text-sm text-center">{error}</p>
-                    </div>
+                    <div style={{
+                        background: '#FEF0EE', border: '1px solid #E0907040',
+                        borderRadius: '12px', padding: '12px 16px',
+                        fontSize: '14px', color: '#7A3530', textAlign: 'center',
+                    }}>{error}</div>
                 )}
 
-                {/* Order rounds */}
-                <section className="flex flex-col gap-3">
-                    <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest px-1">
+                {/* Order Rounds */}
+                <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#8A8478', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
                         Sipariş Geçmişi · {session.orderRounds.length}
                     </h2>
 
                     {session.orderRounds.length === 0 && (
-                        <div className="rounded-xl border border-dashed border-zinc-800 py-10 text-center text-zinc-600 text-sm">
-                            Sipariş yok
-                        </div>
+                        <div style={{
+                            padding: '40px 20px',
+                            border: '1.5px dashed #D8D4CC',
+                            borderRadius: '14px',
+                            textAlign: 'center',
+                            color: '#B0AB9E',
+                            fontSize: '14px',
+                            background: '#FDFCF9',
+                        }}>Sipariş yok</div>
                     )}
 
                     {session.orderRounds.map((round, idx) => {
                         const orderStatus = ORDER_STATUS_CONFIG[round.status] ?? ORDER_STATUS_CONFIG.Received
                         return (
-                            <div key={round.orderId} className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+                            <div key={round.orderId} style={{
+                                background: '#FFFFFF',
+                                borderRadius: '14px',
+                                border: '1px solid #E8E4DC',
+                                overflow: 'hidden',
+                                boxShadow: '0 1px 4px rgba(95,113,84,0.05)',
+                            }}>
                                 {/* Round header */}
-                                <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-mono text-zinc-500">#{session.orderRounds.length - idx}. Tur</span>
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${orderStatus.cls}`}>
-                                            {orderStatus.label}
+                                <div style={{
+                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                    padding: '10px 16px',
+                                    borderBottom: '1px solid #EDE9E0',
+                                    background: '#FDFCF9',
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '12px', color: '#9A8E80', fontFamily: 'monospace' }}>
+                                            #{session.orderRounds.length - idx}. Tur
                                         </span>
+                                        <span style={{
+                                            fontSize: '11px', fontWeight: 600,
+                                            padding: '2px 8px', borderRadius: '20px',
+                                            background: orderStatus.bg,
+                                            color: orderStatus.color,
+                                        }}>{orderStatus.label}</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-xs text-zinc-500">{formatDateTime(round.createdAt)}</span>
-                                        <span className="text-sm font-bold text-white">{formatCurrency(round.roundTotal)}</span>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <span style={{ fontSize: '12px', color: '#9A8E80' }}>{formatDateTime(round.createdAt)}</span>
+                                        <span style={{ fontSize: '15px', fontWeight: 700, color: '#2C3528' }}>{formatCurrency(round.roundTotal)}</span>
                                     </div>
                                 </div>
 
                                 {/* Items */}
-                                <ul className="px-4 py-3 flex flex-col gap-2">
+                                <ul style={{ margin: 0, padding: '14px 16px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     {round.items.map((item, i) => (
-                                        <li key={i} className="flex items-start gap-3">
-                                            <span className="text-sm font-bold text-zinc-400 w-6 shrink-0">{item.quantity}×</span>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm text-zinc-100">{item.productName}</p>
+                                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#82A76B', width: '24px', flexShrink: 0 }}>{item.quantity}×</span>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <p style={{ margin: 0, fontSize: '14px', color: '#2C3528', fontWeight: 500 }}>{item.productName}</p>
                                                 {item.modifierSnapshots.length > 0 && (
-                                                    <p className="text-xs text-zinc-500 mt-0.5">
+                                                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9A8E80' }}>
                                                         {item.modifierSnapshots.join(' · ')}
                                                     </p>
                                                 )}
                                             </div>
-                                            <span className="text-sm text-zinc-300 shrink-0">{formatCurrency(item.itemTotal)}</span>
+                                            <span style={{ fontSize: '14px', color: '#4A4840', fontWeight: 500, flexShrink: 0 }}>{formatCurrency(item.itemTotal)}</span>
                                         </li>
                                     ))}
                                 </ul>
