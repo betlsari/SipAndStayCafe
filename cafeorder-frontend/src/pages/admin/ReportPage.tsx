@@ -2,7 +2,6 @@
 import { reportApi } from '../../api/report.api'
 import type { DailySalesReportDto, WeeklySalesReportDto, TopSellingItemDto, HourlySalesDto } from '../../types/index'
 import { toast } from 'sonner'
-import { BarChart2, Download, TrendingUp, ShoppingBag, Clock } from 'lucide-react'
 
 type ReportTab = 'daily' | 'weekly' | 'top' | 'peak'
 
@@ -16,21 +15,125 @@ const weekAgo = () => {
     return d.toISOString().split('T')[0]
 }
 
-const inputCls =
-    'bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500'
+const inputStyle: React.CSSProperties = {
+    border: '1px solid #E0DDD6',
+    borderRadius: '10px',
+    padding: '9px 12px',
+    fontSize: '13px',
+    color: '#2C3528',
+    background: '#FFFFFF',
+    outline: 'none',
+    fontFamily: 'system-ui, sans-serif',
+    transition: 'border-color 0.15s',
+    cursor: 'pointer',
+}
 
-// ── Stat Card ─────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
     return (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-            <p className="text-xs text-zinc-500 mb-1">{label}</p>
-            <p className="text-2xl font-bold text-white">{value}</p>
-            {sub && <p className="text-xs text-zinc-600 mt-1">{sub}</p>}
+        <div style={{
+            background: '#FFFFFF',
+            border: '1px solid #E8E4DC',
+            borderRadius: '14px',
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+        }}>
+            <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80', fontWeight: 500 }}>{label}</p>
+            <p style={{ margin: 0, fontSize: '22px', fontWeight: 600, color: '#2C3528', letterSpacing: '-0.01em' }}>{value}</p>
+            {sub && <p style={{ margin: 0, fontSize: '11px', color: '#B0AB9E' }}>{sub}</p>}
         </div>
     )
 }
 
-// ── Daily Panel ───────────────────────────────────────────────────────────────
+function TopSellingTable({ items }: { items: TopSellingItemDto[] }) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {items.map((item, i) => (
+                <div key={item.menuItemId} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    background: i === 0 ? '#EDF2E8' : '#FDFCF9',
+                    border: '1px solid',
+                    borderColor: i === 0 ? '#C8D5C0' : '#EDE9E0',
+                    borderRadius: '10px',
+                }}>
+                    <span style={{
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        color: i === 0 ? '#3D5C34' : '#B0AB9E',
+                        width: '20px',
+                        textAlign: 'center',
+                    }}>#{i + 1}</span>
+                    <span style={{ flex: 1, fontSize: '13px', color: '#2C3528', fontWeight: i === 0 ? 500 : 400 }}>
+                        {item.productName}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#8A8478', flexShrink: 0 }}>
+                        {item.totalQuantitySold} adet
+                    </span>
+                    <span style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#5F7154',
+                        flexShrink: 0,
+                        minWidth: '70px',
+                        textAlign: 'right',
+                    }}>
+                        {formatCurrency(item.totalRevenue)}
+                    </span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+function HourlyChart({ hours }: { hours: HourlySalesDto[] }) {
+    const maxRevenue = Math.max(...hours.map((h) => h.revenue), 1)
+    const allHours = Array.from({ length: 24 }, (_, i) => {
+        const found = hours.find((h) => h.hour === i)
+        return found ?? { hour: i, orderCount: 0, revenue: 0 }
+    })
+    return (
+        <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '80px' }}>
+                {allHours.map((h) => {
+                    const pct = (h.revenue / maxRevenue) * 100
+                    return (
+                        <div
+                            key={h.hour}
+                            title={`${h.hour}:00 — ${formatCurrency(h.revenue)}`}
+                            style={{
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                height: '100%',
+                                cursor: 'default',
+                            }}
+                        >
+                            <div style={{
+                                width: '100%',
+                                borderRadius: '3px 3px 0 0',
+                                background: h.revenue > 0 ? '#82A76B' : '#E8E4DC',
+                                height: `${Math.max(pct, h.revenue > 0 ? 6 : 2)}%`,
+                                transition: 'background 0.15s',
+                            }} />
+                        </div>
+                    )
+                })}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                {[0, 6, 12, 18, 23].map(h => (
+                    <span key={h} style={{ fontSize: '10px', color: '#B0AB9E' }}>{h}:00</span>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 function DailyPanel() {
     const [date, setDate] = useState(today())
     const [data, setData] = useState<DailySalesReportDto | null>(null)
@@ -66,58 +169,98 @@ function DailyPanel() {
         }
     }
 
+    const peakHour = data?.hourlySales.length
+        ? data.hourlySales.reduce((a, b) => a.revenue > b.revenue ? a : b).hour
+        : null
+
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputCls} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#82A76B')}
+                    onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                />
                 <button
                     onClick={fetch}
                     disabled={loading}
-                    className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
-                >
-                    {loading ? 'Yükleniyor…' : 'Raporu Getir'}
-                </button>
+                    style={{
+                        padding: '9px 18px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: loading ? '#8FAF80' : '#5F7154',
+                        color: '#fff',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'system-ui, sans-serif',
+                    }}
+                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
                 {data && (
                     <button
                         onClick={handleDownload}
                         disabled={downloading}
-                        className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '9px 16px',
+                            borderRadius: '10px',
+                            border: '1px solid #E0DDD6',
+                            background: '#FFFFFF',
+                            color: '#5F7154',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            cursor: downloading ? 'not-allowed' : 'pointer',
+                            fontFamily: 'system-ui, sans-serif',
+                        }}
                     >
-                        <Download className="w-4 h-4" />
-                        {downloading ? 'İndiriliyor…' : 'PDF İndir'}
+                        ⬇ {downloading ? 'İndiriliyor…' : 'PDF İndir'}
                     </button>
                 )}
             </div>
 
             {data && (
-                <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
                         <StatCard label="Toplam Ciro" value={formatCurrency(data.totalRevenue)} />
                         <StatCard label="Toplam Sipariş" value={data.totalOrders} />
-                        <StatCard label="En Yoğun Saat" value={`${peakHour(data.hourlySales)}:00`} />
+                        <StatCard label="En Yoğun Saat" value={peakHour !== null ? `${peakHour}:00` : '—'} />
                         <StatCard label="En Çok Satan" value={data.topSellingItems[0]?.productName ?? '—'} />
                     </div>
 
                     {data.topSellingItems.length > 0 && (
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                            <h3 className="text-sm font-semibold text-zinc-400 mb-3">En Çok Satan Ürünler</h3>
+                        <div style={{
+                            background: '#FFFFFF',
+                            border: '1px solid #E8E4DC',
+                            borderRadius: '14px',
+                            padding: '18px',
+                        }}>
+                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>En Çok Satan Ürünler</p>
                             <TopSellingTable items={data.topSellingItems} />
                         </div>
                     )}
 
                     {data.hourlySales.length > 0 && (
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                            <h3 className="text-sm font-semibold text-zinc-400 mb-3">Saatlik Satış</h3>
+                        <div style={{
+                            background: '#FFFFFF',
+                            border: '1px solid #E8E4DC',
+                            borderRadius: '14px',
+                            padding: '18px',
+                        }}>
+                            <p style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Saatlik Satış Dağılımı</p>
                             <HourlyChart hours={data.hourlySales} />
                         </div>
                     )}
-                </div>
+                </>
             )}
         </div>
     )
 }
 
-// ── Weekly Panel ──────────────────────────────────────────────────────────────
 function WeeklyPanel() {
     const [startDate, setStartDate] = useState(weekAgo())
     const [endDate, setEndDate] = useState(today())
@@ -155,55 +298,103 @@ function WeeklyPanel() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">Başlangıç</span>
-                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Başlangıç</span>
+                    <input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        style={inputStyle}
+                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
+                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                    />
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">Bitiş</span>
-                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Bitiş</span>
+                    <input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        style={inputStyle}
+                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
+                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                    />
                 </div>
                 <button
                     onClick={fetch}
                     disabled={loading}
-                    className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
-                >
-                    {loading ? 'Yükleniyor…' : 'Raporu Getir'}
-                </button>
+                    style={{
+                        padding: '9px 18px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: loading ? '#8FAF80' : '#5F7154',
+                        color: '#fff',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'system-ui, sans-serif',
+                    }}
+                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
                 {data && (
                     <button
                         onClick={handleDownload}
                         disabled={downloading}
-                        className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
-                    >
-                        <Download className="w-4 h-4" />
-                        {downloading ? 'İndiriliyor…' : 'PDF İndir'}
-                    </button>
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '9px 16px',
+                            borderRadius: '10px',
+                            border: '1px solid #E0DDD6',
+                            background: '#FFFFFF',
+                            color: '#5F7154',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            cursor: downloading ? 'not-allowed' : 'pointer',
+                            fontFamily: 'system-ui, sans-serif',
+                        }}
+                    >⬇ {downloading ? 'İndiriliyor…' : 'PDF İndir'}</button>
                 )}
             </div>
 
             {data && (
-                <div className="flex flex-col gap-4">
-                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
                         <StatCard label="Toplam Ciro" value={formatCurrency(data.totalRevenue)} />
                         <StatCard label="Toplam Sipariş" value={data.totalOrders} />
-                        <StatCard label="Günlük Ort. Ciro" value={formatCurrency(data.totalRevenue / Math.max(data.dailySales.length, 1))} />
+                        <StatCard
+                            label="Günlük Ortalama"
+                            value={formatCurrency(data.totalRevenue / Math.max(data.dailySales.length, 1))}
+                        />
                     </div>
 
                     {data.dailySales.length > 0 && (
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                            <h3 className="text-sm font-semibold text-zinc-400 mb-3">Günlük Özet</h3>
-                            <div className="flex flex-col gap-2">
+                        <div style={{
+                            background: '#FFFFFF',
+                            border: '1px solid #E8E4DC',
+                            borderRadius: '14px',
+                            padding: '18px',
+                        }}>
+                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Günlük Özet</p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 {data.dailySales.map((d) => (
-                                    <div key={d.date} className="flex items-center justify-between py-2 border-b border-zinc-800 last:border-0">
-                                        <span className="text-sm text-zinc-300">
+                                    <div key={d.date} style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: '10px 0',
+                                        borderBottom: '1px solid #EDE9E0',
+                                    }}>
+                                        <span style={{ fontSize: '13px', color: '#4A4840' }}>
                                             {new Date(d.date).toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'short' })}
                                         </span>
-                                        <div className="flex items-center gap-4 text-right">
-                                            <span className="text-xs text-zinc-500">{d.orderCount} sipariş</span>
-                                            <span className="text-sm font-semibold text-white">{formatCurrency(d.revenue)}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                            <span style={{ fontSize: '12px', color: '#9A8E80' }}>{d.orderCount} sipariş</span>
+                                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#5F7154', minWidth: '80px', textAlign: 'right' }}>
+                                                {formatCurrency(d.revenue)}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}
@@ -212,18 +403,22 @@ function WeeklyPanel() {
                     )}
 
                     {data.topSellingItems.length > 0 && (
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                            <h3 className="text-sm font-semibold text-zinc-400 mb-3">Haftanın En Çok Satanları</h3>
+                        <div style={{
+                            background: '#FFFFFF',
+                            border: '1px solid #E8E4DC',
+                            borderRadius: '14px',
+                            padding: '18px',
+                        }}>
+                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Haftanın En Çok Satanları</p>
                             <TopSellingTable items={data.topSellingItems} />
                         </div>
                     )}
-                </div>
+                </>
             )}
         </div>
     )
 }
 
-// ── Top Selling Panel ─────────────────────────────────────────────────────────
 function TopSellingPanel() {
     const [startDate, setStartDate] = useState(weekAgo())
     const [endDate, setEndDate] = useState(today())
@@ -244,25 +439,43 @@ function TopSellingPanel() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-zinc-500">Top</span>
-                    <input type="number" min={1} max={50} value={count} onChange={(e) => setCount(Number(e.target.value))} className={`${inputCls} w-20`} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Top</span>
+                    <input
+                        type="number"
+                        min={1}
+                        max={50}
+                        value={count}
+                        onChange={(e) => setCount(Number(e.target.value))}
+                        style={{ ...inputStyle, width: '60px' }}
+                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
+                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                    />
                 </div>
                 <button
                     onClick={fetch}
                     disabled={loading}
-                    className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
-                >
-                    {loading ? 'Yükleniyor…' : 'Getir'}
-                </button>
+                    style={{
+                        padding: '9px 18px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: loading ? '#8FAF80' : '#5F7154',
+                        color: '#fff',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'system-ui, sans-serif',
+                    }}
+                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
             </div>
-
             {data && (
-                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
+                <div style={{ background: '#FFFFFF', border: '1px solid #E8E4DC', borderRadius: '14px', padding: '18px' }}>
                     <TopSellingTable items={data} />
                 </div>
             )}
@@ -270,7 +483,6 @@ function TopSellingPanel() {
     )
 }
 
-// ── Peak Hours Panel ──────────────────────────────────────────────────────────
 function PeakHoursPanel() {
     const [startDate, setStartDate] = useState(weekAgo())
     const [endDate, setEndDate] = useState(today())
@@ -290,22 +502,31 @@ function PeakHoursPanel() {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 flex-wrap">
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
                 <button
                     onClick={fetch}
                     disabled={loading}
-                    className="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
-                >
-                    {loading ? 'Yükleniyor…' : 'Getir'}
-                </button>
+                    style={{
+                        padding: '9px 18px',
+                        borderRadius: '10px',
+                        border: 'none',
+                        background: loading ? '#8FAF80' : '#5F7154',
+                        color: '#fff',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'system-ui, sans-serif',
+                    }}
+                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
             </div>
-
             {data && (
-                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4">
-                    <h3 className="text-sm font-semibold text-zinc-400 mb-3">Saatlik Yoğunluk</h3>
+                <div style={{ background: '#FFFFFF', border: '1px solid #E8E4DC', borderRadius: '14px', padding: '18px' }}>
+                    <p style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Saatlik Yoğunluk</p>
                     <HourlyChart hours={data} />
                 </div>
             )}
@@ -313,96 +534,71 @@ function PeakHoursPanel() {
     )
 }
 
-// ── Shared Sub-components ─────────────────────────────────────────────────────
-function TopSellingTable({ items }: { items: TopSellingItemDto[] }) {
-    return (
-        <div className="flex flex-col gap-2">
-            {items.map((item, i) => (
-                <div key={item.menuItemId} className="flex items-center gap-3 py-2 border-b border-zinc-800 last:border-0">
-                    <span className="text-xs font-mono text-zinc-600 w-5 shrink-0">#{i + 1}</span>
-                    <span className="flex-1 text-sm text-zinc-200 truncate">{item.productName}</span>
-                    <span className="text-xs text-zinc-500 shrink-0">{item.totalQuantitySold} adet</span>
-                    <span className="text-sm font-semibold text-white shrink-0">{formatCurrency(item.totalRevenue)}</span>
-                </div>
-            ))}
-        </div>
-    )
-}
-
-function HourlyChart({ hours }: { hours: HourlySalesDto[] }) {
-    const maxRevenue = Math.max(...hours.map((h) => h.revenue), 1)
-    const allHours = Array.from({ length: 24 }, (_, i) => {
-        const found = hours.find((h) => h.hour === i)
-        return found ?? { hour: i, orderCount: 0, revenue: 0 }
-    })
-
-    return (
-        <div className="flex items-end gap-1 h-24">
-            {allHours.map((h) => {
-                const pct = (h.revenue / maxRevenue) * 100
-                return (
-                    <div key={h.hour} className="flex-1 flex flex-col items-center gap-1 group relative" title={`${h.hour}:00 — ${formatCurrency(h.revenue)}`}>
-                        <div
-                            className="w-full rounded-sm bg-violet-600/60 group-hover:bg-violet-500 transition-colors"
-                            style={{ height: `${Math.max(pct, h.revenue > 0 ? 4 : 0)}%` }}
-                        />
-                        {h.hour % 4 === 0 && (
-                            <span className="text-[9px] text-zinc-600">{h.hour}</span>
-                        )}
-                    </div>
-                )
-            })}
-        </div>
-    )
-}
-
-function peakHour(hours: HourlySalesDto[]) {
-    if (!hours.length) return '—'
-    return hours.reduce((a, b) => (a.revenue > b.revenue ? a : b)).hour
-}
-
-// ── Main Page ─────────────────────────────────────────────────────────────────
-const TABS: { id: ReportTab; label: string; icon: React.ElementType }[] = [
-    { id: 'daily', label: 'Günlük', icon: BarChart2 },
-    { id: 'weekly', label: 'Haftalık', icon: TrendingUp },
-    { id: 'top', label: 'En Çok Satan', icon: ShoppingBag },
-    { id: 'peak', label: 'Yoğun Saatler', icon: Clock },
+const TABS: { id: ReportTab; label: string; emoji: string }[] = [
+    { id: 'daily', label: 'Günlük', emoji: '📊' },
+    { id: 'weekly', label: 'Haftalık', emoji: '📈' },
+    { id: 'top', label: 'En Çok Satan', emoji: '🏆' },
+    { id: 'peak', label: 'Yoğun Saatler', emoji: '🕐' },
 ]
 
 export default function ReportPage() {
     const [activeTab, setActiveTab] = useState<ReportTab>('daily')
 
     return (
-        <div className="p-4 lg:p-8 flex flex-col gap-6">
-            <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Raporlar</h1>
-                <p className="text-sm text-zinc-500 mt-1">Satış analizleri ve istatistikler</p>
+        <div style={{
+            padding: '32px',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            maxWidth: '900px',
+            background: '#F7F5F0',
+            minHeight: '100vh',
+        }}>
+            {/* Header */}
+            <div style={{ marginBottom: '24px' }}>
+                <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
+                    Raporlar
+                </h1>
+                <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>Satış analizleri ve istatistikler</p>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 flex-wrap">
-                {TABS.map(({ id, label, icon: Icon }) => (
+            {/* Tab'lar */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                {TABS.map(({ id, label, emoji }) => (
                     <button
                         key={id}
                         onClick={() => setActiveTab(id)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${activeTab === id
-                                ? 'bg-violet-600 text-white'
-                                : 'bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700'
-                            }`}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '9px 16px',
+                            borderRadius: '10px',
+                            border: activeTab === id ? 'none' : '1px solid #E0DDD6',
+                            background: activeTab === id ? '#5F7154' : '#FFFFFF',
+                            color: activeTab === id ? '#FFFFFF' : '#6A6560',
+                            fontSize: '13px',
+                            fontWeight: 500,
+                            cursor: 'pointer',
+                            fontFamily: 'system-ui, sans-serif',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => {
+                            if (activeTab !== id) (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
+                        }}
+                        onMouseLeave={e => {
+                            if (activeTab !== id) (e.currentTarget as HTMLElement).style.borderColor = '#E0DDD6'
+                        }}
                     >
-                        <Icon className="w-4 h-4" />
+                        <span style={{ fontSize: '14px' }}>{emoji}</span>
                         {label}
                     </button>
                 ))}
             </div>
 
-            {/* Panel */}
-            <div>
-                {activeTab === 'daily' && <DailyPanel />}
-                {activeTab === 'weekly' && <WeeklyPanel />}
-                {activeTab === 'top' && <TopSellingPanel />}
-                {activeTab === 'peak' && <PeakHoursPanel />}
-            </div>
+            {/* Panel içeriği */}
+            {activeTab === 'daily' && <DailyPanel />}
+            {activeTab === 'weekly' && <WeeklyPanel />}
+            {activeTab === 'top' && <TopSellingPanel />}
+            {activeTab === 'peak' && <PeakHoursPanel />}
         </div>
     )
 }
