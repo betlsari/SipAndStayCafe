@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { paymentApi } from '../../api/payment.api'
 import type { AxiosError } from 'axios'
@@ -21,10 +21,28 @@ export default function Payment() {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [checkoutHtml, setCheckoutHtml] = useState<string | null>(null)
+    const checkoutContainerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (!sessionId) navigate('/')
     }, [sessionId, navigate])
+
+    useEffect(() => {
+        if (!checkoutHtml || !checkoutContainerRef.current) return
+
+        const container = checkoutContainerRef.current
+        container.innerHTML = checkoutHtml
+
+        const scripts = container.querySelectorAll('script')
+        scripts.forEach((oldScript) => {
+            const newScript = document.createElement('script')
+            Array.from(oldScript.attributes).forEach((attr) =>
+                newScript.setAttribute(attr.name, attr.value)
+            )
+            newScript.textContent = oldScript.textContent
+            oldScript.parentNode?.replaceChild(newScript, oldScript)
+        })
+    }, [checkoutHtml])
 
     const handleConfirm = async () => {
         if (!selected || !sessionId) return
@@ -44,7 +62,6 @@ export default function Payment() {
             const data = axiosErr?.response?.data
             const code = data?.code
 
-            // Cashier endpoint returns { code, message }
             if (code === 'Payment.AlreadyLocked') {
                 setError('Bu masa için zaten bir ödeme işlemi başlatılmış.')
                 return
@@ -54,8 +71,6 @@ export default function Payment() {
                 return
             }
 
-            // Online endpoint throws ValidationException → ProblemDetails format
-            // Extract first error message from errors dict, or fall back to detail
             const errorsDict = data?.errors
             if (errorsDict) {
                 const firstMsg = Object.values(errorsDict).flat()[0]
@@ -67,7 +82,6 @@ export default function Payment() {
 
             const detail = data?.detail
             if (detail) {
-                // Map known backend messages to user-friendly Turkish
                 if (detail.includes('zaten kapatılmış') || detail.includes('AlreadyClosed')) {
                     navigate('/payment-result?status=session-closed')
                     return
@@ -92,10 +106,7 @@ export default function Payment() {
                 <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3">
                     <h1 className="text-lg font-bold text-gray-800">Online Ödeme</h1>
                 </div>
-                <div
-                    className="p-4"
-                    dangerouslySetInnerHTML={{ __html: checkoutHtml }}
-                />
+                <div className="p-4" ref={checkoutContainerRef} />
             </div>
         )
     }
