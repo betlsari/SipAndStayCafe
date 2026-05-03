@@ -5,7 +5,9 @@
 } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5291/api';
+console.log('BASE_URL:', import.meta.env.VITE_API_URL)
+
+const BASE_URL = 'http://localhost:5291/api';
 
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
     _retry?: boolean;

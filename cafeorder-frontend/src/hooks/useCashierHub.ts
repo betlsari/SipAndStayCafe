@@ -40,8 +40,9 @@ export function useCashierHub({
 
         try {
             await conn.start()
-        } catch {
-            // silently fail
+            console.log('SignalR connected!')
+        } catch (err) {
+            console.error('SignalR error:', err)
         }
     }, [])
 

@@ -92,7 +92,11 @@ builder.Services.AddCors(opts =>
     opts.AddPolicy("AllowReactDev", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:5174",  // Vite bazen bu portu da kullanır
+                "https://localhost:5173"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -128,7 +132,10 @@ if (app.Environment.IsDevelopment())
 }
 
 // 3. HTTPS redirect
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 // 4. CORS — must be before auth
 app.UseCors("AllowReactDev");

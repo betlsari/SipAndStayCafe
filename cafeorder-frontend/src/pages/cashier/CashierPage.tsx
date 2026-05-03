@@ -110,8 +110,23 @@ export default function CashierPage() {
             setLoading(false)
         }
     }, [])
-
-    
+    useEffect(() => {
+        let cancelled = false
+        cashierApi.getActiveSessions()
+            .then(res => {
+                if (!cancelled) {
+                    setSessions(res.data)
+                    setLoading(false)
+                }
+            })
+            .catch(() => {
+                if (!cancelled) {
+                    setError('Masalar yüklenemedi.')
+                    setLoading(false)
+                }
+            })
+        return () => { cancelled = true }
+    }, [])
 
     const handleTableWaiting = useCallback(
         (payload: unknown) => {
