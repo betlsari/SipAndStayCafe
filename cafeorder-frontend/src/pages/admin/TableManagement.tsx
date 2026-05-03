@@ -4,8 +4,19 @@ import type { TableDto } from '../../types/index'
 import { Plus, Pencil, Trash2, X, Download } from 'lucide-react'
 import { toast } from 'sonner'
 
-const inputCls =
-    'w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all'
+const inputStyle: React.CSSProperties = {
+    width: '100%',
+    border: '1px solid #E0DDD6',
+    borderRadius: '10px',
+    padding: '10px 14px',
+    fontSize: '14px',
+    color: '#2C3528',
+    background: '#FDFCF9',
+    outline: 'none',
+    fontFamily: 'system-ui, sans-serif',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s',
+}
 
 interface TableFormProps {
     initial?: TableDto | null
@@ -42,56 +53,130 @@ function TableForm({ initial, onDone, onClose }: TableFormProps) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-            <div className="w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-2xl">
-                <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
-                    <h2 className="text-base font-bold text-white">{isEdit ? 'Masa Düzenle' : 'Yeni Masa Ekle'}</h2>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
-                        <X className="w-5 h-5" />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
+            <div style={{ width: '100%', maxWidth: '400px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', boxShadow: '0 8px 32px rgba(95,113,84,0.12)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid #EDE9E0' }}>
+                    <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#2C3528', margin: 0 }}>{isEdit ? 'Masa Düzenle' : 'Yeni Masa Ekle'}</h2>
+                    <button onClick={onClose} style={{ background: '#F0ECE4', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={14} color="#6A6560" />
                     </button>
                 </div>
-                <div className="px-5 py-5 flex flex-col gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Masa Numarası</label>
+                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div>
+                        <label style={{ fontSize: '12px', fontWeight: 500, color: '#5F7154', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Masa Numarası</label>
                         <input
                             type="number"
                             min={1}
                             value={tableNumber}
-                            onChange={(e) => setTableNumber(e.target.value)}
+                            onChange={e => setTableNumber(e.target.value)}
                             placeholder="Örn: 5"
-                            className={inputCls}
+                            style={inputStyle}
                             autoFocus
+                            onFocus={e => (e.target.style.borderColor = '#82A76B')}
+                            onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
                         />
                     </div>
                     {isEdit && (
-                        <div className="flex items-center justify-between bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
-                            <span className="text-sm text-zinc-300">Aktif</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F7F5F0', border: '1px solid #E8E4DC', borderRadius: '10px', padding: '12px 14px' }}>
+                            <span style={{ fontSize: '13px', color: '#4A4840' }}>Aktif</span>
                             <button
                                 onClick={() => setIsActive(!isActive)}
-                                className={`relative w-11 h-6 rounded-full transition-colors ${isActive ? 'bg-violet-600' : 'bg-zinc-600'}`}
+                                style={{ width: '42px', height: '24px', borderRadius: '12px', border: 'none', background: isActive ? '#5F7154' : '#D8D4CC', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}
                             >
-                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isActive ? 'translate-x-5' : 'translate-x-0'}`} />
+                                <span style={{ position: 'absolute', top: '3px', left: isActive ? '21px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
                             </button>
                         </div>
                     )}
-                    {error && <p className="text-sm text-red-400">{error}</p>}
+                    {error && <p style={{ fontSize: '13px', color: '#C06080', background: '#FAE8EE', padding: '10px 12px', borderRadius: '8px', margin: 0 }}>{error}</p>}
                 </div>
-                <div className="px-5 py-4 border-t border-zinc-800 flex gap-3">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-semibold py-2.5 rounded-xl transition-colors"
-                    >
-                        İptal
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
-                    >
+                <div style={{ padding: '0 20px 20px', display: 'flex', gap: '10px' }}>
+                    <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>İptal</button>
+                    <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: saving ? '#8FAF80' : '#5F7154', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}>
                         {saving ? 'Kaydediliyor…' : isEdit ? 'Güncelle' : 'Oluştur'}
                     </button>
                 </div>
             </div>
+        </div>
+    )
+}
+
+function TableCard({ table, onEdit, onDelete, onDownloadQr, downloading }: {
+    table: TableDto
+    onEdit: (t: TableDto) => void
+    onDelete: (t: TableDto) => void
+    onDownloadQr: (t: TableDto) => void
+    downloading: boolean
+}) {
+    const [hovered, setHovered] = useState(false)
+    return (
+        <div
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid #E8E4DC',
+                borderColor: hovered ? '#C8D5C0' : '#E8E4DC',
+                padding: '18px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '14px',
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+                boxShadow: hovered ? '0 4px 16px rgba(95,113,84,0.08)' : '0 1px 4px rgba(95,113,84,0.04)',
+                opacity: table.isActive ? 1 : 0.65,
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                <div>
+                    <span style={{ fontFamily: 'system-ui, monospace', fontSize: '30px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.02em', lineHeight: 1 }}>{table.tableNumber}</span>
+                    <p style={{ margin: '4px 0 0', fontSize: '12px', color: table.isActive ? '#82A76B' : '#9A8E80', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: table.isActive ? '#82A76B' : '#C8C4BC', display: 'inline-block' }} />
+                        {table.isActive ? 'Aktif' : 'Pasif'}
+                    </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+                    <button onClick={() => onEdit(table)} style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#F0F4EC', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <Pencil size={13} color="#5F7154" />
+                    </button>
+                    <button onClick={() => onDelete(table)} style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#FAE8EE', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                        <Trash2 size={13} color="#C06080" />
+                    </button>
+                </div>
+            </div>
+
+            <p style={{ fontSize: '10px', color: '#C0BBAE', fontFamily: 'monospace', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{table.qRCodeUrl}</p>
+
+            <button
+                onClick={() => onDownloadQr(table)}
+                disabled={downloading}
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    width: '100%',
+                    padding: '9px',
+                    borderRadius: '10px',
+                    border: '1px solid #E0DDD6',
+                    background: '#F7F5F0',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                    color: '#5F7154',
+                    cursor: downloading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'system-ui, sans-serif',
+                    opacity: downloading ? 0.6 : 1,
+                    transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => !downloading && (e.currentTarget.style.background = '#EDF2E8')}
+                onMouseLeave={e => (e.currentTarget.style.background = '#F7F5F0')}
+            >
+                {downloading ? (
+                    <span style={{ width: '12px', height: '12px', border: '2px solid #C8D5C0', borderTopColor: '#5F7154', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                ) : (
+                    <Download size={12} color="#5F7154" />
+                )}
+                QR İndir
+            </button>
         </div>
     )
 }
@@ -116,7 +201,6 @@ export default function TableManagement() {
         }
     }, [])
 
-    // ✅ ESLint fix: async wrapper inside useEffect
     useEffect(() => {
         const load = async () => { await fetchTables() }
         load()
@@ -160,46 +244,48 @@ export default function TableManagement() {
         fetchTables()
     }
 
-    const active = tables.filter((t) => t.isActive)
-    const inactive = tables.filter((t) => !t.isActive)
+    const active = tables.filter(t => t.isActive)
+    const inactive = tables.filter(t => !t.isActive)
 
     return (
-        <div className="p-4 lg:p-8 flex flex-col gap-6">
-            <div className="flex items-start justify-between gap-4">
+        <div style={{ padding: '32px', fontFamily: 'system-ui, -apple-system, sans-serif', maxWidth: '900px', background: '#F7F5F0', minHeight: '100vh' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
                 <div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">Masa & QR Yönetimi</h1>
-                    <p className="text-sm text-zinc-500 mt-1">
-                        {active.length} aktif · {inactive.length} pasif masa
-                    </p>
+                    <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>Masa & QR Yönetimi</h1>
+                    <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>{active.length} aktif · {inactive.length} pasif masa</p>
                 </div>
                 <button
                     onClick={() => { setEditTarget(null); setShowForm(true) }}
-                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all active:scale-95 shrink-0"
+                    style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#5F7154', color: '#FFFFFF', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = '#4A5C40')}
+                    onMouseLeave={e => (e.currentTarget.style.background = '#5F7154')}
                 >
-                    <Plus className="w-4 h-4" />
+                    <Plus size={14} />
                     Masa Ekle
                 </button>
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Yükleniyor…</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ fontSize: '24px' }}>☕</div>
+                    <p style={{ color: '#9A8E80', fontSize: '13px' }}>Yükleniyor…</p>
+                </div>
             ) : tables.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-zinc-800 py-20 text-center text-zinc-600 text-sm">
+                <div style={{ padding: '60px 20px', border: '1.5px dashed #D8D4CC', borderRadius: '16px', textAlign: 'center', color: '#B0AB9E', fontSize: '14px', background: '#FDFCF9' }}>
+                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>🪑</div>
                     Henüz masa eklenmemiş.
                 </div>
             ) : (
-                <div className="flex flex-col gap-6">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
                     {active.length > 0 && (
-                        <section className="flex flex-col gap-3">
-                            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest px-1">
-                                Aktif Masalar · {active.length}
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {active.map((table) => (
+                        <section>
+                            <h2 style={{ fontSize: '11px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Aktif Masalar · {active.length}</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+                                {active.map(table => (
                                     <TableCard
                                         key={table.id}
                                         table={table}
-                                        onEdit={(t) => { setEditTarget(t); setShowForm(true) }}
+                                        onEdit={t => { setEditTarget(t); setShowForm(true) }}
                                         onDelete={setDeleteTarget}
                                         onDownloadQr={handleDownloadQr}
                                         downloading={downloadingId === table.id}
@@ -209,16 +295,14 @@ export default function TableManagement() {
                         </section>
                     )}
                     {inactive.length > 0 && (
-                        <section className="flex flex-col gap-3">
-                            <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest px-1">
-                                Pasif Masalar · {inactive.length}
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {inactive.map((table) => (
+                        <section>
+                            <h2 style={{ fontSize: '11px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Pasif Masalar · {inactive.length}</h2>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
+                                {inactive.map(table => (
                                     <TableCard
                                         key={table.id}
                                         table={table}
-                                        onEdit={(t) => { setEditTarget(t); setShowForm(true) }}
+                                        onEdit={t => { setEditTarget(t); setShowForm(true) }}
                                         onDelete={setDeleteTarget}
                                         onDownloadQr={handleDownloadQr}
                                         downloading={downloadingId === table.id}
@@ -230,102 +314,26 @@ export default function TableManagement() {
                 </div>
             )}
 
-            {showForm && (
-                <TableForm
-                    initial={editTarget}
-                    onDone={handleFormDone}
-                    onClose={() => { setShowForm(false); setEditTarget(null) }}
-                />
-            )}
+            {showForm && <TableForm initial={editTarget} onDone={handleFormDone} onClose={() => { setShowForm(false); setEditTarget(null) }} />}
 
             {deleteTarget && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-                    <div className="w-full max-w-sm bg-zinc-900 border border-zinc-700 rounded-2xl p-6 text-center">
-                        <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Trash2 className="w-7 h-7 text-red-400" />
+                <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
+                    <div style={{ width: '100%', maxWidth: '360px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', padding: '28px 24px', textAlign: 'center' }}>
+                        <div style={{ width: '52px', height: '52px', background: '#FAE8EE', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                            <Trash2 size={22} color="#C06080" />
                         </div>
-                        <h2 className="text-lg font-bold text-white mb-2">Masa {deleteTarget.tableNumber}'i Sil?</h2>
-                        <p className="text-sm text-zinc-400 mb-6">
-                            Bu masa ve bağlı tüm verileri kalıcı olarak silinecek.
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setDeleteTarget(null)}
-                                className="flex-1 bg-zinc-800 text-white py-2.5 rounded-xl text-sm font-semibold"
-                            >
-                                Vazgeç
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                disabled={deleting}
-                                className="flex-1 bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold disabled:opacity-50"
-                            >
+                        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#2C3528', margin: '0 0 8px' }}>Masa {deleteTarget.tableNumber}'i Sil?</h2>
+                        <p style={{ fontSize: '13px', color: '#8A8478', margin: '0 0 22px', lineHeight: 1.5 }}>Bu masa ve bağlı tüm verileri kalıcı olarak silinecek.</p>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>Vazgeç</button>
+                            <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: deleting ? '#E8B0C0' : '#C06080', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: deleting ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif' }}>
                                 {deleting ? 'Siliniyor…' : 'Sil'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
-    )
-}
-
-function TableCard({
-    table,
-    onEdit,
-    onDelete,
-    onDownloadQr,
-    downloading,
-}: {
-    table: TableDto
-    onEdit: (t: TableDto) => void
-    onDelete: (t: TableDto) => void
-    onDownloadQr: (t: TableDto) => void
-    downloading: boolean
-}) {
-    return (
-        <div className={`bg-zinc-900 border rounded-2xl p-4 flex flex-col gap-3 group ${table.isActive ? 'border-zinc-800' : 'border-zinc-800 opacity-60'}`}>
-            <div className="flex items-start justify-between">
-                <div>
-                    <span className="font-mono text-3xl font-bold text-white">{table.tableNumber}</span>
-                    <p className="text-xs text-zinc-500 mt-0.5">
-                        {table.isActive ? (
-                            <span className="text-emerald-400">● Aktif</span>
-                        ) : (
-                            <span className="text-zinc-500">● Pasif</span>
-                        )}
-                    </p>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                        onClick={() => onEdit(table)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors"
-                    >
-                        <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                        onClick={() => onDelete(table)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors"
-                    >
-                        <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                </div>
-            </div>
-
-            <p className="text-[10px] text-zinc-600 font-mono truncate">{table.qRCodeUrl}</p>
-
-            <button
-                onClick={() => onDownloadQr(table)}
-                disabled={downloading}
-                className="flex items-center justify-center gap-2 w-full bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-300 text-xs font-semibold py-2 rounded-xl transition-colors"
-            >
-                {downloading ? (
-                    <span className="w-3.5 h-3.5 border-2 border-zinc-600 border-t-violet-400 rounded-full animate-spin" />
-                ) : (
-                    <Download className="w-3.5 h-3.5" />
-                )}
-                QR İndir
-            </button>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     )
 }

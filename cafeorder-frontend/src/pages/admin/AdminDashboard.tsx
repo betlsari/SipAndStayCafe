@@ -1,5 +1,4 @@
-﻿// src/pages/admin/AdminDashboard.tsx
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { menuApi } from '../../api/menu.api'
 import { tableApi } from '../../api/table.api'
@@ -11,7 +10,8 @@ interface StatCard {
     value: string | number
     sub?: string
     icon: React.ElementType
-    iconCls: string
+    iconBg: string
+    iconColor: string
     href: string
 }
 
@@ -24,20 +24,18 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         menuApi.getAllItems()
-            .then((r) => setItemCount(r.data.length))
+            .then(r => setItemCount(r.data.length))
             .catch(() => setItemCount('—'))
 
         tableApi.getAll()
-            .then((r) => setTableCount(r.data.filter((t) => t.isActive).length))
+            .then(r => setTableCount(r.data.filter(t => t.isActive).length))
             .catch(() => setTableCount('—'))
 
         cashierApi.getActiveSessions()
-            .then((r) => {
+            .then(r => {
                 setActiveSessionCount(r.data.length)
                 const total = r.data.reduce((s, sess) => s + sess.totalAmount, 0)
-                setRevenue(
-                    new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(total)
-                )
+                setRevenue(new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(total))
             })
             .catch(() => {
                 setActiveSessionCount('—')
@@ -51,7 +49,8 @@ export default function AdminDashboard() {
             value: itemCount,
             sub: 'menüdeki toplam ürün',
             icon: UtensilsCrossed,
-            iconCls: 'bg-violet-500/20 text-violet-400',
+            iconBg: '#EDF2E8',
+            iconColor: '#5F7154',
             href: '/admin/items',
         },
         {
@@ -59,35 +58,42 @@ export default function AdminDashboard() {
             value: tableCount,
             sub: 'sisteme tanımlı',
             icon: QrCode,
-            iconCls: 'bg-sky-500/20 text-sky-400',
+            iconBg: '#EEF4FE',
+            iconColor: '#3A7FC8',
             href: '/admin/tables',
         },
         {
-            // Açık oturum → kasiyer paneli (doğru yönlendirme)
             label: 'Açık Oturum',
             value: activeSessionCount,
             sub: 'şu an masada müşteri var',
             icon: Tag,
-            iconCls: 'bg-amber-500/20 text-amber-400',
+            iconBg: '#FEF6EE',
+            iconColor: '#C8853A',
             href: '/cashier',
         },
         {
-            // Açık masa cirosu → kasiyer paneli (aktif masalar orada görünür)
             label: 'Açık Masa Cirosu',
             value: revenue,
             sub: 'henüz kapanmamış oturumlar',
             icon: TrendingUp,
-            iconCls: 'bg-emerald-500/20 text-emerald-400',
+            iconBg: '#EDF2E8',
+            iconColor: '#5F7154',
             href: '/cashier',
         },
     ]
 
     return (
-        <div className="p-4 lg:p-8 flex flex-col gap-8">
+        <div style={{
+            padding: '32px',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+            maxWidth: '900px',
+        }}>
             {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">Genel Bakış</h1>
-                <p className="text-sm text-zinc-500 mt-1">
+            <div style={{ marginBottom: '28px' }}>
+                <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
+                    Genel Bakış
+                </h1>
+                <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>
                     {new Date().toLocaleDateString('tr-TR', {
                         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
                     })}
@@ -95,46 +101,111 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {cards.map((card) => {
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+                gap: '14px',
+                marginBottom: '32px',
+            }}>
+                {cards.map(card => {
                     const Icon = card.icon
                     return (
                         <button
                             key={card.label}
                             onClick={() => navigate(card.href)}
-                            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex flex-col gap-3 text-left hover:border-zinc-600 transition-colors group"
+                            style={{
+                                background: '#FFFFFF',
+                                borderRadius: '16px',
+                                border: '1px solid #E8E4DC',
+                                padding: '18px',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '12px',
+                                boxShadow: '0 1px 4px rgba(95,113,84,0.05)',
+                            }}
+                            onMouseEnter={e => {
+                                ; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(95,113,84,0.10)'
+                                    ; (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
+                            }}
+                            onMouseLeave={e => {
+                                ; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(95,113,84,0.05)'
+                                    ; (e.currentTarget as HTMLElement).style.borderColor = '#E8E4DC'
+                            }}
                         >
-                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${card.iconCls}`}>
-                                <Icon className="w-4 h-4" />
+                            <div style={{
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '10px',
+                                background: card.iconBg,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                                <Icon size={16} color={card.iconColor} />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-white">{card.value}</p>
-                                <p className="text-xs text-zinc-500 mt-0.5">{card.label}</p>
+                                <p style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 3px', letterSpacing: '-0.01em' }}>
+                                    {card.value}
+                                </p>
+                                <p style={{ fontSize: '12px', color: '#9A8E80', margin: 0 }}>{card.label}</p>
                             </div>
-                            <p className="text-xs text-zinc-600">{card.sub}</p>
+                            {card.sub && (
+                                <p style={{ fontSize: '11px', color: '#B0AB9E', margin: 0, lineHeight: 1.4 }}>{card.sub}</p>
+                            )}
                         </button>
                     )
                 })}
             </div>
 
+            {/* Divider */}
+            <div style={{ borderTop: '1px solid #EDE9E0', marginBottom: '24px' }} />
+
             {/* Quick links */}
-            <div className="flex flex-col gap-2">
-                <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Hızlı Erişim</h2>
-                <div className="flex flex-col gap-2">
+            <div>
+                <h2 style={{ fontSize: '12px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>
+                    Hızlı Erişim
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
-                        { label: 'Kategori Yönetimi', href: '/admin/categories' },
-                        { label: 'Ürün Yönetimi', href: '/admin/items' },
-                        { label: 'Masa & QR Yönetimi', href: '/admin/tables' },
-                        { label: 'Raporlar', href: '/admin/reports' },
-                        { label: 'Kullanıcı Yönetimi', href: '/admin/users' },
-                    ].map((link) => (
+                        { label: 'Kategori Yönetimi', href: '/admin/categories', desc: 'Menü kategorilerini düzenle' },
+                        { label: 'Ürün Yönetimi', href: '/admin/items', desc: 'Menü ürünlerini ve fiyatları yönet' },
+                        { label: 'Masa & QR Yönetimi', href: '/admin/tables', desc: 'Masaları ekle, QR kodları indir' },
+                        { label: 'Raporlar', href: '/admin/reports', desc: 'Günlük ve haftalık satış analizleri' },
+                        { label: 'Kullanıcı Yönetimi', href: '/admin/users', desc: 'Personel hesaplarını yönet' },
+                    ].map(link => (
                         <button
                             key={link.href}
                             onClick={() => navigate(link.href)}
-                            className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 hover:text-white hover:border-zinc-600 transition-colors group"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                background: '#FFFFFF',
+                                border: '1px solid #E8E4DC',
+                                borderRadius: '12px',
+                                padding: '13px 16px',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s',
+                                textAlign: 'left',
+                                fontFamily: 'system-ui, sans-serif',
+                            }}
+                            onMouseEnter={e => {
+                                ; (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
+                                    ; (e.currentTarget as HTMLElement).style.background = '#FDFCF9'
+                            }}
+                            onMouseLeave={e => {
+                                ; (e.currentTarget as HTMLElement).style.borderColor = '#E8E4DC'
+                                    ; (e.currentTarget as HTMLElement).style.background = '#FFFFFF'
+                            }}
                         >
-                            {link.label}
-                            <ArrowRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+                            <div>
+                                <p style={{ fontSize: '14px', fontWeight: 500, color: '#2C3528', margin: '0 0 2px' }}>{link.label}</p>
+                                <p style={{ fontSize: '12px', color: '#9A8E80', margin: 0 }}>{link.desc}</p>
+                            </div>
+                            <ArrowRight size={15} color="#C8D5C0" />
                         </button>
                     ))}
                 </div>
