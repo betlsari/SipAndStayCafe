@@ -8,75 +8,88 @@ export default function WelcomeSplash() {
     const [visible, setVisible] = useState(false)
 
     useEffect(() => {
-        // Trigger entrance animation
-        const t1 = setTimeout(() => setVisible(true), 50)
-        // Auto-redirect to menu after 2.5s
+        const t1 = setTimeout(() => setVisible(true), 60)
         const t2 = setTimeout(() => {
             navigate(`/menu?table=${tableNumber}`, { replace: true })
-        }, 2500)
+        }, 2600)
         return () => { clearTimeout(t1); clearTimeout(t2) }
     }, [tableNumber, navigate])
 
     return (
-        <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6 overflow-hidden">
-            {/* Radial glow background */}
-            <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    background: 'radial-gradient(ellipse 60% 40% at 50% 60%, rgba(139,92,246,0.12) 0%, transparent 70%)',
-                }}
-            />
+        <div style={{
+            minHeight: '100vh',
+            background: '#F7F5F0',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            padding: '24px',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+        }}>
+            <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                gap: '24px', textAlign: 'center',
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(20px)',
+                transition: 'opacity 0.6s ease, transform 0.6s ease',
+            }}>
+                {/* Icon */}
+                <div style={{
+                    width: '100px', height: '100px',
+                    background: '#fff',
+                    borderRadius: '28px',
+                    border: '1px solid #E0DDD6',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '48px',
+                    boxShadow: '0 4px 20px rgba(95,113,84,0.08)',
+                }}>☕</div>
 
-            <div
-                className="relative z-10 flex flex-col items-center gap-8 text-center transition-all duration-700"
-                style={{
-                    opacity: visible ? 1 : 0,
-                    transform: visible ? 'translateY(0)' : 'translateY(24px)',
-                }}
-            >
-                {/* Logo / Icon */}
-                <div className="relative">
-                    <div className="w-28 h-28 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-6xl shadow-2xl">
-                        ☕
-                    </div>
-                    {/* Pulsing ring */}
-                    <div className="absolute inset-0 rounded-3xl border-2 border-violet-500/30 animate-ping" />
-                </div>
-
-                {/* Greeting */}
-                <div className="flex flex-col gap-2">
-                    <p className="text-xs font-bold text-violet-400 uppercase tracking-[0.3em]">
+                {/* Text */}
+                <div>
+                    <p style={{ fontSize: '12px', fontWeight: 600, color: '#82A76B', textTransform: 'uppercase', letterSpacing: '0.12em', margin: '0 0 8px' }}>
                         Hoş Geldiniz
                     </p>
-                    <h1 className="text-4xl font-black text-white tracking-tight">
+                    <h1 style={{ fontSize: '32px', fontWeight: 700, color: '#2C3528', margin: '0 0 6px', letterSpacing: '-0.02em' }}>
                         Masa {tableNumber}
                     </h1>
-                    <p className="text-sm text-zinc-400 mt-1">
-                        Sip & Stay Cafe'ye hoş geldiniz.
-                        <br />
-                        Menünüz hazırlanıyor…
+                    <p style={{ fontSize: '14px', color: '#8A8478', margin: 0, lineHeight: 1.6 }}>
+                        Sip & Stay'e hoş geldiniz.<br />Menünüz hazırlanıyor…
                     </p>
                 </div>
 
-                {/* Progress dots */}
-                <div className="flex gap-2">
+                {/* Dots */}
+                <div style={{ display: 'flex', gap: '8px' }}>
                     {[0, 1, 2].map((i) => (
                         <div
                             key={i}
-                            className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-bounce"
-                            style={{ animationDelay: `${i * 0.15}s` }}
+                            style={{
+                                width: '8px', height: '8px',
+                                borderRadius: '50%',
+                                background: '#82A76B',
+                                animation: 'bounce 1.2s ease-in-out infinite',
+                                animationDelay: `${i * 0.18}s`,
+                            }}
                         />
                     ))}
                 </div>
             </div>
 
-            {/* Skip link */}
+            {/* Skip */}
             <button
                 onClick={() => navigate(`/menu?table=${tableNumber}`, { replace: true })}
-                className="absolute bottom-8 text-xs text-zinc-600 hover:text-zinc-400 transition-colors underline underline-offset-2"
-            >
-                Menüye geç →
-            </button>
+                style={{
+                    position: 'absolute', bottom: '28px',
+                    background: 'none', border: 'none',
+                    fontSize: '13px', color: '#B0AB9E',
+                    cursor: 'pointer', textDecoration: 'underline',
+                    fontFamily: 'inherit',
+                }}
+            >Menüye geç →</button>
+
+            <style>{`
+        @keyframes bounce {
+          0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+          40% { transform: translateY(-8px); opacity: 1; }
+        }
+      `}</style>
         </div>
     )
 }

@@ -1,16 +1,10 @@
-﻿import { NavLink } from 'react-router-dom'
+﻿import { NavLink, useNavigate } from 'react-router-dom'
 import {
-    LayoutDashboard,
-    Tag,
-    UtensilsCrossed,
-    QrCode,
-    BarChart2,
-    Users,
-    LogOut,
+    LayoutDashboard, Tag, UtensilsCrossed,
+    QrCode, BarChart2, Users, LogOut,
 } from 'lucide-react'
 import { useAuthStore } from '../../store/authStore'
 import { authApi } from '../../api/auth.api'
-import { useNavigate } from 'react-router-dom'
 
 const NAV_ITEMS = [
     { to: '/admin', label: 'Genel Bakış', icon: LayoutDashboard, end: true },
@@ -21,9 +15,56 @@ const NAV_ITEMS = [
     { to: '/admin/users', label: 'Kullanıcılar', icon: Users },
 ]
 
+const S: Record<string, React.CSSProperties> = {
+    sidebar: {
+        width: '220px', flexShrink: 0,
+        background: 'var(--bg-card)',
+        borderRight: '1px solid var(--border-soft)',
+        minHeight: '100vh', position: 'sticky', top: 0,
+        display: 'flex', flexDirection: 'column',
+    },
+    brand: {
+        padding: '22px 20px 16px',
+        borderBottom: '1px solid var(--border-soft)',
+    },
+    brandTitle: { fontSize: '16px', fontWeight: 700, color: 'var(--text-h)', margin: 0 },
+    brandSub: { fontSize: '11px', color: 'var(--text-muted)', margin: '2px 0 0' },
+    nav: { flex: 1, padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: '2px' },
+    foot: { padding: '12px 10px', borderTop: '1px solid var(--border-soft)' },
+    mobileNav: {
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
+        background: 'var(--bg-card)', borderTop: '1px solid var(--border-soft)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+        padding: '6px 4px 8px',
+    },
+}
+
+function NavItem({ to, label, icon: Icon, end }: typeof NAV_ITEMS[0]) {
+    return (
+        <NavLink
+            to={to} end={end}
+            style={({ isActive }) => ({
+                display: 'flex', alignItems: 'center', gap: '10px',
+                padding: '9px 12px', borderRadius: 'var(--radius-md)',
+                fontSize: '13px', fontWeight: 500, textDecoration: 'none',
+                transition: 'all 0.15s',
+                background: isActive ? 'var(--green-pale)' : 'transparent',
+                color: isActive ? 'var(--green)' : 'var(--text-muted)',
+            })}
+        >
+            {({ isActive }) => (
+                <>
+                    <Icon size={15} color={isActive ? 'var(--green)' : 'var(--text-soft)'} />
+                    {label}
+                </>
+            )}
+        </NavLink>
+    )
+}
+
 export default function AdminNav() {
     const navigate = useNavigate()
-    const clearAuth = useAuthStore((s) => s.clearAuth)
+    const clearAuth = useAuthStore(s => s.clearAuth)
 
     const handleLogout = async () => {
         await authApi.logout()
@@ -33,65 +74,53 @@ export default function AdminNav() {
 
     return (
         <>
-            {/* ── Desktop sidebar ── */}
-            <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-zinc-900 border-r border-zinc-800 min-h-screen sticky top-0">
-                <div className="px-5 py-5 border-b border-zinc-800">
-                    <span className="text-white font-bold text-base tracking-tight">☕ SipAndStay</span>
-                    <p className="text-xs text-zinc-500 mt-0.5">Yönetim Paneli</p>
+            {/* Desktop sidebar */}
+            <aside className="hidden lg:flex" style={{ ...S.sidebar, flexDirection: 'column' }}>
+                <div style={S.brand}>
+                    <p style={S.brandTitle}>☕ Sip & Stay</p>
+                    <p style={S.brandSub}>Yönetim Paneli</p>
                 </div>
-
-                <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
-                    {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-                        <NavLink
-                            key={to}
-                            to={to}
-                            end={end}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive
-                                    ? 'bg-violet-600 text-white'
-                                    : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
-                                }`
-                            }
-                        >
-                            <Icon className="w-4 h-4 shrink-0" />
-                            {label}
-                        </NavLink>
-                    ))}
+                <nav style={S.nav}>
+                    {NAV_ITEMS.map(item => <NavItem key={item.to} {...item} />)}
                 </nav>
-
-                <div className="px-3 py-4 border-t border-zinc-800">
+                <div style={S.foot}>
                     <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-red-400 hover:bg-zinc-800 w-full transition-colors"
+                        style={{
+                            display: 'flex', alignItems: 'center', gap: '10px',
+                            padding: '9px 12px', borderRadius: 'var(--radius-md)',
+                            fontSize: '13px', fontWeight: 500, width: '100%',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            color: 'var(--text-muted)', fontFamily: 'var(--font)',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--pink-pale)'; (e.currentTarget as HTMLElement).style.color = 'var(--pink-dark)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}
                     >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut size={15} />
                         Çıkış Yap
                     </button>
                 </div>
             </aside>
 
-            {/* ── Mobile bottom nav ── */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-800 flex items-center justify-around px-1 py-2">
-                {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-                    <NavLink
-                        key={to}
-                        to={to}
-                        end={end}
-                        className={({ isActive }) =>
-                            `flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors ${isActive ? 'text-violet-400' : 'text-zinc-500'
-                            }`
-                        }
-                    >
-                        <Icon className="w-5 h-5" />
-                        <span className="text-[10px] font-medium">{label}</span>
+            {/* Mobile bottom nav */}
+            <nav className="lg:hidden" style={S.mobileNav}>
+                {NAV_ITEMS.map(({ to, icon: Icon, end }) => (
+                    <NavLink key={to} to={to} end={end} style={({ isActive }) => ({
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+                        padding: '4px 8px', borderRadius: 'var(--radius-sm)',
+                        textDecoration: 'none',
+                        color: isActive ? 'var(--green)' : 'var(--text-soft)',
+                    })}>
+                        {({ isActive }) => <Icon size={18} color={isActive ? 'var(--green)' : 'var(--text-soft)'} />}
                     </NavLink>
                 ))}
-                <button
-                    onClick={handleLogout}
-                    className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl text-zinc-500 hover:text-red-400 transition-colors"
-                >
-                    <LogOut className="w-5 h-5" />
-                    <span className="text-[10px] font-medium">Çıkış</span>
+                <button onClick={handleLogout} style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+                    padding: '4px 8px', background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--text-soft)',
+                }}>
+                    <LogOut size={18} />
                 </button>
             </nav>
         </>

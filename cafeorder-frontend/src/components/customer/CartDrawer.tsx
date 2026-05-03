@@ -17,27 +17,19 @@ export default function CartDrawer({ onClose }: Props) {
     const handleOrder = async () => {
         if (!tableNumber) { setError('Masa numarası bulunamadı.'); return }
         if (items.length === 0) { setError('Sepetiniz boş.'); return }
-
         setLoading(true)
         setError(null)
-
         try {
             const res = await orderApi.placeOrder({
                 tableNumber,
-                items: items.map((i) => ({
+                items: items.map(i => ({
                     menuItemId: i.menuItem.id,
                     quantity: i.quantity,
                     selectedModifierIds: i.selectedModifierIds,
                 })),
                 note: note || undefined,
             })
-
-            // Backend artık OrderDto içinde sessionId döndürüyor
-            // res.data.sessionId → Guid (string olarak gelir)
-            if (res.data.sessionId) {
-                setSessionId(res.data.sessionId)
-            }
-
+            if (res.data.sessionId) setSessionId(res.data.sessionId)
             clearCart()
             onClose()
             navigate(`/order-status?table=${tableNumber}`)
@@ -49,38 +41,68 @@ export default function CartDrawer({ onClose }: Props) {
     }
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50">
-            <div className="w-full max-w-lg bg-white rounded-t-2xl max-h-[85vh] flex flex-col">
-                <div className="px-4 py-4 border-b flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-800">Sepetim</h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+        <div style={{
+            position: 'fixed', inset: 0, zIndex: 50,
+            display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+            background: 'rgba(44,53,40,0.45)',
+            fontFamily: 'system-ui, -apple-system, sans-serif',
+        }}>
+            <div style={{
+                width: '100%', maxWidth: '520px',
+                background: '#FDFCF9',
+                borderRadius: '24px 24px 0 0',
+                maxHeight: '85vh', display: 'flex', flexDirection: 'column',
+            }}>
+                {/* Header */}
+                <div style={{
+                    padding: '18px 20px 14px',
+                    borderBottom: '1px solid #EDE9E0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
+                }}>
+                    <h2 style={{ fontSize: '17px', fontWeight: 600, color: '#2C3528', margin: 0 }}>Sepetim</h2>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            background: '#F0ECE4', border: 'none', borderRadius: '50%',
+                            width: '32px', height: '32px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#6A6560', fontSize: '18px',
+                        }}
+                    >×</button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3">
+                {/* Items */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '14px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     {items.length === 0 ? (
-                        <p className="text-center text-gray-400 py-8">Sepetiniz boş.</p>
+                        <div style={{ textAlign: 'center', padding: '40px 0', color: '#A09890' }}>
+                            <p style={{ fontSize: '28px', margin: '0 0 8px' }}>🛒</p>
+                            <p style={{ fontSize: '14px', margin: 0 }}>Sepetiniz boş</p>
+                        </div>
                     ) : (
                         items.map((item, index) => (
-                            <div key={index} className="flex items-start justify-between bg-gray-50 rounded-xl p-3">
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-semibold text-gray-800 text-sm">
-                                        {item.quantity}x {item.menuItem.name}
+                            <div key={index} style={{
+                                background: '#F7F5F0',
+                                borderRadius: '12px',
+                                border: '1px solid #E8E4DC',
+                                padding: '12px 14px',
+                                display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                            }}>
+                                <div style={{ flex: 1 }}>
+                                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#2C3528', margin: '0 0 3px' }}>
+                                        {item.quantity}× {item.menuItem.name}
                                     </p>
                                     {item.selectedModifierNames.length > 0 && (
-                                        <p className="text-xs text-gray-500 mt-0.5">
-                                            {item.selectedModifierNames.join(', ')}
-                                        </p>
+                                        <p style={{ fontSize: '12px', color: '#8A8478', margin: '0 0 6px' }}>{item.selectedModifierNames.join(', ')}</p>
                                     )}
-                                    <p className="text-purple-600 font-bold text-sm mt-1">
-                                        ₺{item.itemTotal.toFixed(2)}
-                                    </p>
+                                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#5F7154', margin: 0 }}>₺{item.itemTotal.toFixed(2)}</p>
                                 </div>
                                 <button
                                     onClick={() => removeItem(index)}
-                                    className="text-red-400 hover:text-red-600 text-lg ml-2"
-                                >
-                                    ×
-                                </button>
+                                    style={{
+                                        background: 'none', border: 'none', cursor: 'pointer',
+                                        color: '#C0A090', fontSize: '18px', padding: '0 0 0 10px', lineHeight: 1,
+                                    }}
+                                >×</button>
                             </div>
                         ))
                     )}
@@ -88,29 +110,50 @@ export default function CartDrawer({ onClose }: Props) {
                     {items.length > 0 && (
                         <textarea
                             value={note}
-                            onChange={(e) => setNote(e.target.value)}
+                            onChange={e => setNote(e.target.value)}
                             placeholder="Sipariş notu (opsiyonel)..."
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm resize-none h-20 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            style={{
+                                width: '100%', border: '1px solid #E0DDD6',
+                                borderRadius: '12px', padding: '10px 14px',
+                                fontSize: '13px', color: '#2C3528', background: '#fff',
+                                resize: 'none', height: '72px',
+                                outline: 'none', boxSizing: 'border-box',
+                                fontFamily: 'inherit',
+                            }}
                         />
                     )}
 
-                    {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+                    {error && (
+                        <p style={{ fontSize: '13px', color: '#C0392B', textAlign: 'center', background: '#FDF0EE', padding: '10px', borderRadius: '10px' }}>{error}</p>
+                    )}
                 </div>
 
+                {/* Footer */}
                 {items.length > 0 && (
-                    <div className="border-t px-4 py-4 flex flex-col gap-3">
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-600 font-medium">Toplam</span>
-                            <span className="text-purple-600 font-bold text-lg">
-                                ₺{getTotalPrice().toFixed(2)}
-                            </span>
+                    <div style={{
+                        borderTop: '1px solid #EDE9E0',
+                        padding: '14px 20px',
+                        flexShrink: 0, background: '#FDFCF9',
+                        display: 'flex', flexDirection: 'column', gap: '10px',
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
+                            <span style={{ fontSize: '14px', color: '#6A6560', fontWeight: 500 }}>Toplam</span>
+                            <span style={{ fontSize: '18px', fontWeight: 700, color: '#5F7154' }}>₺{getTotalPrice().toFixed(2)}</span>
                         </div>
                         <button
                             onClick={handleOrder}
                             disabled={loading}
-                            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
+                            style={{
+                                background: loading ? '#8FAF80' : '#5F7154',
+                                color: '#fff', border: 'none',
+                                borderRadius: '14px', padding: '14px',
+                                fontSize: '15px', fontWeight: 600,
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                width: '100%',
+                                transition: 'background 0.2s',
+                            }}
                         >
-                            {loading ? 'Gönderiliyor...' : 'Siparişi Gönder'}
+                            {loading ? 'Gönderiliyor…' : 'Siparişi Gönder'}
                         </button>
                     </div>
                 )}

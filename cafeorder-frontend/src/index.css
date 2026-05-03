@@ -1,3 +1,88 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Café Design Tokens ─────────────────────────────────────── */
+:root {
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --bg-soft: #F0EDE6;
+    --bg-input: #FDFCF9;
+    --green-dark: #3D4A36;
+    --green: #5F7154;
+    --green-mid: #82A76B;
+    --green-light: #C8D5C0;
+    --green-pale: #EDF2E8;
+    --pink: #FDB5CE;
+    --pink-dark: #8B3A5A;
+    --pink-pale: #FAE8EE;
+    --text-h: #2C3528;
+    --text-body: #4A4840;
+    --text-muted: #8A8478;
+    --text-soft: #B0AB9E;
+    --border: #E0DDD6;
+    --border-soft: #EDE9E0;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --shadow-sm: 0 1px 4px rgba(60,74,54,0.06);
+    --shadow-md: 0 4px 16px rgba(60,74,54,0.08);
+    --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg) !important;
+    color: var(--text-body);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--green-light);
+    border-radius: 3px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%,80%,100% {
+        transform: translateY(0);
+        opacity: .5;
+    }
+
+    40% {
+        transform: translateY(-7px);
+        opacity: 1;
+    }
+}

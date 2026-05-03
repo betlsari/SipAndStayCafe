@@ -3,9 +3,9 @@ import AdminNav from '../../components/admin/AdminNav'
 
 export default function AdminLayout() {
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex">
+        <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', fontFamily: 'var(--font)' }}>
             <AdminNav />
-            <main className="flex-1 min-w-0 pb-20 lg:pb-0">
+            <main style={{ flex: 1, minWidth: 0, paddingBottom: '80px' }}>
                 <Outlet />
             </main>
         </div>

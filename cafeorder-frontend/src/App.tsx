@@ -134,7 +134,7 @@ export default function App() {
                         </Route>
 
                         {/* Default Redirects */}
-                        <Route path="/" element={<Navigate to="/menu" replace />} />
+                        <Route path="/" element={<Navigate to="/login" replace />} />
                         <Route path="*" element={<Navigate to="/login" replace />} />
                     </Routes>
                 </Suspense>
