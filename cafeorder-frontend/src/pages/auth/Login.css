@@ -1,0 +1,213 @@
+/* cafeorder-frontend/src/pages/auth/Login.css */
+/* Mevcut doodle CSS'ine ekle */
+
+.error-box {
+    background: #FAE8EE;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--sketch-radius-btn);
+    padding: 8px 12px;
+    margin-top: -5px;
+    width: var(--input-width);
+    transform: rotate(1deg);
+}
+
+    .error-box p {
+        font-size: 11px;
+        color: #8B3A5A;
+        margin: 0;
+        font-weight: bold;
+    }
+
+.dev-info {
+    font-size: 10px;
+    color: #8A8478;
+    margin-top: 15px;
+    font-family: monospace;
+    opacity: 0.7;
+}
+
+.doodle-btn:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 2px 2px 0px var(--ink) !important;
+}
+.doodle-wrapper {
+    /* Renk Paleti Güncellendi */
+    --ink: #323232;
+    --paper-front: #FFF5F7; /* Yumuþak Pembe */
+    --paper-back: #ECFDF5; /* Yumuþak Fýstýk Yeþili */
+    --bg-color: #ffffff;
+    --primary-btn: #FB7185; /* Rose 400 */
+    --secondary-btn: #34D399; /* Emerald 400 */
+    --switch-bg: #FDA4AF;
+    --input-focus: #FB7185;
+    --card-width: 340px;
+    --card-height: 420px;
+    --border-width: 2.5px;
+    /* Doodle Border Radiuses */
+    --sketch-radius-1: 12px 30px 10px 30px / 30px 10px 30px 10px;
+    --sketch-radius-2: 30px 10px 30px 10px / 12px 30px 10px 30px;
+    --sketch-radius-btn: 18px 6px 18px 6px / 6px 18px 6px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Orijinal CSS mantýðý korunarak renkler entegre edildi */
+.doodle-toggle {
+    position: absolute;
+    opacity: 0;
+}
+
+.doodle-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    z-index: 5;
+}
+
+.doodle-switch-label {
+    width: 55px;
+    height: 28px;
+    background-color: var(--switch-bg);
+    border: var(--border-width) solid var(--ink);
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 3px 3px 0px var(--ink);
+    position: relative;
+}
+
+.doodle-switch-handle {
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background-color: white;
+    border: var(--border-width) solid var(--ink);
+    border-radius: 50%;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.doodle-toggle:checked ~ .doodle-header .doodle-switch-handle {
+    transform: translateX(26px);
+}
+
+.doodle-card-scene {
+    perspective: 1000px;
+    width: var(--card-width);
+    height: var(--card-height);
+}
+
+.doodle-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.doodle-toggle:checked ~ .doodle-card-scene .doodle-card-inner {
+    transform: rotateY(180deg);
+}
+
+.doodle-card-front, .doodle-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    padding: 30px;
+    border: var(--border-width) solid var(--ink);
+    box-shadow: 6px 6px 0px var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.doodle-card-front {
+    background-color: var(--paper-front);
+    border-radius: var(--sketch-radius-1);
+}
+
+.doodle-card-back {
+    background-color: var(--paper-back);
+    transform: rotateY(180deg);
+    border-radius: var(--sketch-radius-2);
+}
+
+.doodle-title {
+    font-size: 28px;
+    font-weight: 900;
+    transform: rotate(-2deg);
+    margin-bottom: 20px;
+}
+
+.doodle-input {
+    width: 260px;
+    padding: 12px;
+    border: var(--border-width) solid var(--ink);
+    border-radius: var(--sketch-radius-1);
+    box-shadow: 3px 3px 0px var(--ink);
+    margin-bottom: 10px;
+    outline: none;
+}
+
+.doodle-btn {
+    padding: 10px 25px;
+    color: white;
+    border: var(--border-width) solid var(--ink);
+    border-radius: var(--sketch-radius-btn);
+    box-shadow: 4px 4px 0px var(--ink);
+    cursor: pointer;
+    font-weight: 900;
+    transition: 0.2s;
+}
+
+    .doodle-btn:active {
+        transform: translate(3px, 3px);
+        box-shadow: 0px 0px 0px var(--ink);
+    }
+
+/* Animasyonlar ayný býrakýldý */
+.doodle-svg {
+    position: absolute;
+    z-index: -1;
+    width: 45px;
+}
+
+.doodle-star {
+    top: -20px;
+    left: -30px;
+    animation: float-star 4s infinite;
+}
+
+.doodle-sparkle {
+    bottom: -15px;
+    right: -25px;
+    animation: float-sparkle 4s infinite 1s;
+}
+
+@keyframes float-star {
+    0%, 100% {
+        transform: translateY(0) rotate(-15deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(-10deg);
+    }
+}
+
+@keyframes float-sparkle {
+    0%, 100% {
+        transform: translateY(0) rotate(10deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(15deg);
+    }
+}

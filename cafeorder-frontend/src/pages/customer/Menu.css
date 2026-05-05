@@ -1,0 +1,60 @@
+/* Menü Sayfasýna Özel Doodle Stilleri */
+.menu-doodle-container {
+    --ink: #323232;
+    --paper-bg: #fff9e6; /* Hafif krem/sarýmsý kaðýt rengi */
+    --accent-pink: #FB7185;
+    --accent-green: #34D399;
+    --sketch-radius: 12px 30px 10px 30px / 30px 10px 30px 10px;
+    --btn-radius: 18px 6px 18px 6px / 6px 18px 6px 18px;
+    background-color: #FFF5F7;
+    min-height: 100vh;
+}
+
+/* Defter Çizgisi Efekti */
+.notebook-paper {
+    background-color: var(--paper-bg);
+    background-image: repeating-linear-gradient( transparent, transparent 28px, rgba(0, 0, 0, 0.05) 28px, rgba(0, 0, 0, 0.05) 30px );
+    border: 2.5px solid var(--ink);
+    box-shadow: 6px 6px 0px var(--ink);
+    border-radius: var(--sketch-radius);
+}
+
+.doodle-card {
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0px var(--ink);
+    transition: all 0.2s ease;
+    background: white;
+    border-radius: var(--sketch-radius);
+}
+
+    .doodle-card:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 6px 6px 0px var(--ink);
+    }
+
+.doodle-tab {
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0px var(--ink);
+    border-radius: 20px;
+    transition: all 0.15s ease;
+}
+
+    .doodle-tab.active {
+        background-color: var(--accent-green);
+        color: white;
+        transform: translateY(2px);
+        box-shadow: 0px 0px 0px var(--ink);
+    }
+
+.add-btn-doodle {
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0px var(--ink);
+    border-radius: var(--sketch-radius-btn);
+    font-weight: 900;
+    transition: 0.2s;
+}
+
+    .add-btn-doodle:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px var(--ink);
+    }

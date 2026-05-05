@@ -4,33 +4,58 @@
 
 /* ── Café Design Tokens ─────────────────────────────────────── */
 :root {
-    --bg: #F7F5F0;
-    --bg-card: #FFFFFF;
-    --bg-soft: #F0EDE6;
-    --bg-input: #FDFCF9;
-    --green-dark: #3D4A36;
-    --green: #5F7154;
-    --green-mid: #82A76B;
-    --green-light: #C8D5C0;
-    --green-pale: #EDF2E8;
-    --pink: #FDB5CE;
-    --pink-dark: #8B3A5A;
-    --pink-pale: #FAE8EE;
-    --text-h: #2C3528;
-    --text-body: #4A4840;
-    --text-muted: #8A8478;
-    --text-soft: #B0AB9E;
-    --border: #E0DDD6;
-    --border-soft: #EDE9E0;
+    /* ── Core Palette ── */
+    --olive: #5F7154; /* Ana yeşil — butonlar, vurgular */
+    --olive-dark: #3D4A36; /* Koyu yeşil — başlıklar, hover */
+    --olive-mid: #7A8F6E; /* Orta yeşil — ikonlar, border */
+    --olive-light: #A8BA9F; /* Açık yeşil — disabled, soft border */
+    --olive-pale: #D6E8C8; /* Çok açık yeşil — hover bg, tag bg */
+    --olive-faint: #EDF5E6; /* Neredeyse beyaz yeşil — card bg */
+
+    --lime: #F0FEAD; /* Sarı-yeşil neon lime — accent highlight */
+    --lime-dark: #D4E060; /* Koyu lime — hover state */
+    --lime-faint: #F8FDD8; /* Çok soluk lime — subtle bg */
+
+    --ink: #2F353B; /* Neredeyse siyah — ana metin */
+    --ink-mid: #4A5158; /* Orta gri-yeşil — body metin */
+    --ink-soft: #6E7680; /* Soluk — muted metin */
+    --ink-faint: #9EA5AC; /* Çok soluk — placeholder, hint */
+
+    --blush: #FF88BA; /* Pembe — ikincil aksan, badge, çağrı butonu */
+    --blush-dark: #D45A8A; /* Koyu pembe — hover */
+    --blush-pale: #FFD4E8; /* Soluk pembe — tag bg, soft highlight */
+    --blush-faint: #FFF0F6; /* Neredeyse beyaz pembe — hover bg */
+    /* ── Surface & Background ── */
+    --bg: #F7F9F2; /* Sayfa arka planı — lime'ın çok soluk tonu */
+    --bg-card: #FFFFFF; /* Kart arka planı */
+    --bg-soft: #EFF2E8; /* Yumuşak yüzey */
+    --bg-input: #FAFCF5; /* Input arka planı */
+    /* ── Border ── */
+    --border: #D0D8C8; /* Normal border */
+    --border-soft: #E4EAD8; /* Yumuşak border */
+    /* ── Text ── */
+    --text-h: var(--ink);
+    --text-body: var(--ink-mid);
+    --text-muted: var(--ink-soft);
+    --text-soft: var(--ink-faint);
+    /* ── Radius ── */
     --radius-sm: 6px;
     --radius-md: 10px;
-    --radius-lg: 14px;
-    --radius-xl: 18px;
-    --shadow-sm: 0 1px 4px rgba(60,74,54,0.06);
-    --shadow-md: 0 4px 16px rgba(60,74,54,0.08);
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+    --radius-2xl: 30px;
+    /* ── Shadow ── */
+    --shadow-sm: 0 1px 4px rgba(47, 53, 59, 0.06);
+    --shadow-md: 0 4px 16px rgba(47, 53, 59, 0.08);
+    --shadow-lg: 0 8px 32px rgba(47, 53, 59, 0.10);
+    --shadow-olive: 0 4px 20px rgba(95, 113, 84, 0.15);
+    --shadow-blush: 0 4px 20px rgba(255, 136, 186, 0.20);
+    /* ── Typography ── */
     --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-serif: 'Lora', 'Georgia', serif;
 }
 
+/* ── Reset & Base ───────────────────────────────────────────── */
 * {
     box-sizing: border-box;
 }
@@ -43,6 +68,7 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* ── Scrollbar ───────────────────────────────────────────────── */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -53,10 +79,124 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--green-light);
+    background: var(--olive-light);
     border-radius: 3px;
 }
 
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--olive-mid);
+    }
+
+/* ── Utility Classes ─────────────────────────────────────────── */
+
+/* Buttons */
+.btn-primary {
+    background: var(--olive);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-family: var(--font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+}
+
+    .btn-primary:hover {
+        background: var(--olive-dark);
+        box-shadow: var(--shadow-olive);
+    }
+
+    .btn-primary:active {
+        transform: scale(0.97);
+    }
+
+.btn-secondary {
+    background: var(--bg-card);
+    color: var(--olive-dark);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    font-family: var(--font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+}
+
+    .btn-secondary:hover {
+        background: var(--olive-faint);
+        border-color: var(--olive-light);
+    }
+
+.btn-blush {
+    background: var(--bg-card);
+    color: var(--blush-dark);
+    border: 1.5px solid var(--blush-pale);
+    border-radius: var(--radius-lg);
+    font-family: var(--font);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+
+    .btn-blush:hover {
+        background: var(--blush-faint);
+        border-color: var(--blush);
+        box-shadow: var(--shadow-blush);
+    }
+
+/* Lime accent badge */
+.badge-lime {
+    background: var(--lime);
+    color: var(--olive-dark);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+
+/* Blush badge */
+.badge-blush {
+    background: var(--blush-pale);
+    color: var(--blush-dark);
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+/* Card */
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Input */
+.input {
+    background: var(--bg-input);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-h);
+    font-family: var(--font);
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+    .input:focus {
+        border-color: var(--olive);
+        box-shadow: 0 0 0 3px rgba(95, 113, 84, 0.12);
+    }
+
+    .input::placeholder {
+        color: var(--text-soft);
+    }
+
+/* ── Animations ───────────────────────────────────────────────── */
 @keyframes spin {
     to {
         transform: rotate(360deg);
@@ -66,7 +206,7 @@ body {
 @keyframes fadeUp {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
 
     to {
@@ -75,14 +215,44 @@ body {
     }
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
 @keyframes bounce {
-    0%,80%,100% {
+    0%, 80%, 100% {
         transform: translateY(0);
-        opacity: .5;
+        opacity: 0.4;
     }
 
     40% {
-        transform: translateY(-7px);
+        transform: translateY(-8px);
         opacity: 1;
+    }
+}
+
+@keyframes pulse-lime {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(240, 254, 173, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(240, 254, 173, 0);
+    }
+}
+
+@keyframes pulse-blush {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 136, 186, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 136, 186, 0);
     }
 }

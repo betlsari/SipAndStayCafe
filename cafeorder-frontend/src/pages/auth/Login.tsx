@@ -4,6 +4,7 @@ import { AxiosError } from 'axios'
 import { authApi } from '../../api/auth.api'
 import { useAuthStore } from '../../store/authStore'
 import type { AuthUser, UserRole } from '../../types/index'
+import './Login.css' // CSS dosyasını eklemeyi unutma!
 
 interface ApiErrorResponse {
     message?: string
@@ -59,129 +60,97 @@ export default function Login() {
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#F7F5F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '24px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-        }}>
-            <div style={{
-                width: '100%', maxWidth: '380px',
-                background: '#fff',
-                borderRadius: '20px',
-                border: '1px solid #E0DDD6',
-                padding: '36px 32px',
-                boxShadow: '0 8px 32px rgba(95,113,84,0.07)',
-            }}>
-                {/* Logo */}
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <div style={{
-                        width: '64px', height: '64px',
-                        background: '#F0F4EC',
-                        borderRadius: '18px', margin: '0 auto 14px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: '30px',
-                    }}>☕</div>
-                    <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>Sip & Stay</h1>
-                    <p style={{ fontSize: '13px', color: '#8A8478', margin: 0 }}>Yönetim Paneli</p>
+        <div className="min-h-screen flex items-center justify-center bg-[#FFF5F7] font-sans overflow-hidden">
+            <div className="doodle-wrapper">
+                <input
+                    type="checkbox"
+                    id="doodle-flip"
+                    className="doodle-toggle"
+                    aria-label="Toggle Login and Sign up"
+                />
+
+                <div className="doodle-header">
+                    <span className="doodle-mode-text login-text">Giriş Yap</span>
+                    <label className="doodle-switch-label" htmlFor="doodle-flip" tabIndex={0}>
+                        <span className="doodle-switch-handle"></span>
+                    </label>
+                    <span className="doodle-mode-text signup-text">Kayıt Ol</span>
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: 600, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            E-posta
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                            autoComplete="email"
-                            placeholder="personel@kafe.com"
-                            style={{
-                                border: '1px solid #D8D4CC', borderRadius: '12px',
-                                padding: '11px 14px', fontSize: '14px', color: '#2C3528',
-                                background: '#FDFCF9', outline: 'none',
-                                fontFamily: 'inherit',
-                                transition: 'border-color 0.15s',
-                            }}
-                            onFocus={e => e.target.style.borderColor = '#82A76B'}
-                            onBlur={e => e.target.style.borderColor = '#D8D4CC'}
-                        />
-                    </div>
+                <div className="doodle-card-scene">
+                    {/* Süslemeler */}
+                    <svg className="doodle-svg doodle-star" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#323232" strokeWidth="1.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <svg className="doodle-svg doodle-sparkle" viewBox="0 0 24 24" fill="#A7F3D0" stroke="#323232" strokeWidth="1.5">
+                        <path d="M12 2 Q12 12 22 12 Q12 12 12 22 Q12 12 2 12 Q12 12 12 2 Z"></path>
+                    </svg>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <label style={{ fontSize: '12px', fontWeight: 600, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            Şifre
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            autoComplete="current-password"
-                            placeholder="••••••••"
-                            style={{
-                                border: '1px solid #D8D4CC', borderRadius: '12px',
-                                padding: '11px 14px', fontSize: '14px', color: '#2C3528',
-                                background: '#FDFCF9', outline: 'none',
-                                fontFamily: 'inherit',
-                                transition: 'border-color 0.15s',
-                            }}
-                            onFocus={e => e.target.style.borderColor = '#82A76B'}
-                            onBlur={e => e.target.style.borderColor = '#D8D4CC'}
-                        />
-                    </div>
+                    <div className="doodle-card-inner">
+                        {/* ÖN YÜZ: GİRİŞ YAP */}
+                        <div className="doodle-card-front">
+                            {/* Başlığı iki satır yaparak daha estetik görünmesini sağlayabilirsin */}
+                            <div className="doodle-title text-rose-500 text-center">
+                                SIP AND STAY'E <br /> HOŞ GELDİN!
+                            </div>
+                            <form className="doodle-form" onSubmit={handleSubmit}>
+                                <div className="doodle-input-wrapper">
+                                    <input
+                                        className="doodle-input border-rose-200"
+                                        placeholder="E-Posta"
+                                        type="email"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="doodle-input-wrapper">
+                                    <input
+                                        className="doodle-input border-rose-200"
+                                        placeholder="Şifre"
+                                        type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
 
-                    {error && (
-                        <div style={{
-                            background: '#FAE8EE', border: '1px solid #F4C0D0',
-                            borderRadius: '10px', padding: '10px 14px',
-                        }}>
-                            <p style={{ fontSize: '13px', color: '#8B3A5A', margin: 0 }}>{error}</p>
+                                {error && (
+                                    <div className="error-box">
+                                        <p>{error}</p>
+                                    </div>
+                                )}
+
+                                <button
+                                    className="doodle-btn bg-rose-400"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Gidiyoruz...' : "Hadi Başlayalım!"}
+                                </button>
+                            </form>
+
+                            {/* Dev Modunda Yardımcı Bilgi */}
+                            {import.meta.env.DEV && (
+                                <p className="dev-info">admin@sipandstay.com / Admin123!</p>
+                            )}
                         </div>
-                    )}
 
-                    {import.meta.env.DEV && (
-                        <div style={{
-                            background: '#EDF4E8', border: '1px solid #C0D5AA',
-                            borderRadius: '10px', padding: '10px 14px',
-                        }}>
-                            <p style={{ fontSize: '12px', color: '#4A7038', margin: '0 0 2px', fontWeight: 600 }}>Varsayılan giriş:</p>
-                            <p style={{ fontSize: '12px', color: '#4A7038', margin: 0, fontFamily: 'monospace' }}>admin@sipandstay.com / Admin123!</p>
+                        {/* ARKA YÜZ: KAYIT OL (Mantık eklemek istersen burayı kullanabilirsin) */}
+                        <div className="doodle-card-back">
+                            <div className="doodle-title doodle-title-alt text-emerald-600">Bize Katıl!</div>
+                            <form className="doodle-form" onSubmit={(e) => e.preventDefault()}>
+                                <div className="doodle-input-wrapper">
+                                    <input className="doodle-input border-emerald-200" placeholder="İsim" type="text" />
+                                </div>
+                                <div className="doodle-input-wrapper">
+                                    <input className="doodle-input border-emerald-200" placeholder="E-Posta" type="email" />
+                                </div>
+                                <button className="doodle-btn doodle-btn-alt bg-emerald-400">Onayla!</button>
+                            </form>
                         </div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        style={{
-                            marginTop: '4px',
-                            background: isLoading ? '#8FAF80' : '#5F7154',
-                            color: '#fff', border: 'none',
-                            borderRadius: '13px', padding: '13px',
-                            fontSize: '15px', fontWeight: 600,
-                            cursor: isLoading ? 'not-allowed' : 'pointer',
-                            transition: 'background 0.2s',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                            fontFamily: 'inherit',
-                        }}
-                    >
-                        {isLoading ? (
-                            <>
-                                <svg style={{ width: '16px', height: '16px', animation: 'spin 0.8s linear infinite' }} viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3" />
-                                    <path d="M12 2a10 10 0 0 1 10 10" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
-                                </svg>
-                                Giriş yapılıyor…
-                            </>
-                        ) : 'Giriş Yap'}
-                    </button>
-                </form>
+                    </div>
+                </div>
             </div>
-
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>
     )
 }

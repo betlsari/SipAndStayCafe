@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { menuApi } from '../../api/menu.api'
 import { tableApi } from '../../api/table.api'
 import { cashierApi } from '../../api/cashier.api'
+import './AdminDashboard.css'
 import { Tag, UtensilsCrossed, QrCode, TrendingUp, ArrowRight } from 'lucide-react'
 
 interface StatCard {
@@ -65,7 +66,7 @@ export default function AdminDashboard() {
         {
             label: 'Açık Oturum',
             value: activeSessionCount,
-            sub: 'şu an masada müşteri var',
+            sub: 'masada müşteri var',
             icon: Tag,
             iconBg: '#FEF6EE',
             iconColor: '#C8853A',
@@ -74,138 +75,92 @@ export default function AdminDashboard() {
         {
             label: 'Açık Masa Cirosu',
             value: revenue,
-            sub: 'henüz kapanmamış oturumlar',
+            sub: 'kapanmamış oturumlar',
             icon: TrendingUp,
-            iconBg: '#EDF2E8',
-            iconColor: '#5F7154',
+            iconBg: '#FFF5F7',
+            iconColor: '#FB7185',
             href: '/cashier',
         },
     ]
 
     return (
-        <div style={{
-            padding: '32px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            maxWidth: '900px',
-        }}>
-            {/* Header */}
-            <div style={{ marginBottom: '28px' }}>
-                <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
-                    Genel Bakış
-                </h1>
-                <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>
-                    {new Date().toLocaleDateString('tr-TR', {
-                        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-                    })}
-                </p>
+        <div className="admin-doodle-container p-8">
+            {/* Header - Defter Yaprağı Stilinde */}
+            <div className="notebook-header-sketch p-8 mb-10 max-w-4xl mx-auto relative overflow-hidden">
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-black text-[#323232] rotate-[-1deg] tracking-tighter uppercase">
+                        ADMİN PANELİ 👑
+                    </h1>
+                    <p className="text-sm font-bold text-stone-500 mt-2 italic">
+                        {new Date().toLocaleDateString('tr-TR', {
+                            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+                        })}
+                    </p>
+                </div>
+                <span className="absolute right-6 top-4 text-6xl opacity-10 rotate-12">📝</span>
             </div>
 
-            {/* Stat cards */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
-                gap: '14px',
-                marginBottom: '32px',
-            }}>
+            {/* Stat cards - Canlı Verili Doodle Kartlar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-12">
                 {cards.map(card => {
                     const Icon = card.icon
                     return (
                         <button
                             key={card.label}
                             onClick={() => navigate(card.href)}
-                            style={{
-                                background: '#FFFFFF',
-                                borderRadius: '16px',
-                                border: '1px solid #E8E4DC',
-                                padding: '18px',
-                                textAlign: 'left',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: '12px',
-                                boxShadow: '0 1px 4px rgba(95,113,84,0.05)',
-                            }}
-                            onMouseEnter={e => {
-                                ; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(95,113,84,0.10)'
-                                    ; (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
-                            }}
-                            onMouseLeave={e => {
-                                ; (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 4px rgba(95,113,84,0.05)'
-                                    ; (e.currentTarget as HTMLElement).style.borderColor = '#E8E4DC'
-                            }}
+                            className="notebook-stat-card p-6 flex flex-col gap-4 text-left"
                         >
                             <div style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '10px',
+                                width: '42px', height: '42px',
+                                borderRadius: '12px',
                                 background: card.iconBg,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                border: '2px solid #323232',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
                             }}>
-                                <Icon size={16} color={card.iconColor} />
+                                <Icon size={20} color={card.iconColor} strokeWidth={2.5} />
                             </div>
                             <div>
-                                <p style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 3px', letterSpacing: '-0.01em' }}>
+                                <p className="text-2xl font-black text-[#323232] tracking-tighter leading-none mb-1">
                                     {card.value}
                                 </p>
-                                <p style={{ fontSize: '12px', color: '#9A8E80', margin: 0 }}>{card.label}</p>
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-wider">{card.label}</p>
                             </div>
                             {card.sub && (
-                                <p style={{ fontSize: '11px', color: '#B0AB9E', margin: 0, lineHeight: 1.4 }}>{card.sub}</p>
+                                <p className="text-[10px] font-medium text-stone-400 italic leading-tight border-t border-dashed border-stone-200 pt-2">
+                                    {card.sub}
+                                </p>
                             )}
                         </button>
                     )
                 })}
             </div>
 
-            {/* Divider */}
-            <div style={{ borderTop: '1px solid #EDE9E0', marginBottom: '24px' }} />
-
-            {/* Quick links */}
-            <div>
-                <h2 style={{ fontSize: '12px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 14px' }}>
+            {/* Quick links - Doodle Butonlar */}
+            <div className="max-w-3xl mx-auto">
+                <h2 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                    <span className="w-8 h-[2px] bg-rose-200"></span>
                     Hızlı Erişim
                 </h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
                         { label: 'Kategori Yönetimi', href: '/admin/categories', desc: 'Menü kategorilerini düzenle' },
-                        { label: 'Ürün Yönetimi', href: '/admin/items', desc: 'Menü ürünlerini ve fiyatları yönet' },
-                        { label: 'Masa & QR Yönetimi', href: '/admin/tables', desc: 'Masaları ekle, QR kodları indir' },
-                        { label: 'Raporlar', href: '/admin/reports', desc: 'Günlük ve haftalık satış analizleri' },
-                        { label: 'Kullanıcı Yönetimi', href: '/admin/users', desc: 'Personel hesaplarını yönet' },
+                        { label: 'Ürün Yönetimi', href: '/admin/items', desc: 'Ürünleri ve fiyatları yönet' },
+                        { label: 'Masa & QR Yönetimi', href: '/admin/tables', desc: 'QR kodları indir' },
+                        { label: 'Raporlar', href: '/admin/reports', desc: 'Satış analizleri' },
+                        { label: 'Kullanıcı Yönetimi', href: '/admin/users', desc: 'Personel hesapları' },
                     ].map(link => (
                         <button
                             key={link.href}
                             onClick={() => navigate(link.href)}
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                background: '#FFFFFF',
-                                border: '1px solid #E8E4DC',
-                                borderRadius: '12px',
-                                padding: '13px 16px',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s',
-                                textAlign: 'left',
-                                fontFamily: 'system-ui, sans-serif',
-                            }}
-                            onMouseEnter={e => {
-                                ; (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
-                                    ; (e.currentTarget as HTMLElement).style.background = '#FDFCF9'
-                            }}
-                            onMouseLeave={e => {
-                                ; (e.currentTarget as HTMLElement).style.borderColor = '#E8E4DC'
-                                    ; (e.currentTarget as HTMLElement).style.background = '#FFFFFF'
-                            }}
+                            className="doodle-link-btn bg-white p-4 flex items-center justify-between text-left"
                         >
                             <div>
-                                <p style={{ fontSize: '14px', fontWeight: 500, color: '#2C3528', margin: '0 0 2px' }}>{link.label}</p>
-                                <p style={{ fontSize: '12px', color: '#9A8E80', margin: 0 }}>{link.desc}</p>
+                                <p className="text-sm font-black text-[#323232] mb-0.5 uppercase tracking-tighter">
+                                    {link.label}
+                                </p>
+                                <p className="text-[11px] font-bold text-stone-400 italic">{link.desc}</p>
                             </div>
-                            <ArrowRight size={15} color="#C8D5C0" />
+                            <ArrowRight size={18} className="text-rose-300" />
                         </button>
                     ))}
                 </div>

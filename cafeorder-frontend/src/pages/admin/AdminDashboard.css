@@ -1,0 +1,59 @@
+/* cafeorder-frontend/src/pages/admin/AdminDashboard.css */
+
+.admin-doodle-container {
+    --ink: #323232;
+    --paper-bg: #fffcf2;
+    --accent-pink: #FDA4AF;
+    --accent-green: #A7F3D0;
+    --sketch-radius: 15px 40px 15px 40px / 40px 15px 40px 15px;
+    --card-radius: 20px 10px 20px 10px / 10px 20px 10px 20px;
+    background-color: #FFF5F7;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.notebook-stat-card {
+    background-color: white;
+    border: 2.5px solid var(--ink);
+    box-shadow: 6px 6px 0px var(--ink);
+    border-radius: var(--card-radius);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+    .notebook-stat-card:hover {
+        transform: translateY(-4px) rotate(1deg);
+        box-shadow: 8px 8px 0px var(--ink);
+    }
+
+    .notebook-stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 15px;
+        width: 2px;
+        height: 100%;
+        background-color: rgba(251, 113, 133, 0.2); /* Defter kenar çizgisi */
+    }
+
+.dashboard-header-sketch {
+    background-color: var(--paper-bg);
+    background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(0, 0, 0, 0.04) 27px, rgba(0, 0, 0, 0.04) 29px);
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0px var(--ink);
+    border-radius: var(--sketch-radius);
+}
+
+.quick-action-btn {
+    border: 2px solid var(--ink);
+    box-shadow: 3px 3px 0px var(--ink);
+    border-radius: 15px;
+    transition: 0.1s;
+    font-weight: 800;
+}
+
+    .quick-action-btn:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0px 0px 0px var(--ink);
+    }
