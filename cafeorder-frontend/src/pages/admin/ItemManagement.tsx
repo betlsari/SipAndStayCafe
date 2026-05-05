@@ -79,151 +79,190 @@ export default function ItemManagement() {
     })
 
     return (
-        <div style={{
-            padding: '32px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            maxWidth: '900px',
-            background: '#F7F5F0',
-            minHeight: '100vh',
-        }}>
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <div>
-                    <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
-                        Ürünler
-                    </h1>
-                    <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>
-                        {items.length} ürün kayıtlı · {items.filter(i => !i.isAvailable).length} stokta yok
-                    </p>
-                </div>
-                <button
-                    onClick={() => setFormItemId(null)}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '7px',
-                        padding: '10px 16px',
-                        borderRadius: '12px',
-                        border: 'none',
-                        background: '#5F7154',
-                        color: '#FFFFFF',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        fontFamily: 'system-ui, sans-serif',
-                        transition: 'background 0.15s',
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#4A5C40')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#5F7154')}
-                >
-                    + Ürün Ekle
-                </button>
-            </div>
+        <>
+            <style>{`
+                .item-page {
+                    padding: 32px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    max-width: 900px;
+                    min-height: 100vh;
+                    background: #FFF5F7;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                }
+                .item-page-title {
+                    font-size: 26px; font-weight: 900; color: #323232;
+                    margin: 0 0 4px; transform: rotate(-1deg);
+                    display: inline-block; text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .item-page-sub { font-size: 12px; color: #888; margin: 0; font-style: italic; }
+                .item-add-btn {
+                    display: flex; align-items: center; gap: 7px;
+                    padding: 10px 18px;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    color: #323232; font-size: 13px; font-weight: 900;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 4px 4px 0 #323232;
+                    transition: all 0.15s; text-transform: uppercase;
+                }
+                .item-add-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 #323232; background: #ffd700; }
+                .item-filter-input {
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 9px 14px;
+                    font-size: 13px; font-weight: 600;
+                    color: #323232; background: #fff;
+                    outline: none; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232;
+                    transition: all 0.15s;
+                }
+                .item-filter-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    transform: translate(-1px, -1px);
+                }
+                .item-row {
+                    display: flex; align-items: center; gap: 14px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    padding: 12px 16px;
+                    transition: all 0.15s;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232;
+                }
+                .item-row:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0 #323232; }
+                .item-badge-out {
+                    font-size: 10px; font-weight: 700;
+                    padding: 2px 8px; border-radius: 20px;
+                    background: #ffecec; color: #c0392b;
+                    border: 1.5px solid #ff6b6b; font-family: inherit;
+                    text-transform: uppercase;
+                }
+                .item-action-btn {
+                    padding: 6px 8px;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    border: 2px solid transparent;
+                    cursor: pointer; font-size: 13px;
+                    font-family: inherit; background: none;
+                    transition: all 0.15s;
+                }
+                .item-action-btn:hover { border-color: #323232; box-shadow: 2px 2px 0 #323232; transform: translate(-1px,-1px); }
+                .item-action-btn.stock:hover { background: #e6fff9; border-color: #4ecdc4; box-shadow: 2px 2px 0 #4ecdc4; }
+                .item-action-btn.nostock:hover { background: #fff9e6; }
+                .item-action-btn.edit:hover { background: #fff9e6; }
+                .item-action-btn.del:hover { background: #ffecec; border-color: #ff6b6b; box-shadow: 2px 2px 0 #ff6b6b; }
+                .item-empty {
+                    padding: 60px 20px; border: 2px dashed #ccc;
+                    border-radius: 16px; text-align: center;
+                    color: #aaa; font-size: 14px; font-weight: 700;
+                    background: #fffdf5; font-family: inherit;
+                }
+                .item-delete-overlay {
+                    position: fixed; inset: 0; z-index: 50;
+                    display: flex; align-items: center; justify-content: center;
+                    background: rgba(50,50,50,0.45); padding: 16px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .item-delete-box {
+                    width: 100%; max-width: 360px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 16px 6px 16px 6px / 6px 16px 6px 16px;
+                    box-shadow: 6px 6px 0 #323232;
+                    padding: 28px 24px; text-align: center;
+                }
+                .item-delete-title { font-size: 17px; font-weight: 900; color: #323232; margin: 0 0 8px; text-transform: uppercase; }
+                .item-delete-desc { font-size: 13px; color: #666; margin: 0 0 22px; line-height: 1.6; }
+                .item-btn-cancel {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #fff;
+                    font-size: 13px; font-weight: 700; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .item-btn-cancel:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .item-btn-del {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #c0392b; background: #ff6b6b;
+                    font-size: 13px; font-weight: 900; color: #fff;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #c0392b; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .item-btn-del:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #c0392b; }
+                .item-btn-del:disabled { opacity: 0.6; cursor: not-allowed; }
+            `}</style>
 
-            {/* Filtreler */}
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
-                <div style={{ position: 'relative', flex: 1, minWidth: '200px' }}>
-                    <span style={{
-                        position: 'absolute',
-                        left: '12px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        color: '#B0AB9E',
-                        fontSize: '14px',
-                        pointerEvents: 'none',
-                    }}>🔍</span>
+            <div className="item-page">
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
+                    <div>
+                        <h1 className="item-page-title">🍽️ Ürünler</h1>
+                        <p className="item-page-sub">
+                            {items.length} ürün kayıtlı · {items.filter(i => !i.isAvailable).length} stokta yok
+                        </p>
+                    </div>
+                    <button className="item-add-btn" onClick={() => setFormItemId(null)}>
+                        + Ürün Ekle
+                    </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
                     <input
                         type="text"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Ürün ara…"
-                        style={{
-                            width: '100%',
-                            border: '1px solid #E0DDD6',
-                            borderRadius: '10px',
-                            padding: '10px 14px 10px 36px',
-                            fontSize: '13px',
-                            color: '#2C3528',
-                            background: '#FFFFFF',
-                            outline: 'none',
-                            fontFamily: 'system-ui, sans-serif',
-                            boxSizing: 'border-box',
-                            transition: 'border-color 0.15s',
-                        }}
-                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                        placeholder="🔍 Ürün ara…"
+                        className="item-filter-input"
+                        style={{ flex: 1, minWidth: '200px' }}
                     />
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="item-filter-input"
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <option value="all">Tüm Kategoriler</option>
+                        {categories.map((c) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                 </div>
-                <select
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    style={{
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '10px',
-                        padding: '10px 14px',
-                        fontSize: '13px',
-                        color: '#2C3528',
-                        background: '#FFFFFF',
-                        outline: 'none',
-                        fontFamily: 'system-ui, sans-serif',
-                        cursor: 'pointer',
-                        transition: 'border-color 0.15s',
-                    }}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                    onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                >
-                    <option value="all">Tüm Kategoriler</option>
-                    {categories.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
+
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px' }}>
+                        <span style={{ fontSize: '36px', animation: 'cat-bounce 1s ease-in-out infinite' }}>☕</span>
+                        <p style={{ color: '#888', fontSize: '14px', fontWeight: 700, fontStyle: 'italic' }}>Yükleniyor…</p>
+                        <style>{`@keyframes cat-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }`}</style>
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="item-empty">
+                        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🍽️</div>
+                        {search || filterCategory !== 'all' ? 'Eşleşen ürün bulunamadı.' : 'Henüz ürün eklenmemiş.'}
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {filtered.map((item) => (
+                            <ItemRow
+                                key={item.id}
+                                item={item}
+                                categoryName={getCategoryName(item.categoryId)}
+                                toggling={togglingId === item.id}
+                                onToggle={() => handleToggleStock(item)}
+                                onEdit={() => setFormItemId(item.id)}
+                                onDelete={() => setDeleteTarget(item)}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
-            {/* Liste */}
-            {loading ? (
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '200px',
-                    gap: '12px',
-                }}>
-                    <div style={{ fontSize: '28px' }}>☕</div>
-                    <p style={{ color: '#9A8E80', fontSize: '13px', margin: 0 }}>Yükleniyor…</p>
-                </div>
-            ) : filtered.length === 0 ? (
-                <div style={{
-                    padding: '60px 20px',
-                    border: '1.5px dashed #D8D4CC',
-                    borderRadius: '16px',
-                    textAlign: 'center',
-                    color: '#B0AB9E',
-                    fontSize: '14px',
-                    background: '#FDFCF9',
-                }}>
-                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>🍽️</div>
-                    {search || filterCategory !== 'all'
-                        ? 'Eşleşen ürün bulunamadı.'
-                        : 'Henüz ürün eklenmemiş.'}
-                </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {filtered.map((item) => (
-                        <ItemRow
-                            key={item.id}
-                            item={item}
-                            categoryName={getCategoryName(item.categoryId)}
-                            toggling={togglingId === item.id}
-                            onToggle={() => handleToggleStock(item)}
-                            onEdit={() => setFormItemId(item.id)}
-                            onDelete={() => setDeleteTarget(item)}
-                        />
-                    ))}
-                </div>
-            )}
-
-            {/* Form Modal */}
             {formItemId !== undefined && (
                 <MenuItemFormModal
                     itemId={formItemId}
@@ -233,72 +272,24 @@ export default function ItemManagement() {
                 />
             )}
 
-            {/* Silme Modal */}
             {deleteTarget && (
-                <div style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 50,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    background: 'rgba(44,53,40,0.35)',
-                    padding: '16px',
-                    fontFamily: 'system-ui, sans-serif',
-                }}>
-                    <div style={{
-                        width: '100%',
-                        maxWidth: '360px',
-                        background: '#FDFCF9',
-                        borderRadius: '20px',
-                        border: '1px solid #E0DDD6',
-                        padding: '28px 24px',
-                        textAlign: 'center',
-                    }}>
-                        <div style={{
-                            width: '52px',
-                            height: '52px',
-                            background: '#FAE8EE',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            margin: '0 auto 16px',
-                            fontSize: '22px',
-                        }}>🗑️</div>
-                        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#2C3528', margin: '0 0 8px' }}>
-                            Ürünü Sil?
-                        </h2>
-                        <p style={{ fontSize: '13px', color: '#8A8478', margin: '0 0 22px', lineHeight: 1.5 }}>
-                            <strong style={{ color: '#2C3528' }}>"{deleteTarget.name}"</strong> kalıcı olarak silinecek.
+                <div className="item-delete-overlay">
+                    <div className="item-delete-box">
+                        <div style={{ width: '56px', height: '56px', background: '#ffecec', border: '2px solid #ff6b6b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '26px', boxShadow: '3px 3px 0 #ff6b6b' }}>🗑️</div>
+                        <h2 className="item-delete-title">Emin misin?</h2>
+                        <p className="item-delete-desc">
+                            <strong>"{deleteTarget.name}"</strong> kalıcı olarak silinecek.
                         </p>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button
-                                onClick={() => setDeleteTarget(null)}
-                                style={{
-                                    flex: 1, padding: '11px', borderRadius: '11px',
-                                    border: '1px solid #E0DDD6', background: '#FFFFFF',
-                                    fontSize: '13px', fontWeight: 500, color: '#6A6560',
-                                    cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
-                                }}
-                            >Vazgeç</button>
-                            <button
-                                onClick={handleDelete}
-                                disabled={deleting}
-                                style={{
-                                    flex: 1, padding: '11px', borderRadius: '11px',
-                                    border: 'none',
-                                    background: deleting ? '#E8B0C0' : '#C06080',
-                                    fontSize: '13px', fontWeight: 500, color: '#FFFFFF',
-                                    cursor: deleting ? 'not-allowed' : 'pointer',
-                                    fontFamily: 'system-ui, sans-serif',
-                                }}
-                            >{deleting ? 'Siliniyor…' : 'Sil'}</button>
+                            <button className="item-btn-cancel" onClick={() => setDeleteTarget(null)}>Vazgeç</button>
+                            <button className="item-btn-del" onClick={handleDelete} disabled={deleting}>
+                                {deleting ? 'Siliniyor…' : 'Sil! 🗑️'}
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
+        </>
     )
 }
 
@@ -321,141 +312,44 @@ function ItemRow({
 
     return (
         <div
+            className="item-row"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-                background: '#FFFFFF',
-                border: '1px solid #E8E4DC',
-                borderColor: hovered ? '#C8D5C0' : '#E8E4DC',
-                borderRadius: '14px',
-                padding: '12px 16px',
-                transition: 'border-color 0.15s, box-shadow 0.15s',
-                boxShadow: hovered ? '0 2px 8px rgba(95,113,84,0.08)' : 'none',
-            }}
+            style={{ opacity: item.isAvailable ? 1 : 0.65 }}
         >
-            {/* Görsel */}
             {item.imageUrl ? (
                 <img
                     src={item.imageUrl}
                     alt={item.name}
-                    style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '10px',
-                        objectFit: 'cover',
-                        flexShrink: 0,
-                        opacity: item.isAvailable ? 1 : 0.5,
-                    }}
+                    style={{ width: '44px', height: '44px', borderRadius: '8px', objectFit: 'cover', border: '2px solid #323232', flexShrink: 0 }}
                 />
             ) : (
-                <div style={{
-                    width: '44px',
-                    height: '44px',
-                    borderRadius: '10px',
-                    background: '#F0F4EC',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '20px',
-                    flexShrink: 0,
-                    opacity: item.isAvailable ? 1 : 0.5,
-                }}>🍽️</div>
+                <div style={{ width: '44px', height: '44px', borderRadius: '8px', background: '#ffe66d', border: '2px solid #323232', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🍽️</div>
             )}
 
-            {/* İçerik */}
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <p style={{
-                        margin: 0,
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: item.isAvailable ? '#2C3528' : '#9A8E80',
-                    }}>{item.name}</p>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: '#323232' }}>{item.name}</p>
                     {!item.isAvailable && (
-                        <span style={{
-                            fontSize: '10px',
-                            fontWeight: 600,
-                            padding: '2px 8px',
-                            borderRadius: '20px',
-                            background: '#FAE8EE',
-                            color: '#A0536A',
-                            textTransform: 'uppercase' as const,
-                            letterSpacing: '0.04em',
-                        }}>Stokta Yok</span>
+                        <span className="item-badge-out">TÜKENDİ</span>
                     )}
                 </div>
-                <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9A8E80' }}>
+                <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#888', fontStyle: 'italic' }}>
                     {categoryName} · {formatPrice(item.basePrice)}
                 </p>
             </div>
 
-            {/* Aksiyonlar */}
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                flexShrink: 0,
-                opacity: hovered ? 1 : 0.6,
-                transition: 'opacity 0.15s',
-            }}>
-                {/* Stok toggle */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0, opacity: hovered ? 1 : 0.5, transition: 'opacity 0.15s' }}>
                 <button
                     onClick={onToggle}
                     disabled={toggling}
+                    className={`item-action-btn ${item.isAvailable ? 'stock' : 'nostock'}`}
                     title={item.isAvailable ? 'Stoktan Kaldır' : 'Stoğa Ekle'}
-                    style={{
-                        padding: '7px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: item.isAvailable ? '#EDF2E8' : '#F0ECE4',
-                        cursor: toggling ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        transition: 'background 0.15s',
-                        opacity: toggling ? 0.5 : 1,
-                    }}
                 >
                     {item.isAvailable ? '✓' : '✕'}
                 </button>
-
-                {/* Düzenle */}
-                <button
-                    onClick={onEdit}
-                    title="Düzenle"
-                    style={{
-                        padding: '7px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: '#F0F4EC',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '13px',
-                    }}
-                >✏️</button>
-
-                {/* Sil */}
-                <button
-                    onClick={onDelete}
-                    title="Sil"
-                    style={{
-                        padding: '7px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        background: '#FAE8EE',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '13px',
-                    }}
-                >🗑️</button>
+                <button onClick={onEdit} className="item-action-btn edit">✏️</button>
+                <button onClick={onDelete} className="item-action-btn del">🗑️</button>
             </div>
         </div>
     )

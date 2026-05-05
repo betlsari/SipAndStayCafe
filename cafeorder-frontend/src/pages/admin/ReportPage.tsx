@@ -15,80 +15,43 @@ const weekAgo = () => {
     return d.toISOString().split('T')[0]
 }
 
-const inputStyle: React.CSSProperties = {
-    border: '1px solid #E0DDD6',
-    borderRadius: '10px',
-    padding: '9px 12px',
-    fontSize: '13px',
-    color: '#2C3528',
-    background: '#FFFFFF',
-    outline: 'none',
-    fontFamily: 'system-ui, sans-serif',
-    transition: 'border-color 0.15s',
-    cursor: 'pointer',
-}
+// inputStyle sabitini değiştir
+const inputCls = 'rp-input'
 
+
+
+// StatCard bileşenini tamamen değiştir
 function StatCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
     return (
-        <div style={{
-            background: '#FFFFFF',
-            border: '1px solid #E8E4DC',
-            borderRadius: '14px',
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-        }}>
-            <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80', fontWeight: 500 }}>{label}</p>
-            <p style={{ margin: 0, fontSize: '22px', fontWeight: 600, color: '#2C3528', letterSpacing: '-0.01em' }}>{value}</p>
-            {sub && <p style={{ margin: 0, fontSize: '11px', color: '#B0AB9E' }}>{sub}</p>}
+        <div className="rp-stat-card">
+            <p className="rp-stat-label">{label}</p>
+            <p className="rp-stat-value">{value}</p>
+            {sub && <p className="rp-stat-sub">{sub}</p>}
         </div>
     )
 }
 
+// TopSellingTable bileşenini tamamen değiştir
 function TopSellingTable({ items }: { items: TopSellingItemDto[] }) {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {items.map((item, i) => (
-                <div key={item.menuItemId} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '10px 14px',
-                    background: i === 0 ? '#EDF2E8' : '#FDFCF9',
-                    border: '1px solid',
-                    borderColor: i === 0 ? '#C8D5C0' : '#EDE9E0',
-                    borderRadius: '10px',
-                }}>
-                    <span style={{
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        color: i === 0 ? '#3D5C34' : '#B0AB9E',
-                        width: '20px',
-                        textAlign: 'center',
-                    }}>#{i + 1}</span>
-                    <span style={{ flex: 1, fontSize: '13px', color: '#2C3528', fontWeight: i === 0 ? 500 : 400 }}>
+                <div key={item.menuItemId} className={`rp-top-row${i === 0 ? ' first' : ''}`}>
+                    <span className="rp-top-rank">#{i + 1}</span>
+                    <span style={{ flex: 1, fontSize: '13px', color: '#323232', fontWeight: i === 0 ? 700 : 600 }}>
                         {item.productName}
                     </span>
-                    <span style={{ fontSize: '12px', color: '#8A8478', flexShrink: 0 }}>
+                    <span style={{ fontSize: '12px', color: '#888', flexShrink: 0 }}>
                         {item.totalQuantitySold} adet
                     </span>
-                    <span style={{
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: '#5F7154',
-                        flexShrink: 0,
-                        minWidth: '70px',
-                        textAlign: 'right',
-                    }}>
-                        {formatCurrency(item.totalRevenue)}
-                    </span>
+                    <span className="rp-top-revenue">{formatCurrency(item.totalRevenue)}</span>
                 </div>
             ))}
         </div>
     )
 }
 
+// HourlyChart bileşenini tamamen değiştir
 function HourlyChart({ hours }: { hours: HourlySalesDto[] }) {
     const maxRevenue = Math.max(...hours.map((h) => h.revenue), 1)
     const allHours = Array.from({ length: 24 }, (_, i) => {
@@ -97,43 +60,39 @@ function HourlyChart({ hours }: { hours: HourlySalesDto[] }) {
     })
     return (
         <div>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '80px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '3px', height: '90px', padding: '0 2px' }}>
                 {allHours.map((h) => {
                     const pct = (h.revenue / maxRevenue) * 100
+                    const hasData = h.revenue > 0
                     return (
                         <div
                             key={h.hour}
                             title={`${h.hour}:00 — ${formatCurrency(h.revenue)}`}
-                            style={{
-                                flex: 1,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'flex-end',
-                                height: '100%',
-                                cursor: 'default',
-                            }}
+                            style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', cursor: 'default' }}
                         >
                             <div style={{
                                 width: '100%',
-                                borderRadius: '3px 3px 0 0',
-                                background: h.revenue > 0 ? '#82A76B' : '#E8E4DC',
-                                height: `${Math.max(pct, h.revenue > 0 ? 6 : 2)}%`,
-                                transition: 'background 0.15s',
+                                borderRadius: '4px 4px 0 0',
+                                border: hasData ? '2px solid #323232' : '1px solid #e0d8cc',
+                                borderBottom: 'none',
+                                background: hasData ? '#ffe66d' : '#f5f0e8',
+                                height: `${Math.max(pct, hasData ? 8 : 3)}%`,
+                                boxShadow: hasData ? '2px 0 0 #32323220' : 'none',
+                                transition: 'height 0.3s',
                             }} />
                         </div>
                     )
                 })}
             </div>
+            <div style={{ borderTop: '2px solid #323232', marginTop: 0 }} />
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
                 {[0, 6, 12, 18, 23].map(h => (
-                    <span key={h} style={{ fontSize: '10px', color: '#B0AB9E' }}>{h}:00</span>
+                    <span key={h} style={{ fontSize: '10px', color: '#888', fontWeight: 700, fontFamily: '"Comic Sans MS", cursive' }}>{h}:00</span>
                 ))}
             </div>
         </div>
     )
 }
-
 function DailyPanel() {
     const [date, setDate] = useState(today())
     const [data, setData] = useState<DailySalesReportDto | null>(null)
@@ -173,85 +132,42 @@ function DailyPanel() {
         ? data.hourlySales.reduce((a, b) => a.revenue > b.revenue ? a : b).hour
         : null
 
+    // DailyPanel return bloğunu tamamen değiştir
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 <input
-                    type="date"
-                    value={date}
+                    type="date" value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                    onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                    className={inputCls}
                 />
-                <button
-                    onClick={fetch}
-                    disabled={loading}
-                    style={{
-                        padding: '9px 18px',
-                        borderRadius: '10px',
-                        border: 'none',
-                        background: loading ? '#8FAF80' : '#5F7154',
-                        color: '#fff',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontFamily: 'system-ui, sans-serif',
-                    }}
-                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
+                <button onClick={fetch} disabled={loading} className={`rp-btn-primary${loading ? ' disabled' : ''}`}>
+                    {loading ? 'Yükleniyor…' : '🔍 Getir'}
+                </button>
                 {data && (
-                    <button
-                        onClick={handleDownload}
-                        disabled={downloading}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '9px 16px',
-                            borderRadius: '10px',
-                            border: '1px solid #E0DDD6',
-                            background: '#FFFFFF',
-                            color: '#5F7154',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            cursor: downloading ? 'not-allowed' : 'pointer',
-                            fontFamily: 'system-ui, sans-serif',
-                        }}
-                    >
-                        ⬇ {downloading ? 'İndiriliyor…' : 'PDF İndir'}
+                    <button onClick={handleDownload} disabled={downloading} className="rp-btn-secondary">
+                        {downloading ? 'İndiriliyor…' : '⬇ PDF İndir'}
                     </button>
                 )}
             </div>
 
             {data && (
                 <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
                         <StatCard label="Toplam Ciro" value={formatCurrency(data.totalRevenue)} />
                         <StatCard label="Toplam Sipariş" value={data.totalOrders} />
                         <StatCard label="En Yoğun Saat" value={peakHour !== null ? `${peakHour}:00` : '—'} />
                         <StatCard label="En Çok Satan" value={data.topSellingItems[0]?.productName ?? '—'} />
                     </div>
-
                     {data.topSellingItems.length > 0 && (
-                        <div style={{
-                            background: '#FFFFFF',
-                            border: '1px solid #E8E4DC',
-                            borderRadius: '14px',
-                            padding: '18px',
-                        }}>
-                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>En Çok Satan Ürünler</p>
+                        <div className="rp-section-card">
+                            <p className="rp-section-title">🏆 En Çok Satan Ürünler</p>
                             <TopSellingTable items={data.topSellingItems} />
                         </div>
                     )}
-
                     {data.hourlySales.length > 0 && (
-                        <div style={{
-                            background: '#FFFFFF',
-                            border: '1px solid #E8E4DC',
-                            borderRadius: '14px',
-                            padding: '18px',
-                        }}>
-                            <p style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Saatlik Satış Dağılımı</p>
+                        <div className="rp-section-card">
+                            <p className="rp-section-title">📊 Saatlik Satış Dağılımı</p>
                             <HourlyChart hours={data.hourlySales} />
                         </div>
                     )}
@@ -297,102 +213,47 @@ function WeeklyPanel() {
         }
     }
 
+    // WeeklyPanel return bloğunu tamamen değiştir
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Başlangıç</span>
-                    <input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        style={inputStyle}
-                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                    />
+                    <span className="rp-date-label">Başlangıç</span>
+                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Bitiş</span>
-                    <input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        style={inputStyle}
-                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                    />
+                    <span className="rp-date-label">Bitiş</span>
+                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
                 </div>
-                <button
-                    onClick={fetch}
-                    disabled={loading}
-                    style={{
-                        padding: '9px 18px',
-                        borderRadius: '10px',
-                        border: 'none',
-                        background: loading ? '#8FAF80' : '#5F7154',
-                        color: '#fff',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontFamily: 'system-ui, sans-serif',
-                    }}
-                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
+                <button onClick={fetch} disabled={loading} className={`rp-btn-primary${loading ? ' disabled' : ''}`}>
+                    {loading ? 'Yükleniyor…' : '🔍 Getir'}
+                </button>
                 {data && (
-                    <button
-                        onClick={handleDownload}
-                        disabled={downloading}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '9px 16px',
-                            borderRadius: '10px',
-                            border: '1px solid #E0DDD6',
-                            background: '#FFFFFF',
-                            color: '#5F7154',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            cursor: downloading ? 'not-allowed' : 'pointer',
-                            fontFamily: 'system-ui, sans-serif',
-                        }}
-                    >⬇ {downloading ? 'İndiriliyor…' : 'PDF İndir'}</button>
+                    <button onClick={handleDownload} disabled={downloading} className="rp-btn-secondary">
+                        {downloading ? 'İndiriliyor…' : '⬇ PDF İndir'}
+                    </button>
                 )}
             </div>
 
             {data && (
                 <>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '12px' }}>
                         <StatCard label="Toplam Ciro" value={formatCurrency(data.totalRevenue)} />
                         <StatCard label="Toplam Sipariş" value={data.totalOrders} />
-                        <StatCard
-                            label="Günlük Ortalama"
-                            value={formatCurrency(data.totalRevenue / Math.max(data.dailySales.length, 1))}
-                        />
+                        <StatCard label="Günlük Ort." value={formatCurrency(data.totalRevenue / Math.max(data.dailySales.length, 1))} />
                     </div>
-
                     {data.dailySales.length > 0 && (
-                        <div style={{
-                            background: '#FFFFFF',
-                            border: '1px solid #E8E4DC',
-                            borderRadius: '14px',
-                            padding: '18px',
-                        }}>
-                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Günlük Özet</p>
+                        <div className="rp-section-card">
+                            <p className="rp-section-title">📅 Günlük Özet</p>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                 {data.dailySales.map((d) => (
-                                    <div key={d.date} style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        padding: '10px 0',
-                                        borderBottom: '1px solid #EDE9E0',
-                                    }}>
-                                        <span style={{ fontSize: '13px', color: '#4A4840' }}>
+                                    <div key={d.date} className="rp-daily-row">
+                                        <span style={{ fontSize: '13px', color: '#323232', fontWeight: 600 }}>
                                             {new Date(d.date).toLocaleDateString('tr-TR', { weekday: 'short', day: 'numeric', month: 'short' })}
                                         </span>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                            <span style={{ fontSize: '12px', color: '#9A8E80' }}>{d.orderCount} sipariş</span>
-                                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#5F7154', minWidth: '80px', textAlign: 'right' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                                            <span style={{ fontSize: '12px', color: '#888' }}>{d.orderCount} sipariş</span>
+                                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#5F7154', minWidth: '80px', textAlign: 'right' }}>
                                                 {formatCurrency(d.revenue)}
                                             </span>
                                         </div>
@@ -401,15 +262,9 @@ function WeeklyPanel() {
                             </div>
                         </div>
                     )}
-
                     {data.topSellingItems.length > 0 && (
-                        <div style={{
-                            background: '#FFFFFF',
-                            border: '1px solid #E8E4DC',
-                            borderRadius: '14px',
-                            padding: '18px',
-                        }}>
-                            <p style={{ margin: '0 0 12px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Haftanın En Çok Satanları</p>
+                        <div className="rp-section-card">
+                            <p className="rp-section-title">🏆 Haftanın En Çok Satanları</p>
                             <TopSellingTable items={data.topSellingItems} />
                         </div>
                     )}
@@ -438,44 +293,26 @@ function TopSellingPanel() {
         }
     }
 
+    // TopSellingPanel return bloğunu tamamen değiştir
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#9A8E80' }}>Top</span>
+                    <span className="rp-date-label">Top</span>
                     <input
-                        type="number"
-                        min={1}
-                        max={50}
-                        value={count}
+                        type="number" min={1} max={50} value={count}
                         onChange={(e) => setCount(Number(e.target.value))}
-                        style={{ ...inputStyle, width: '60px' }}
-                        onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                        onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
+                        className={inputCls} style={{ width: '70px' }}
                     />
                 </div>
-                <button
-                    onClick={fetch}
-                    disabled={loading}
-                    style={{
-                        padding: '9px 18px',
-                        borderRadius: '10px',
-                        border: 'none',
-                        background: loading ? '#8FAF80' : '#5F7154',
-                        color: '#fff',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontFamily: 'system-ui, sans-serif',
-                    }}
-                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
+                <button onClick={fetch} disabled={loading} className={`rp-btn-primary${loading ? ' disabled' : ''}`}>
+                    {loading ? 'Yükleniyor…' : '🔍 Getir'}
+                </button>
             </div>
             {data && (
-                <div style={{ background: '#FFFFFF', border: '1px solid #E8E4DC', borderRadius: '14px', padding: '18px' }}>
+                <div className="rp-section-card">
                     <TopSellingTable items={data} />
                 </div>
             )}
@@ -501,32 +338,19 @@ function PeakHoursPanel() {
         }
     }
 
+    // PeakHoursPanel return bloğunu tamamen değiştir
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={inputStyle}
-                    onFocus={e => (e.target.style.borderColor = '#82A76B')} onBlur={e => (e.target.style.borderColor = '#E0DDD6')} />
-                <button
-                    onClick={fetch}
-                    disabled={loading}
-                    style={{
-                        padding: '9px 18px',
-                        borderRadius: '10px',
-                        border: 'none',
-                        background: loading ? '#8FAF80' : '#5F7154',
-                        color: '#fff',
-                        fontSize: '13px',
-                        fontWeight: 500,
-                        cursor: loading ? 'not-allowed' : 'pointer',
-                        fontFamily: 'system-ui, sans-serif',
-                    }}
-                >{loading ? 'Yükleniyor…' : 'Getir'}</button>
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputCls} />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputCls} />
+                <button onClick={fetch} disabled={loading} className={`rp-btn-primary${loading ? ' disabled' : ''}`}>
+                    {loading ? 'Yükleniyor…' : '🔍 Getir'}
+                </button>
             </div>
             {data && (
-                <div style={{ background: '#FFFFFF', border: '1px solid #E8E4DC', borderRadius: '14px', padding: '18px' }}>
-                    <p style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: 500, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Saatlik Yoğunluk</p>
+                <div className="rp-section-card">
+                    <p className="rp-section-title">🕐 Saatlik Yoğunluk</p>
                     <HourlyChart hours={data} />
                 </div>
             )}
@@ -544,61 +368,153 @@ const TABS: { id: ReportTab; label: string; emoji: string }[] = [
 export default function ReportPage() {
     const [activeTab, setActiveTab] = useState<ReportTab>('daily')
 
+    // ReportPage return bloğunu tamamen değiştir
     return (
-        <div style={{
-            padding: '32px',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            maxWidth: '900px',
-            background: '#F7F5F0',
-            minHeight: '100vh',
-        }}>
-            {/* Header */}
-            <div style={{ marginBottom: '24px' }}>
-                <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
-                    Raporlar
-                </h1>
-                <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>Satış analizleri ve istatistikler</p>
-            </div>
+        <>
+            <style>{`
+                .rp-page {
+                    padding: 32px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    max-width: 900px; min-height: 100vh;
+                    background: #FFF5F7;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                }
+                .rp-page-title {
+                    font-size: 26px; font-weight: 900; color: #323232;
+                    margin: 0 0 4px; transform: rotate(-1deg);
+                    display: inline-block; text-transform: uppercase;
+                }
+                .rp-page-sub { font-size: 12px; color: #888; margin: 0; font-style: italic; }
+                .rp-input {
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 9px 12px;
+                    font-size: 13px; font-weight: 600;
+                    color: #323232; background: #ffffff;
+                    outline: none;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232;
+                    transition: all 0.15s; cursor: pointer;
+                    box-sizing: border-box;
+                }
+                .rp-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    background: #fffdf5; transform: translate(-1px,-1px);
+                }
+                .rp-btn-primary {
+                    padding: 9px 18px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    font-size: 13px; font-weight: 900; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .rp-btn-primary:hover:not(.disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #ffd700; }
+                .rp-btn-primary.disabled { opacity: 0.6; cursor: not-allowed; }
+                .rp-btn-secondary {
+                    display: flex; align-items: center; gap: 6px;
+                    padding: 9px 16px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffffff;
+                    font-size: 13px; font-weight: 700; color: #5F7154;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .rp-btn-secondary:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #f0fff4; }
+                .rp-btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
+                .rp-tab {
+                    display: flex; align-items: center; gap: 6px;
+                    padding: 9px 16px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232;
+                    font-size: 13px; font-weight: 700;
+                    cursor: pointer; font-family: inherit;
+                    transition: all 0.15s;
+                    box-shadow: 3px 3px 0 #323232;
+                }
+                .rp-tab.active {
+                    background: #ffe66d; color: #323232;
+                    transform: translate(-1px,-1px);
+                    box-shadow: 4px 4px 0 #323232;
+                }
+                .rp-tab:not(.active) {
+                    background: #ffffff; color: #666;
+                }
+                .rp-tab:not(.active):hover { background: #fff9e6; transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .rp-stat-card {
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    padding: 14px 16px;
+                    display: flex; flex-direction: column; gap: 4px;
+                    box-shadow: 3px 3px 0 #323232;
+                }
+                .rp-stat-label { margin: 0; font-size: 11px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+                .rp-stat-value { margin: 0; font-size: 22px; font-weight: 900; color: #323232; letter-spacing: -0.02em; }
+                .rp-stat-sub { margin: 0; font-size: 11px; color: #aaa; font-style: italic; }
+                .rp-section-card {
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    padding: 18px;
+                    box-shadow: 4px 4px 0 #323232;
+                }
+                .rp-section-title {
+                    margin: 0 0 14px;
+                    font-size: 12px; font-weight: 900; color: #323232;
+                    text-transform: uppercase; letter-spacing: 0.08em;
+                }
+                .rp-top-row {
+                    display: flex; align-items: center; gap: 10px;
+                    padding: 10px 12px;
+                    background: #fffdf5;
+                    border: 2px solid #32323220;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    transition: all 0.15s;
+                }
+                .rp-top-row:hover { border-color: #323232; box-shadow: 2px 2px 0 #323232; transform: translate(-1px,-1px); }
+                .rp-top-row.first { background: #ffe66d; border-color: #323232; box-shadow: 3px 3px 0 #323232; }
+                .rp-top-rank { font-size: 12px; font-weight: 900; color: #888; width: '22px'; text-align: center; }
+                .rp-top-row.first .rp-top-rank { color: #323232; }
+                .rp-top-revenue { font-size: 13px; font-weight: 700; color: #5F7154; flex-shrink: 0; min-width: 72px; text-align: right; }
+                .rp-daily-row {
+                    display: flex; align-items: center; justify-content: space-between;
+                    padding: 10px 0;
+                    border-bottom: 2px dashed #32323220;
+                }
+                .rp-daily-row:last-child { border-bottom: none; }
+                .rp-date-label { font-size: 12px; color: #888; font-weight: 700; white-space: nowrap; font-family: inherit; }
+            `}</style>
 
-            {/* Tab'lar */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
-                {TABS.map(({ id, label, emoji }) => (
-                    <button
-                        key={id}
-                        onClick={() => setActiveTab(id)}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '9px 16px',
-                            borderRadius: '10px',
-                            border: activeTab === id ? 'none' : '1px solid #E0DDD6',
-                            background: activeTab === id ? '#5F7154' : '#FFFFFF',
-                            color: activeTab === id ? '#FFFFFF' : '#6A6560',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                            fontFamily: 'system-ui, sans-serif',
-                            transition: 'all 0.15s',
-                        }}
-                        onMouseEnter={e => {
-                            if (activeTab !== id) (e.currentTarget as HTMLElement).style.borderColor = '#C8D5C0'
-                        }}
-                        onMouseLeave={e => {
-                            if (activeTab !== id) (e.currentTarget as HTMLElement).style.borderColor = '#E0DDD6'
-                        }}
-                    >
-                        <span style={{ fontSize: '14px' }}>{emoji}</span>
-                        {label}
-                    </button>
-                ))}
-            </div>
+            <div className="rp-page">
+                <div style={{ marginBottom: '24px' }}>
+                    <h1 className="rp-page-title">📈 Raporlar</h1>
+                    <p className="rp-page-sub">Satış analizleri ve istatistikler</p>
+                </div>
 
-            {/* Panel içeriği */}
-            {activeTab === 'daily' && <DailyPanel />}
-            {activeTab === 'weekly' && <WeeklyPanel />}
-            {activeTab === 'top' && <TopSellingPanel />}
-            {activeTab === 'peak' && <PeakHoursPanel />}
-        </div>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '24px' }}>
+                    {TABS.map(({ id, label, emoji }) => (
+                        <button
+                            key={id}
+                            onClick={() => setActiveTab(id)}
+                            className={`rp-tab${activeTab === id ? ' active' : ''}`}
+                        >
+                            <span>{emoji}</span>
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                {activeTab === 'daily' && <DailyPanel />}
+                {activeTab === 'weekly' && <WeeklyPanel />}
+                {activeTab === 'top' && <TopSellingPanel />}
+                {activeTab === 'peak' && <PeakHoursPanel />}
+            </div>
+        </>
     )
 }

@@ -4,7 +4,7 @@ import { menuApi } from '../../api/menu.api'
 import { tableApi } from '../../api/table.api'
 import { cashierApi } from '../../api/cashier.api'
 import './AdminDashboard.css'
-import { Tag, UtensilsCrossed, QrCode, TrendingUp, ArrowRight } from 'lucide-react'
+import { Tag, UtensilsCrossed, QrCode, TrendingUp } from 'lucide-react'
 
 interface StatCard {
     label: string

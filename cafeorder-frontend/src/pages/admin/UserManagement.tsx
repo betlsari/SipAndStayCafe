@@ -2,7 +2,7 @@
 import { authApi } from '../../api/auth.api'
 import { userApi, type UserDto } from '../../api/user.api'
 import type { UserRole } from '../../types/index'
-import { Trash2, Plus, X, Eye, EyeOff, Crown, ShieldCheck, Users } from 'lucide-react'
+import { Trash2, Plus,  Eye, EyeOff, Crown, ShieldCheck, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '../../store/authStore'
 
@@ -18,19 +18,10 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
     { value: 'KitchenStaff', label: 'Mutfak Personeli (KitchenStaff)' },
 ]
 
-const inputStyle: React.CSSProperties = {
-    width: '100%',
-    border: '1px solid #E0DDD6',
-    borderRadius: '10px',
-    padding: '10px 14px',
-    fontSize: '14px',
-    color: '#2C3528',
-    background: '#FDFCF9',
-    outline: 'none',
-    fontFamily: 'system-ui, sans-serif',
-    boxSizing: 'border-box',
-    transition: 'border-color 0.15s',
-}
+// inputStyle sabitini değiştir
+const inputCls = 'um-input'
+
+
 
 function CreateStaffModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
     const [form, setForm] = useState({ email: '', password: '', displayName: '', role: 'Cashier' as UserRole })
@@ -58,79 +49,232 @@ function CreateStaffModal({ onClose, onCreated }: { onClose: () => void; onCreat
         }
     }
 
+    // CreateStaffModal return bloğunu tamamen değiştir
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
-            <div style={{ width: '100%', maxWidth: '440px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', boxShadow: '0 8px 32px rgba(95,113,84,0.12)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid #EDE9E0' }}>
-                    <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#2C3528', margin: 0 }}>Yeni Personel Ekle</h2>
-                    <button onClick={onClose} style={{ background: '#F0ECE4', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <X size={14} color="#6A6560" />
-                    </button>
-                </div>
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {[
-                        { key: 'displayName', label: 'Ad Soyad', type: 'text', placeholder: 'Örn: Ahmet Yılmaz' },
-                        { key: 'email', label: 'E-posta', type: 'email', placeholder: 'personel@kafe.com' },
-                    ].map(field => (
-                        <div key={field.key}>
-                            <label style={{ fontSize: '12px', fontWeight: 500, color: '#5F7154', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{field.label}</label>
-                            <input
-                                type={field.type}
-                                value={form[field.key as keyof typeof form] as string}
-                                onChange={e => set(field.key as keyof typeof form, e.target.value)}
-                                placeholder={field.placeholder}
-                                style={inputStyle}
-                                onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                                onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                            />
+        <>
+            <style>{`
+                .um-overlay {
+                    position: fixed; inset: 0; z-index: 50;
+                    display: flex; align-items: center; justify-content: center;
+                    background: rgba(50,50,50,0.45); padding: 16px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .um-box {
+                    width: 100%; max-width: 440px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 16px 6px 16px 6px / 6px 16px 6px 16px;
+                    box-shadow: 6px 6px 0 #323232;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                    background-position: 0 40px;
+                }
+                .um-header {
+                    display: flex; align-items: center; justify-content: space-between;
+                    padding: 18px 20px; border-bottom: 2px dashed #323232;
+                }
+                .um-title {
+                    font-size: 15px; font-weight: 900; color: #323232;
+                    margin: 0; text-transform: uppercase;
+                    transform: rotate(-1deg); display: inline-block;
+                }
+                .um-close {
+                    background: #ff6b6b; border: 2px solid #323232;
+                    border-radius: 50%; width: 30px; height: 30px;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    box-shadow: 2px 2px 0 #323232; transition: all 0.15s;
+                    color: white; font-size: 14px; font-weight: bold;
+                }
+                .um-close:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 #323232; }
+                .um-input {
+                    width: 100%; box-sizing: border-box;
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 10px 14px;
+                    font-size: 14px; font-weight: 600;
+                    color: #323232; background: #ffffff;
+                    outline: none;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .um-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    background: #fffdf5; transform: translate(-1px,-1px);
+                }
+                .um-field-label {
+                    font-size: 11px; font-weight: 700; color: #5F7154;
+                    display: block; margin-bottom: 6px;
+                    text-transform: uppercase; letter-spacing: 0.08em;
+                    font-family: inherit;
+                }
+                .um-btn-cancel {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffffff;
+                    font-size: 13px; font-weight: 700; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .um-btn-cancel:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .um-btn-save {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    font-size: 13px; font-weight: 900; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .um-btn-save:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #ffd700; }
+                .um-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+                .um-btn-del {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #c0392b; background: #ff6b6b;
+                    font-size: 13px; font-weight: 900; color: #fff;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #c0392b; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .um-btn-del:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #c0392b; }
+                .um-btn-del:disabled { opacity: 0.6; cursor: not-allowed; }
+                .um-error {
+                    font-size: 12px; font-weight: 700; color: #c0392b;
+                    background: #ffecec; padding: 10px 12px;
+                    border-radius: 8px; border: 2px solid #ff6b6b;
+                    box-shadow: 2px 2px 0 #ff6b6b; margin: 0; font-family: inherit;
+                }
+                .um-user-row {
+                    display: flex; align-items: center; gap: 14px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    padding: 12px 16px;
+                    box-shadow: 3px 3px 0 #323232;
+                    transition: all 0.15s;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .um-user-row:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 #323232; }
+                .um-avatar {
+                    width: 40px; height: 40px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232;
+                    display: flex; align-items: center; justify-content: center;
+                    flex-shrink: 0; box-shadow: 2px 2px 0 #323232;
+                }
+                .um-role-badge {
+                    display: flex; align-items: center; gap: 5px;
+                    font-size: 11px; font-weight: 700;
+                    padding: 4px 10px; border-radius: 20px;
+                    border: 1.5px solid #323232;
+                    font-family: inherit;
+                }
+                .um-you-badge {
+                    font-size: 10px; font-weight: 700; color: #888;
+                    background: #f0ece4; padding: 2px 7px;
+                    border-radius: 20px; border: 1.5px solid #ccc;
+                    text-transform: uppercase; letter-spacing: 0.06em;
+                    font-family: inherit;
+                }
+                .um-action-btn {
+                    padding: 6px; border-radius: 6px 2px 6px 2px / 2px 6px 2px 6px;
+                    border: 2px solid transparent; background: none;
+                    cursor: pointer; display: flex; align-items: center;
+                    transition: all 0.15s;
+                }
+                .um-action-btn:hover { background: #ffecec; border-color: #ff6b6b; box-shadow: 2px 2px 0 #ff6b6b; transform: translate(-1px,-1px); }
+                .um-section-title {
+                    display: flex; align-items: center; gap: 7px;
+                    font-size: 11px; font-weight: 700; color: #888;
+                    text-transform: uppercase; letter-spacing: 0.1em;
+                    margin: 0 0 12px; font-family: "Comic Sans MS", cursive;
+                }
+                .um-filter-input {
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 10px 14px;
+                    font-size: 13px; font-weight: 600;
+                    color: #323232; background: #ffffff;
+                    outline: none;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .um-filter-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    background: #fffdf5; transform: translate(-1px,-1px);
+                }
+            `}</style>
+            <div className="um-overlay">
+                <div className="um-box">
+                    <div className="um-header">
+                        <h2 className="um-title">✨ Yeni Personel</h2>
+                        <button className="um-close" onClick={onClose}>✕</button>
+                    </div>
+                    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        {[
+                            { key: 'displayName', label: 'Ad Soyad', type: 'text', placeholder: 'Örn: Ahmet Yılmaz' },
+                            { key: 'email', label: 'E-posta', type: 'email', placeholder: 'personel@kafe.com' },
+                        ].map(field => (
+                            <div key={field.key}>
+                                <label className="um-field-label">{field.label}</label>
+                                <input
+                                    type={field.type}
+                                    value={form[field.key as keyof typeof form] as string}
+                                    onChange={e => set(field.key as keyof typeof form, e.target.value)}
+                                    placeholder={field.placeholder}
+                                    className={inputCls}
+                                />
+                            </div>
+                        ))}
+                        <div>
+                            <label className="um-field-label">Şifre</label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={form.password}
+                                    onChange={e => set('password', e.target.value)}
+                                    placeholder="En az 6 karakter"
+                                    className={inputCls}
+                                    style={{ paddingRight: '44px' }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(v => !v)}
+                                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}
+                                >
+                                    {showPassword ? <EyeOff size={15} color="#888" /> : <Eye size={15} color="#888" />}
+                                </button>
+                            </div>
                         </div>
-                    ))}
-                    <div>
-                        <label style={{ fontSize: '12px', fontWeight: 500, color: '#5F7154', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Şifre</label>
-                        <div style={{ position: 'relative' }}>
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                value={form.password}
-                                onChange={e => set('password', e.target.value)}
-                                placeholder="En az 6 karakter"
-                                style={{ ...inputStyle, paddingRight: '42px' }}
-                                onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                                onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(v => !v)}
-                                style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '0', display: 'flex' }}
+                        <div>
+                            <label className="um-field-label">Rol</label>
+                            <select
+                                value={form.role}
+                                onChange={e => setForm(prev => ({ ...prev, role: e.target.value as UserRole }))}
+                                className={inputCls}
                             >
-                                {showPassword ? <EyeOff size={15} color="#9A8E80" /> : <Eye size={15} color="#9A8E80" />}
-                            </button>
+                                {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                            </select>
                         </div>
+                        {error && <p className="um-error">⚠️ {error}</p>}
                     </div>
-                    <div>
-                        <label style={{ fontSize: '12px', fontWeight: 500, color: '#5F7154', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Rol</label>
-                        <select
-                            value={form.role}
-                            onChange={e => setForm(prev => ({ ...prev, role: e.target.value as UserRole }))}
-                            style={{ ...inputStyle }}
-                            onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                            onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                        >
-                            {ROLE_OPTIONS.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-                        </select>
+                    <div style={{ padding: '0 20px 20px', display: 'flex', gap: '10px' }}>
+                        <button className="um-btn-cancel" onClick={onClose}>İptal</button>
+                        <button className="um-btn-save" onClick={handleSubmit} disabled={saving}>
+                            {saving ? 'Oluşturuluyor…' : 'Oluştur ✓'}
+                        </button>
                     </div>
-                    {error && <p style={{ fontSize: '13px', color: '#C06080', background: '#FAE8EE', padding: '10px 12px', borderRadius: '8px', margin: 0 }}>{error}</p>}
-                </div>
-                <div style={{ padding: '0 20px 20px', display: 'flex', gap: '10px' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>İptal</button>
-                    <button onClick={handleSubmit} disabled={saving} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: saving ? '#8FAF80' : '#5F7154', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}>
-                        {saving ? 'Oluşturuluyor…' : 'Oluştur'}
-                    </button>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
+// UserRow bileşenini tamamen değiştir
 function UserRow({ user, onDelete, isCurrentUser }: { user: UserDto; onDelete: (user: UserDto) => void; isCurrentUser: boolean }) {
     const [hovered, setHovered] = useState(false)
     const primaryRole = user.roles[0] ?? 'Cashier'
@@ -140,41 +284,32 @@ function UserRow({ user, onDelete, isCurrentUser }: { user: UserDto; onDelete: (
 
     return (
         <div
+            className="um-user-row"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '14px',
-                background: '#FFFFFF',
-                border: '1px solid #E8E4DC',
-                borderRadius: '14px',
-                padding: '13px 16px',
-                transition: 'border-color 0.15s',
-                borderColor: hovered ? '#C8D5C0' : '#E8E4DC',
-            }}
         >
-            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#EDF2E8', border: '1px solid #C8D5C0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: '#5F7154' }}>{initials}</span>
+            <div className="um-avatar" style={{ background: cfg.bg }}>
+                <span style={{ fontSize: '13px', fontWeight: 900, color: cfg.color }}>{initials}</span>
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '7px', flexWrap: 'wrap' }}>
-                    <p style={{ fontSize: '14px', fontWeight: 500, color: '#2C3528', margin: 0 }}>{user.displayName}</p>
-                    {isCurrentUser && <span style={{ fontSize: '10px', fontWeight: 600, color: '#9A8E80', background: '#F0ECE4', padding: '2px 7px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Siz</span>}
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#323232', margin: 0 }}>{user.displayName}</p>
+                    {isCurrentUser && <span className="um-you-badge">Siz</span>}
                 </div>
-                <p style={{ fontSize: '12px', color: '#9A8E80', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</p>
+                <p style={{ fontSize: '12px', color: '#888', margin: '2px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: 'italic' }}>{user.email}</p>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', fontWeight: 500, padding: '4px 10px', borderRadius: '20px', background: cfg.bg, color: cfg.color }}>
+                <span className="um-role-badge" style={{ background: cfg.bg, color: cfg.color }}>
                     <Icon size={11} />
                     {cfg.label}
                 </span>
                 {!isCurrentUser && (
                     <button
                         onClick={() => onDelete(user)}
-                        style={{ padding: '6px', borderRadius: '8px', border: 'none', background: hovered ? '#FAE8EE' : 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'background 0.15s', opacity: hovered ? 1 : 0 }}
+                        className="um-action-btn"
+                        style={{ opacity: hovered ? 1 : 0, transition: 'opacity 0.15s, all 0.15s' }}
                     >
-                        <Trash2 size={13} color="#C06080" />
+                        <Trash2 size={13} color="#c0392b" />
                     </button>
                 )}
             </div>
@@ -196,21 +331,22 @@ function DeleteModal({ user, onClose, onDeleted }: { user: UserDto; onClose: () 
             setDeleting(false)
         }
     }
+    // DeleteModal return bloğunu tamamen değiştir
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
-            <div style={{ width: '100%', maxWidth: '360px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', padding: '28px 24px', textAlign: 'center' }}>
-                <div style={{ width: '52px', height: '52px', background: '#FAE8EE', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                    <Trash2 size={22} color="#C06080" />
-                </div>
-                <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#2C3528', margin: '0 0 8px' }}>Emin misiniz?</h2>
-                <p style={{ fontSize: '13px', color: '#8A8478', margin: '0 0 22px', lineHeight: 1.5 }}>
-                    <strong style={{ color: '#2C3528' }}>{user.displayName}</strong> adlı kullanıcının erişimi kalıcı olarak kaldırılacak.
-                </p>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>Vazgeç</button>
-                    <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: deleting ? '#E8B0C0' : '#C06080', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: deleting ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif' }}>
-                        {deleting ? 'Siliniyor…' : 'Evet, Sil'}
-                    </button>
+        <div className="um-overlay">
+            <div className="um-box" style={{ maxWidth: '360px' }}>
+                <div style={{ padding: '28px 24px', textAlign: 'center' }}>
+                    <div style={{ width: '56px', height: '56px', background: '#ffecec', border: '2px solid #ff6b6b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '26px', boxShadow: '3px 3px 0 #ff6b6b' }}>🗑️</div>
+                    <h2 style={{ fontSize: '17px', fontWeight: 900, color: '#323232', margin: '0 0 8px', textTransform: 'uppercase', fontFamily: '"Comic Sans MS", cursive' }}>Emin misin?</h2>
+                    <p style={{ fontSize: '13px', color: '#666', margin: '0 0 22px', lineHeight: 1.6, fontFamily: '"Comic Sans MS", cursive' }}>
+                        <strong style={{ color: '#323232' }}>{user.displayName}</strong> adlı kullanıcının erişimi kalıcı olarak kaldırılacak.
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button className="um-btn-cancel" onClick={onClose}>Vazgeç</button>
+                        <button className="um-btn-del" onClick={handleDelete} disabled={deleting}>
+                            {deleting ? 'Siliniyor…' : 'Sil! 🗑️'}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -260,37 +396,55 @@ export default function UserManagement() {
         KitchenStaff: filtered.filter(u => u.roles.includes('KitchenStaff') && !u.roles.includes('Owner') && !u.roles.includes('Cashier')),
     }
 
+    // UserManagement return bloğunu tamamen değiştir
     return (
-        <div style={{ padding: '32px', fontFamily: 'system-ui, -apple-system, sans-serif', maxWidth: '900px', background: '#F7F5F0', minHeight: '100vh' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div style={{
+            padding: '32px',
+            fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+            maxWidth: '900px', minHeight: '100vh',
+            background: '#FFF5F7',
+            backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px)',
+        }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
                 <div>
-                    <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>Kullanıcı Yönetimi</h1>
-                    <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>{users.length} personel hesabı kayıtlı</p>
+                    <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#323232', margin: '0 0 4px', transform: 'rotate(-1deg)', display: 'inline-block', textTransform: 'uppercase' }}>
+                        👥 Kullanıcılar
+                    </h1>
+                    <p style={{ fontSize: '12px', color: '#888', margin: 0, fontStyle: 'italic' }}>{users.length} personel hesabı kayıtlı</p>
                 </div>
                 <button
                     onClick={() => setShowCreateModal(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#5F7154', color: '#FFFFFF', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#4A5C40')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#5F7154')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '7px',
+                        padding: '10px 18px',
+                        borderRadius: '12px 4px 12px 4px / 4px 12px 4px 12px',
+                        border: '2px solid #323232', background: '#ffe66d',
+                        color: '#323232', fontSize: '13px', fontWeight: 900,
+                        cursor: 'pointer', fontFamily: 'inherit',
+                        boxShadow: '4px 4px 0 #323232', transition: 'all 0.15s',
+                        textTransform: 'uppercase',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translate(-2px,-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '6px 6px 0 #323232' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '4px 4px 0 #323232' }}
                 >
-                    <Plus size={14} />
-                    Personel Ekle
+                    <Plus size={15} /> Personel Ekle
                 </button>
             </div>
 
-            {/* Filters */}
             <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
                 <input
                     type="text"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    placeholder="İsim veya e-posta ara…"
-                    style={{ flex: 1, minWidth: '200px', border: '1px solid #E0DDD6', borderRadius: '10px', padding: '10px 14px', fontSize: '13px', color: '#2C3528', background: '#FFFFFF', outline: 'none', fontFamily: 'system-ui, sans-serif' }}
+                    placeholder="🔍 İsim veya e-posta ara…"
+                    className="um-filter-input"
+                    style={{ flex: 1, minWidth: '200px' }}
                 />
                 <select
                     value={filterRole}
                     onChange={e => setFilterRole(e.target.value)}
-                    style={{ padding: '10px 14px', border: '1px solid #E0DDD6', borderRadius: '10px', fontSize: '13px', color: '#2C3528', background: '#FFFFFF', outline: 'none', fontFamily: 'system-ui, sans-serif', cursor: 'pointer' }}
+                    className="um-filter-input"
+                    style={{ cursor: 'pointer' }}
                 >
                     <option value="all">Tüm Roller</option>
                     <option value="Owner">Sahip</option>
@@ -300,15 +454,16 @@ export default function UserManagement() {
             </div>
 
             {loading ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ fontSize: '24px' }}>☕</div>
-                    <p style={{ color: '#9A8E80', fontSize: '13px' }}>Yükleniyor…</p>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px' }}>
+                    <span style={{ fontSize: '36px', animation: 'cat-bounce 1s ease-in-out infinite' }}>☕</span>
+                    <p style={{ color: '#888', fontSize: '14px', fontWeight: 700, fontStyle: 'italic' }}>Yükleniyor…</p>
+                    <style>{`@keyframes cat-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`}</style>
                 </div>
             ) : error ? (
-                <div style={{ background: '#FAE8EE', border: '1px solid #F4C0D0', borderRadius: '12px', padding: '12px 16px', fontSize: '13px', color: '#8B3A5A' }}>⚠️ {error}</div>
+                <p style={{ fontSize: '12px', fontWeight: 700, color: '#c0392b', background: '#ffecec', padding: '12px 16px', borderRadius: '8px', border: '2px solid #ff6b6b', boxShadow: '2px 2px 0 #ff6b6b', fontFamily: 'inherit' }}>⚠️ {error}</p>
             ) : filtered.length === 0 ? (
-                <div style={{ padding: '60px 20px', border: '1.5px dashed #D8D4CC', borderRadius: '16px', textAlign: 'center', color: '#B0AB9E', fontSize: '14px', background: '#FDFCF9' }}>
-                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>👤</div>
+                <div style={{ padding: '60px 20px', border: '2px dashed #ccc', borderRadius: '16px', textAlign: 'center', color: '#aaa', fontSize: '14px', fontWeight: 700, background: '#fffdf5' }}>
+                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>👤</div>
                     {search || filterRole !== 'all' ? 'Eşleşen kullanıcı bulunamadı.' : 'Henüz personel hesabı oluşturulmamış.'}
                 </div>
             ) : (
@@ -320,13 +475,11 @@ export default function UserManagement() {
                         const Icon = cfg.icon
                         return (
                             <section key={role}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '12px' }}>
-                                    <Icon size={13} color="#9A8E80" />
-                                    <h2 style={{ fontSize: '11px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
-                                        {cfg.label} · {group.length} Personel
-                                    </h2>
+                                <div className="um-section-title">
+                                    <Icon size={13} />
+                                    {cfg.label} · {group.length} Personel
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '8px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
                                     {group.map(user => (
                                         <UserRow key={user.id} user={user} onDelete={setDeleteTarget} isCurrentUser={user.id === currentUserId} />
                                     ))}

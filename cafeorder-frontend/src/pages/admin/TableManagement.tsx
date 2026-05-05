@@ -1,9 +1,9 @@
 ﻿import { useState, useEffect, useCallback } from 'react'
 import { tableApi } from '../../api/table.api'
 import type { TableDto } from '../../types/index'
-import { Plus, Pencil, Trash2, X, Download } from 'lucide-react'
+import { Plus, Pencil, Trash2, Download } from 'lucide-react'
 import { toast } from 'sonner'
-
+/*
 const inputStyle: React.CSSProperties = {
     width: '100%',
     border: '1px solid #E0DDD6',
@@ -16,7 +16,7 @@ const inputStyle: React.CSSProperties = {
     fontFamily: 'system-ui, sans-serif',
     boxSizing: 'border-box',
     transition: 'border-color 0.15s',
-}
+} */ 
 
 interface TableFormProps {
     initial?: TableDto | null
@@ -51,55 +51,139 @@ function TableForm({ initial, onDone, onClose }: TableFormProps) {
             setSaving(false)
         }
     }
-
+    // TableForm bileşeninin return bloğunu tamamen değiştir
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
-            <div style={{ width: '100%', maxWidth: '400px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', boxShadow: '0 8px 32px rgba(95,113,84,0.12)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px', borderBottom: '1px solid #EDE9E0' }}>
-                    <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#2C3528', margin: 0 }}>{isEdit ? 'Masa Düzenle' : 'Yeni Masa Ekle'}</h2>
-                    <button onClick={onClose} style={{ background: '#F0ECE4', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <X size={14} color="#6A6560" />
-                    </button>
-                </div>
-                <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    <div>
-                        <label style={{ fontSize: '12px', fontWeight: 500, color: '#5F7154', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Masa Numarası</label>
-                        <input
-                            type="number"
-                            min={1}
-                            value={tableNumber}
-                            onChange={e => setTableNumber(e.target.value)}
-                            placeholder="Örn: 5"
-                            style={inputStyle}
-                            autoFocus
-                            onFocus={e => (e.target.style.borderColor = '#82A76B')}
-                            onBlur={e => (e.target.style.borderColor = '#E0DDD6')}
-                        />
+        <>
+            <style>{`
+                .tf-overlay {
+                    position: fixed; inset: 0; z-index: 50;
+                    display: flex; align-items: center; justify-content: center;
+                    background: rgba(50,50,50,0.45); padding: 16px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .tf-box {
+                    width: 100%; max-width: 400px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 16px 6px 16px 6px / 6px 16px 6px 16px;
+                    box-shadow: 6px 6px 0 #323232;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                    background-position: 0 40px;
+                }
+                .tf-header {
+                    display: flex; align-items: center; justify-content: space-between;
+                    padding: 18px 20px; border-bottom: 2px dashed #323232;
+                }
+                .tf-title {
+                    font-size: 15px; font-weight: 900; color: #323232;
+                    margin: 0; text-transform: uppercase;
+                    transform: rotate(-1deg); display: inline-block;
+                }
+                .tf-close {
+                    background: #ff6b6b; border: 2px solid #323232;
+                    border-radius: 50%; width: 30px; height: 30px;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    box-shadow: 2px 2px 0 #323232; transition: all 0.15s;
+                    color: white; font-size: 14px; font-weight: bold;
+                }
+                .tf-close:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 #323232; }
+                .tf-input {
+                    width: 100%; box-sizing: border-box;
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 10px 14px;
+                    font-size: 14px; font-weight: 600;
+                    color: #323232; background: #ffffff;
+                    outline: none;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .tf-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    background: #fffdf5; transform: translate(-1px,-1px);
+                }
+                .tf-toggle-row {
+                    display: flex; align-items: center; justify-content: space-between;
+                    background: #ffffff; border: 2px solid #323232;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    padding: 12px 14px; box-shadow: 3px 3px 0 #323232;
+                }
+                .tf-btn-cancel {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffffff;
+                    font-size: 13px; font-weight: 700; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .tf-btn-cancel:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .tf-btn-save {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    font-size: 13px; font-weight: 900; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .tf-btn-save:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #ffd700; }
+                .tf-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+                .tf-field-label {
+                    font-size: 11px; font-weight: 700; color: #5F7154;
+                    display: block; margin-bottom: 6px;
+                    text-transform: uppercase; letter-spacing: 0.08em;
+                    font-family: inherit;
+                }
+            `}</style>
+            <div className="tf-overlay">
+                <div className="tf-box">
+                    <div className="tf-header">
+                        <h2 className="tf-title">{isEdit ? '✏️ Masa Düzenle' : '✨ Yeni Masa Ekle'}</h2>
+                        <button className="tf-close" onClick={onClose}>✕</button>
                     </div>
-                    {isEdit && (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F7F5F0', border: '1px solid #E8E4DC', borderRadius: '10px', padding: '12px 14px' }}>
-                            <span style={{ fontSize: '13px', color: '#4A4840' }}>Aktif</span>
-                            <button
-                                onClick={() => setIsActive(!isActive)}
-                                style={{ width: '42px', height: '24px', borderRadius: '12px', border: 'none', background: isActive ? '#5F7154' : '#D8D4CC', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}
-                            >
-                                <span style={{ position: 'absolute', top: '3px', left: isActive ? '21px' : '3px', width: '18px', height: '18px', borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
-                            </button>
+                    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div>
+                            <label className="tf-field-label">Masa Numarası</label>
+                            <input
+                                type="number" min={1}
+                                value={tableNumber}
+                                onChange={e => setTableNumber(e.target.value)}
+                                placeholder="Örn: 5"
+                                className="tf-input"
+                                autoFocus
+                            />
                         </div>
-                    )}
-                    {error && <p style={{ fontSize: '13px', color: '#C06080', background: '#FAE8EE', padding: '10px 12px', borderRadius: '8px', margin: 0 }}>{error}</p>}
-                </div>
-                <div style={{ padding: '0 20px 20px', display: 'flex', gap: '10px' }}>
-                    <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>İptal</button>
-                    <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: saving ? '#8FAF80' : '#5F7154', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}>
-                        {saving ? 'Kaydediliyor…' : isEdit ? 'Güncelle' : 'Oluştur'}
-                    </button>
+                        {isEdit && (
+                            <div className="tf-toggle-row">
+                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#323232', fontFamily: 'inherit' }}>Aktif</span>
+                                <button
+                                    onClick={() => setIsActive(!isActive)}
+                                    style={{ width: '46px', height: '26px', borderRadius: '13px', border: '2px solid #323232', background: isActive ? '#4ecdc4' : '#ddd', cursor: 'pointer', position: 'relative', boxShadow: '2px 2px 0 #323232', transition: 'background 0.2s' }}
+                                >
+                                    <span style={{ position: 'absolute', top: '3px', left: isActive ? '22px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', border: '1.5px solid #323232', transition: 'left 0.2s' }} />
+                                </button>
+                            </div>
+                        )}
+                        {error && <p style={{ fontSize: '12px', fontWeight: 700, color: '#c0392b', background: '#ffecec', padding: '10px 12px', borderRadius: '8px', border: '2px solid #ff6b6b', boxShadow: '2px 2px 0 #ff6b6b', margin: 0, fontFamily: 'inherit' }}>⚠️ {error}</p>}
+                    </div>
+                    <div style={{ padding: '0 20px 20px', display: 'flex', gap: '10px' }}>
+                        <button className="tf-btn-cancel" onClick={onClose}>İptal</button>
+                        <button className="tf-btn-save" onClick={handleSave} disabled={saving}>
+                            {saving ? 'Kaydediliyor…' : isEdit ? 'Güncelle ✓' : 'Oluştur ✓'}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
-}
 
+
+}
+// TableCard bileşenini tamamen değiştir
 function TableCard({ table, onEdit, onDelete, onDownloadQr, downloading }: {
     table: TableDto
     onEdit: (t: TableDto) => void
@@ -109,77 +193,97 @@ function TableCard({ table, onEdit, onDelete, onDownloadQr, downloading }: {
 }) {
     const [hovered, setHovered] = useState(false)
     return (
-        <div
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            style={{
-                background: '#FFFFFF',
-                borderRadius: '16px',
-                border: '1px solid #E8E4DC',
-                borderColor: hovered ? '#C8D5C0' : '#E8E4DC',
-                padding: '18px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '14px',
-                transition: 'border-color 0.15s, box-shadow 0.15s',
-                boxShadow: hovered ? '0 4px 16px rgba(95,113,84,0.08)' : '0 1px 4px rgba(95,113,84,0.04)',
-                opacity: table.isActive ? 1 : 0.65,
-            }}
-        >
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                <div>
-                    <span style={{ fontFamily: 'system-ui, monospace', fontSize: '30px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.02em', lineHeight: 1 }}>{table.tableNumber}</span>
-                    <p style={{ margin: '4px 0 0', fontSize: '12px', color: table.isActive ? '#82A76B' : '#9A8E80', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: table.isActive ? '#82A76B' : '#C8C4BC', display: 'inline-block' }} />
-                        {table.isActive ? 'Aktif' : 'Pasif'}
-                    </p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
-                    <button onClick={() => onEdit(table)} style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#F0F4EC', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                        <Pencil size={13} color="#5F7154" />
-                    </button>
-                    <button onClick={() => onDelete(table)} style={{ padding: '6px', borderRadius: '8px', border: 'none', background: '#FAE8EE', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                        <Trash2 size={13} color="#C06080" />
-                    </button>
-                </div>
-            </div>
-
-            <p style={{ fontSize: '10px', color: '#C0BBAE', fontFamily: 'monospace', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{table.qRCodeUrl}</p>
-
-            <button
-                onClick={() => onDownloadQr(table)}
-                disabled={downloading}
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                    width: '100%',
-                    padding: '9px',
-                    borderRadius: '10px',
-                    border: '1px solid #E0DDD6',
-                    background: '#F7F5F0',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                    color: '#5F7154',
-                    cursor: downloading ? 'not-allowed' : 'pointer',
-                    fontFamily: 'system-ui, sans-serif',
-                    opacity: downloading ? 0.6 : 1,
-                    transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => !downloading && (e.currentTarget.style.background = '#EDF2E8')}
-                onMouseLeave={e => (e.currentTarget.style.background = '#F7F5F0')}
+        <>
+            <style>{`
+                .tc-card {
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    padding: 16px;
+                    display: flex; flex-direction: column; gap: 12px;
+                    box-shadow: 4px 4px 0 #323232;
+                    transition: all 0.15s;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    cursor: default;
+                }
+                .tc-card:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #323232; }
+                .tc-card.passive { opacity: 0.6; }
+                .tc-num {
+                    font-size: 32px; font-weight: 900; color: #323232;
+                    letter-spacing: -0.02em; line-height: 1;
+                    font-family: monospace;
+                }
+                .tc-status {
+                    display: flex; align-items: center; gap: 5px;
+                    font-size: 11px; font-weight: 700;
+                    font-family: "Comic Sans MS", cursive;
+                }
+                .tc-qr-url {
+                    font-size: 10px; color: #aaa;
+                    font-family: monospace; margin: 0;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+                }
+                .tc-action-btn {
+                    padding: 6px; border-radius: 6px 2px 6px 2px / 2px 6px 2px 6px;
+                    border: 2px solid transparent; background: none;
+                    cursor: pointer; display: flex; align-items: center;
+                    transition: all 0.15s;
+                }
+                .tc-action-btn.edit:hover { background: #fff9e6; border-color: #323232; box-shadow: 2px 2px 0 #323232; transform: translate(-1px,-1px); }
+                .tc-action-btn.del:hover { background: #ffecec; border-color: #ff6b6b; box-shadow: 2px 2px 0 #ff6b6b; transform: translate(-1px,-1px); }
+                .tc-qr-btn {
+                    display: flex; align-items: center; justify-content: center; gap: 6px;
+                    width: 100%; padding: 9px;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    border: 2px solid #323232; background: #ffffff;
+                    font-size: 12px; font-weight: 700; color: #5F7154;
+                    cursor: pointer; font-family: "Comic Sans MS", cursive;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .tc-qr-btn:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #ffe66d; color: #323232; }
+                .tc-qr-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+                @keyframes tc-spin { to { transform: rotate(360deg); } }
+            `}</style>
+            <div className={`tc-card${!table.isActive ? ' passive' : ''}`}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
             >
-                {downloading ? (
-                    <span style={{ width: '12px', height: '12px', border: '2px solid #C8D5C0', borderTopColor: '#5F7154', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
-                ) : (
-                    <Download size={12} color="#5F7154" />
-                )}
-                QR İndir
-            </button>
-        </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    <div>
+                        <span className="tc-num">{table.tableNumber}</span>
+                        <p className="tc-status" style={{ marginTop: '4px', color: table.isActive ? '#5F7154' : '#aaa' }}>
+                            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: table.isActive ? '#4ecdc4' : '#ccc', display: 'inline-block', border: '1.5px solid #323232' }} />
+                            {table.isActive ? 'Aktif' : 'Pasif'}
+                        </p>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: hovered ? 1 : 0, transition: 'opacity 0.15s' }}>
+                        <button className="tc-action-btn edit" onClick={() => onEdit(table)}>
+                            <Pencil size={13} color="#5F7154" />
+                        </button>
+                        <button className="tc-action-btn del" onClick={() => onDelete(table)}>
+                            <Trash2 size={13} color="#c0392b" />
+                        </button>
+                    </div>
+                </div>
+
+                <p className="tc-qr-url">{table.qRCodeUrl}</p>
+
+                <button
+                    className="tc-qr-btn"
+                    onClick={() => onDownloadQr(table)}
+                    disabled={downloading}
+                >
+                    {downloading
+                        ? <span style={{ width: '12px', height: '12px', border: '2px solid #ccc', borderTopColor: '#5F7154', borderRadius: '50%', animation: 'tc-spin 0.8s linear infinite', display: 'inline-block' }} />
+                        : <Download size={12} />
+                    }
+                    QR İndir
+                </button>
+            </div>
+        </>
     )
 }
+
 
 export default function TableManagement() {
     const [tables, setTables] = useState<TableDto[]>([])
@@ -247,93 +351,161 @@ export default function TableManagement() {
     const active = tables.filter(t => t.isActive)
     const inactive = tables.filter(t => !t.isActive)
 
+    // TableManagement return bloğunu tamamen değiştir
     return (
-        <div style={{ padding: '32px', fontFamily: 'system-ui, -apple-system, sans-serif', maxWidth: '900px', background: '#F7F5F0', minHeight: '100vh' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
-                <div>
-                    <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#2C3528', margin: '0 0 4px', letterSpacing: '-0.01em' }}>Masa & QR Yönetimi</h1>
-                    <p style={{ fontSize: '13px', color: '#9A8E80', margin: 0 }}>{active.length} aktif · {inactive.length} pasif masa</p>
-                </div>
-                <button
-                    onClick={() => { setEditTarget(null); setShowForm(true) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '7px', padding: '10px 16px', borderRadius: '12px', border: 'none', background: '#5F7154', color: '#FFFFFF', fontSize: '13px', fontWeight: 500, cursor: 'pointer', fontFamily: 'system-ui, sans-serif', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = '#4A5C40')}
-                    onMouseLeave={e => (e.currentTarget.style.background = '#5F7154')}
-                >
-                    <Plus size={14} />
-                    Masa Ekle
-                </button>
-            </div>
+        <>
+            <style>{`
+                .tm-page {
+                    padding: 32px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    max-width: 900px; min-height: 100vh;
+                    background: #FFF5F7;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                }
+                .tm-page-title {
+                    font-size: 26px; font-weight: 900; color: #323232;
+                    margin: 0 0 4px; transform: rotate(-1deg);
+                    display: inline-block; text-transform: uppercase;
+                }
+                .tm-page-sub { font-size: 12px; color: #888; margin: 0; font-style: italic; }
+                .tm-add-btn {
+                    display: flex; align-items: center; gap: 7px;
+                    padding: 10px 18px;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    color: #323232; font-size: 13px; font-weight: 900;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 4px 4px 0 #323232; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .tm-add-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #323232; background: #ffd700; }
+                .tm-section-title {
+                    font-size: 11px; font-weight: 700; color: #888;
+                    text-transform: uppercase; letter-spacing: 0.1em;
+                    margin: 0 0 12px; font-family: inherit;
+                }
+                .tm-empty {
+                    padding: 60px 20px; border: 2px dashed #ccc;
+                    border-radius: 16px; text-align: center;
+                    color: #aaa; font-size: 14px; font-weight: 700;
+                    background: #fffdf5; font-family: inherit;
+                }
+                .tm-delete-overlay {
+                    position: fixed; inset: 0; z-index: 50;
+                    display: flex; align-items: center; justify-content: center;
+                    background: rgba(50,50,50,0.45); padding: 16px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .tm-delete-box {
+                    width: 100%; max-width: 360px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 16px 6px 16px 6px / 6px 16px 6px 16px;
+                    box-shadow: 6px 6px 0 #323232;
+                    padding: 28px 24px; text-align: center;
+                }
+                .tm-delete-title { font-size: 17px; font-weight: 900; color: #323232; margin: 0 0 8px; text-transform: uppercase; }
+                .tm-delete-desc { font-size: 13px; color: #666; margin: 0 0 22px; line-height: 1.6; }
+                .tm-btn-cancel {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #fff;
+                    font-size: 13px; font-weight: 700; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .tm-btn-cancel:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .tm-btn-del {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #c0392b; background: #ff6b6b;
+                    font-size: 13px; font-weight: 900; color: #fff;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #c0392b; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .tm-btn-del:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #c0392b; }
+                .tm-btn-del:disabled { opacity: 0.6; cursor: not-allowed; }
+            `}</style>
 
-            {loading ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ fontSize: '24px' }}>☕</div>
-                    <p style={{ color: '#9A8E80', fontSize: '13px' }}>Yükleniyor…</p>
+            <div className="tm-page">
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '28px' }}>
+                    <div>
+                        <h1 className="tm-page-title">🪑 Masa & QR</h1>
+                        <p className="tm-page-sub">{active.length} aktif · {inactive.length} pasif masa</p>
+                    </div>
+                    <button className="tm-add-btn" onClick={() => { setEditTarget(null); setShowForm(true) }}>
+                        <Plus size={15} /> Masa Ekle
+                    </button>
                 </div>
-            ) : tables.length === 0 ? (
-                <div style={{ padding: '60px 20px', border: '1.5px dashed #D8D4CC', borderRadius: '16px', textAlign: 'center', color: '#B0AB9E', fontSize: '14px', background: '#FDFCF9' }}>
-                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>🪑</div>
-                    Henüz masa eklenmemiş.
-                </div>
-            ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                    {active.length > 0 && (
-                        <section>
-                            <h2 style={{ fontSize: '11px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Aktif Masalar · {active.length}</h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                                {active.map(table => (
-                                    <TableCard
-                                        key={table.id}
-                                        table={table}
-                                        onEdit={t => { setEditTarget(t); setShowForm(true) }}
-                                        onDelete={setDeleteTarget}
-                                        onDownloadQr={handleDownloadQr}
-                                        downloading={downloadingId === table.id}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                    {inactive.length > 0 && (
-                        <section>
-                            <h2 style={{ fontSize: '11px', fontWeight: 600, color: '#9A8E80', textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 12px' }}>Pasif Masalar · {inactive.length}</h2>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                                {inactive.map(table => (
-                                    <TableCard
-                                        key={table.id}
-                                        table={table}
-                                        onEdit={t => { setEditTarget(t); setShowForm(true) }}
-                                        onDelete={setDeleteTarget}
-                                        onDownloadQr={handleDownloadQr}
-                                        downloading={downloadingId === table.id}
-                                    />
-                                ))}
-                            </div>
-                        </section>
-                    )}
-                </div>
-            )}
+
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px' }}>
+                        <span style={{ fontSize: '36px', animation: 'cat-bounce 1s ease-in-out infinite' }}>☕</span>
+                        <p style={{ color: '#888', fontSize: '14px', fontWeight: 700, fontStyle: 'italic' }}>Yükleniyor…</p>
+                        <style>{`@keyframes cat-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}`}</style>
+                    </div>
+                ) : tables.length === 0 ? (
+                    <div className="tm-empty">
+                        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🪑</div>
+                        Henüz masa eklenmemiş.
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                        {active.length > 0 && (
+                            <section>
+                                <h2 className="tm-section-title">Aktif Masalar · {active.length}</h2>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
+                                    {active.map(table => (
+                                        <TableCard key={table.id} table={table}
+                                            onEdit={t => { setEditTarget(t); setShowForm(true) }}
+                                            onDelete={setDeleteTarget}
+                                            onDownloadQr={handleDownloadQr}
+                                            downloading={downloadingId === table.id}
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                        {inactive.length > 0 && (
+                            <section>
+                                <h2 className="tm-section-title">Pasif Masalar · {inactive.length}</h2>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
+                                    {inactive.map(table => (
+                                        <TableCard key={table.id} table={table}
+                                            onEdit={t => { setEditTarget(t); setShowForm(true) }}
+                                            onDelete={setDeleteTarget}
+                                            onDownloadQr={handleDownloadQr}
+                                            downloading={downloadingId === table.id}
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {showForm && <TableForm initial={editTarget} onDone={handleFormDone} onClose={() => { setShowForm(false); setEditTarget(null) }} />}
 
             {deleteTarget && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(44,53,40,0.35)', padding: '16px', fontFamily: 'system-ui, sans-serif' }}>
-                    <div style={{ width: '100%', maxWidth: '360px', background: '#FDFCF9', borderRadius: '20px', border: '1px solid #E0DDD6', padding: '28px 24px', textAlign: 'center' }}>
-                        <div style={{ width: '52px', height: '52px', background: '#FAE8EE', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                            <Trash2 size={22} color="#C06080" />
-                        </div>
-                        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#2C3528', margin: '0 0 8px' }}>Masa {deleteTarget.tableNumber}'i Sil?</h2>
-                        <p style={{ fontSize: '13px', color: '#8A8478', margin: '0 0 22px', lineHeight: 1.5 }}>Bu masa ve bağlı tüm verileri kalıcı olarak silinecek.</p>
+                <div className="tm-delete-overlay">
+                    <div className="tm-delete-box">
+                        <div style={{ width: '56px', height: '56px', background: '#ffecec', border: '2px solid #ff6b6b', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '26px', boxShadow: '3px 3px 0 #ff6b6b' }}>🗑️</div>
+                        <h2 className="tm-delete-title">Emin misin?</h2>
+                        <p className="tm-delete-desc">Masa {deleteTarget.tableNumber} ve tüm verileri kalıcı silinecek.</p>
                         <div style={{ display: 'flex', gap: '10px' }}>
-                            <button onClick={() => setDeleteTarget(null)} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: '1px solid #E0DDD6', background: '#FFFFFF', fontSize: '13px', fontWeight: 500, color: '#6A6560', cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>Vazgeç</button>
-                            <button onClick={handleDelete} disabled={deleting} style={{ flex: 1, padding: '11px', borderRadius: '11px', border: 'none', background: deleting ? '#E8B0C0' : '#C06080', fontSize: '13px', fontWeight: 500, color: '#FFFFFF', cursor: deleting ? 'not-allowed' : 'pointer', fontFamily: 'system-ui, sans-serif' }}>
-                                {deleting ? 'Siliniyor…' : 'Sil'}
+                            <button className="tm-btn-cancel" onClick={() => setDeleteTarget(null)}>Vazgeç</button>
+                            <button className="tm-btn-del" onClick={handleDelete} disabled={deleting}>
+                                {deleting ? 'Siliniyor…' : 'Sil! 🗑️'}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        </div>
+        </>
     )
 }

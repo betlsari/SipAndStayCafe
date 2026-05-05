@@ -1,6 +1,5 @@
 ﻿import { useState, useEffect } from 'react'
 import { menuApi } from '../../api/menu.api'
-import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import ModifierGroupSection from './ModifierGroupSection'
 import type { MenuItemDto, CategoryDto } from '../../types/index'
@@ -119,143 +118,182 @@ export default function MenuItemFormModal({ itemId, categories, onSave, onClose 
     }
 
 
+    // MenuItemFormModal return bloğunu tamamen değiştir
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-            <div className="w-full max-w-lg bg-zinc-900 border border-zinc-700 rounded-2xl flex flex-col max-h-[90vh]">
-                {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800 shrink-0">
-                    <h2 className="text-base font-bold text-white">
-                        {isEdit ? 'Ürünü Düzenle' : 'Yeni Ürün'}
-                    </h2>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
+        <>
+            <style>{`
+                .mf-overlay {
+                    position: fixed; inset: 0; z-index: 50;
+                    display: flex; align-items: center; justify-content: center;
+                    background: rgba(50,50,50,0.45); padding: 16px;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                }
+                .mf-box {
+                    width: 100%; max-width: 512px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 16px 6px 16px 6px / 6px 16px 6px 16px;
+                    box-shadow: 6px 6px 0 #323232;
+                    display: flex; flex-direction: column;
+                    max-height: 90vh;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                    background-position: 0 40px;
+                }
+                .mf-header {
+                    display: flex; align-items: center; justify-content: space-between;
+                    padding: 18px 20px;
+                    border-bottom: 2px dashed #323232;
+                    flex-shrink: 0;
+                }
+                .mf-title {
+                    font-size: 15px; font-weight: 900; color: #323232;
+                    margin: 0; text-transform: uppercase; letter-spacing: 0.5px;
+                    transform: rotate(-1deg); display: inline-block;
+                }
+                .mf-close {
+                    background: #ff6b6b; border: 2px solid #323232;
+                    border-radius: 50%; width: 30px; height: 30px;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    box-shadow: 2px 2px 0 #323232; transition: all 0.15s;
+                    color: white; font-size: 14px; font-weight: bold;
+                }
+                .mf-close:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 #323232; }
+                .mf-input {
+                    width: 100%; box-sizing: border-box;
+                    border: 2px solid #323232;
+                    border-radius: 8px 3px 8px 3px / 3px 8px 3px 8px;
+                    padding: 9px 14px;
+                    font-size: 14px; font-weight: 600;
+                    color: #323232; background: #ffffff;
+                    outline: none;
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    box-shadow: 3px 3px 0 #323232;
+                    transition: all 0.15s;
+                }
+                .mf-input:focus {
+                    border-color: #ffe66d;
+                    box-shadow: 3px 3px 0 #323232, 0 0 0 3px rgba(255,230,109,0.4);
+                    background: #fffdf5;
+                    transform: translate(-1px,-1px);
+                }
+                .mf-toggle-row {
+                    display: flex; align-items: center; justify-content: space-between;
+                    background: #ffffff; border: 2px solid #323232;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    padding: 12px 14px;
+                    box-shadow: 3px 3px 0 #323232;
+                }
+                .mf-footer {
+                    padding: 14px 20px;
+                    border-top: 2px dashed #323232;
+                    display: flex; gap: 10px; flex-shrink: 0;
+                }
+                .mf-btn-cancel {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffffff;
+                    font-size: 13px; font-weight: 700; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                }
+                .mf-btn-cancel:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; }
+                .mf-btn-save {
+                    flex: 1; padding: 11px;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    border: 2px solid #323232; background: #ffe66d;
+                    font-size: 13px; font-weight: 900; color: #323232;
+                    cursor: pointer; font-family: inherit;
+                    box-shadow: 3px 3px 0 #323232; transition: all 0.15s;
+                    text-transform: uppercase;
+                }
+                .mf-btn-save:hover:not(:disabled) { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 #323232; background: #ffd700; }
+                .mf-btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+                .mf-divider { border: none; border-top: 2px dashed #323232; margin: 4px 0; }
+            `}</style>
 
-                {/* Body */}
-                {loadingItem ? (
-                    <div className="flex items-center justify-center h-48 text-zinc-500 text-sm">Yükleniyor…</div>
-                ) : (
-                    <div className="overflow-y-auto px-5 py-5 flex flex-col gap-4">
-                        {/* Name */}
-                        <Field label="Ürün Adı">
-                            <input
-                                type="text"
-                                value={form.name}
-                                onChange={(e) => set('name', e.target.value)}
-                                placeholder="Örn: Sütlü Latte"
-                                className={inputCls}
-                            />
-                        </Field>
+            <div className="mf-overlay">
+                <div className="mf-box">
+                    <div className="mf-header">
+                        <h2 className="mf-title">{isEdit ? '✏️ Ürünü Düzenle' : '✨ Yeni Ürün'}</h2>
+                        <button className="mf-close" onClick={onClose}>✕</button>
+                    </div>
 
-                        {/* Description */}
-                        <Field label="Açıklama (opsiyonel)">
-                            <textarea
-                                value={form.description}
-                                onChange={(e) => set('description', e.target.value)}
-                                placeholder="Kısa bir açıklama..."
-                                rows={2}
-                                className={`${inputCls} resize-none`}
-                            />
-                        </Field>
-
-                        {/* Price + Order */}
-                        <div className="grid grid-cols-2 gap-3">
-                            <Field label="Fiyat (₺)">
-                                <input
-                                    type="number"
-                                    min={0}
-                                    step={0.01}
-                                    value={form.basePrice}
-                                    onChange={(e) => set('basePrice', e.target.value)}
-                                    placeholder="0.00"
-                                    className={inputCls}
-                                />
-                            </Field>
-                            <Field label="Sıralama">
-                                <input
-                                    type="number"
-                                    value={form.displayOrder}
-                                    onChange={(e) => set('displayOrder', e.target.value)}
-                                    className={inputCls}
-                                />
-                            </Field>
+                    {loadingItem ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', flexDirection: 'column', gap: '8px', fontFamily: 'inherit' }}>
+                            <span style={{ fontSize: '28px' }}>☕</span>
+                            <p style={{ color: '#888', fontSize: '13px', fontWeight: 700, fontStyle: 'italic' }}>Yükleniyor…</p>
                         </div>
-
-                        {/* Category */}
-                        <Field label="Kategori">
-                            <select
-                                value={form.categoryId}
-                                onChange={(e) => set('categoryId', e.target.value)}
-                                className={inputCls}
-                            >
-                                <option value="">Kategori seçin</option>
-                                {categories.map((c) => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
-                        </Field>
-
-                        {/* Image URL */}
-                        <Field label="Görsel URL (opsiyonel)">
-                            <input
-                                type="text"
-                                value={form.imageUrl}
-                                onChange={(e) => set('imageUrl', e.target.value)}
-                                placeholder="https://..."
-                                className={inputCls}
-                            />
-                        </Field>
-
-                        {/* isAvailable (edit only) */}
-                        {isEdit && (
-                            <div className="flex items-center justify-between bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3">
-                                <span className="text-sm text-zinc-300">Stokta mevcut</span>
-                                <button
-                                    onClick={() => set('isAvailable', !form.isAvailable)}
-                                    className={`relative w-11 h-6 rounded-full transition-colors ${form.isAvailable ? 'bg-violet-600' : 'bg-zinc-600'}`}
-                                >
-                                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.isAvailable ? 'translate-x-5' : 'translate-x-0'}`} />
-                                </button>
+                    ) : (
+                        <div style={{ overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <Field label="Ürün Adı">
+                                <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Örn: Sütlü Latte" className={inputCls} />
+                            </Field>
+                            <Field label="Açıklama (opsiyonel)">
+                                <textarea value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Kısa bir açıklama..." rows={2} className={inputCls} style={{ resize: 'none' }} />
+                            </Field>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <Field label="Fiyat (₺)">
+                                    <input type="number" min={0} step={0.01} value={form.basePrice} onChange={(e) => set('basePrice', e.target.value)} placeholder="0.00" className={inputCls} />
+                                </Field>
+                                <Field label="Sıralama">
+                                    <input type="number" value={form.displayOrder} onChange={(e) => set('displayOrder', e.target.value)} className={inputCls} />
+                                </Field>
                             </div>
-                        )}
+                            <Field label="Kategori">
+                                <select value={form.categoryId} onChange={(e) => set('categoryId', e.target.value)} className={inputCls}>
+                                    <option value="">Kategori seçin</option>
+                                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                            </Field>
+                            <Field label="Görsel URL (opsiyonel)">
+                                <input type="text" value={form.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} placeholder="https://..." className={inputCls} />
+                            </Field>
+                            {isEdit && (
+                                <div className="mf-toggle-row">
+                                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#323232' }}>Stokta mevcut</span>
+                                    <button
+                                        onClick={() => set('isAvailable', !form.isAvailable)}
+                                        style={{ width: '46px', height: '26px', borderRadius: '13px', border: '2px solid #323232', cursor: 'pointer', position: 'relative', background: form.isAvailable ? '#4ecdc4' : '#ddd', boxShadow: '2px 2px 0 #323232', transition: 'background 0.2s' }}
+                                    >
+                                        <span style={{ position: 'absolute', top: '3px', left: form.isAvailable ? '22px' : '3px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', border: '1.5px solid #323232', transition: 'left 0.2s' }} />
+                                    </button>
+                                </div>
+                            )}
                             {isEdit && fullItem && (
                                 <>
-                                    <div className="border-t border-zinc-700 my-1" />
+                                    <hr className="mf-divider" />
                                     <ModifierGroupSection item={fullItem} onRefresh={handleModifierRefresh} />
                                 </>
                             )}
-                        {error && <p className="text-sm text-red-400">{error}</p>}
-                    </div>
-                )}
+                            {error && (
+                                <p style={{ fontSize: '12px', fontWeight: 700, color: '#c0392b', background: '#ffecec', padding: '10px 12px', borderRadius: '8px', border: '2px solid #ff6b6b', boxShadow: '2px 2px 0 #ff6b6b', margin: 0 }}>⚠️ {error}</p>
+                            )}
+                        </div>
+                    )}
 
-                {/* Footer */}
-                <div className="px-5 py-4 border-t border-zinc-800 flex gap-3 shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-semibold py-2.5 rounded-xl transition-colors"
-                    >
-                        İptal
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        disabled={saving || loadingItem}
-                        className="flex-1 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
-                    >
-                        {saving ? 'Kaydediliyor…' : isEdit ? 'Güncelle' : 'Oluştur'}
-                    </button>
+                    <div className="mf-footer">
+                        <button className="mf-btn-cancel" onClick={onClose}>İptal</button>
+                        <button className="mf-btn-save" onClick={handleSubmit} disabled={saving || loadingItem}>
+                            {saving ? 'Kaydediliyor…' : isEdit ? 'Güncelle ✓' : 'Oluştur ✓'}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }
 
-const inputCls = 'w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500'
+// inputCls sabitini güncelle
+const inputCls = 'mf-input'
 
+// Field bileşenini güncelle
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{label}</label>
+            <label style={{ fontSize: '11px', fontWeight: 700, color: '#5F7154', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: '"Comic Sans MS", cursive' }}>{label}</label>
             {children}
         </div>
     )
