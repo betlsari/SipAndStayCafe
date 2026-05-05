@@ -89,7 +89,7 @@ export default function AdminDashboard() {
             <div className="notebook-header-sketch p-8 mb-10 max-w-4xl mx-auto relative overflow-hidden">
                 <div className="relative z-10">
                     <h1 className="text-3xl font-black text-[#323232] rotate-[-1deg] tracking-tighter uppercase">
-                        ADMİN PANELİ 👑
+                        ADMİN PANELİ 
                     </h1>
                     <p className="text-sm font-bold text-stone-500 mt-2 italic">
                         {new Date().toLocaleDateString('tr-TR', {
@@ -136,35 +136,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick links - Doodle Butonlar */}
-            <div className="max-w-3xl mx-auto">
-                <h2 className="text-xs font-black text-stone-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                    <span className="w-8 h-[2px] bg-rose-200"></span>
-                    Hızlı Erişim
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[
-                        { label: 'Kategori Yönetimi', href: '/admin/categories', desc: 'Menü kategorilerini düzenle' },
-                        { label: 'Ürün Yönetimi', href: '/admin/items', desc: 'Ürünleri ve fiyatları yönet' },
-                        { label: 'Masa & QR Yönetimi', href: '/admin/tables', desc: 'QR kodları indir' },
-                        { label: 'Raporlar', href: '/admin/reports', desc: 'Satış analizleri' },
-                        { label: 'Kullanıcı Yönetimi', href: '/admin/users', desc: 'Personel hesapları' },
-                    ].map(link => (
-                        <button
-                            key={link.href}
-                            onClick={() => navigate(link.href)}
-                            className="doodle-link-btn bg-white p-4 flex items-center justify-between text-left"
-                        >
-                            <div>
-                                <p className="text-sm font-black text-[#323232] mb-0.5 uppercase tracking-tighter">
-                                    {link.label}
-                                </p>
-                                <p className="text-[11px] font-bold text-stone-400 italic">{link.desc}</p>
-                            </div>
-                            <ArrowRight size={18} className="text-rose-300" />
-                        </button>
-                    ))}
-                </div>
-            </div>
+          
         </div>
     )
 }
