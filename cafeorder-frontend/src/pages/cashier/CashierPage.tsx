@@ -15,24 +15,26 @@ const elapsedMinutes = (iso: string) =>
     Math.floor((Date.now() - new Date(iso).getTime()) / 60_000)
 
 const STATUS_CONFIG: Record<PaymentStatus, { label: string; bg: string; color: string; border: string }> = {
-    None: { label: 'Bekliyor', bg: '#F0ECE4', color: '#6A6560', border: '#D8D4CC' },
-    Pending: { label: 'Ödeme Talep', bg: '#FEF6EE', color: '#A05C1A', border: '#F0C88080' },
-    Completed: { label: 'Ödendi', bg: '#EFF5EC', color: '#3D5C34', border: '#82A76B40' },
-    Failed: { label: 'Başarısız', bg: '#FEF0EE', color: '#7A3530', border: '#E0907040' },
+    None: { label: 'Bekliyor', bg: '#f0ece4', color: '#6A6560', border: '#323232' },
+    Pending: { label: 'Ödeme Talep', bg: '#ffe66d', color: '#323232', border: '#323232' },
+    Completed: { label: 'Ödendi', bg: '#d4edda', color: '#323232', border: '#323232' },
+    Failed: { label: 'Başarısız', bg: '#ffecec', color: '#c0392b', border: '#ff6b6b' },
 }
 
 function PaymentBadge({ status }: { status: PaymentStatus }) {
     const cfg = STATUS_CONFIG[status]
     return (
         <span style={{
-            fontSize: '11px', fontWeight: 600,
+            fontSize: '10px', fontWeight: 700,
             padding: '3px 10px',
             borderRadius: '20px',
             background: cfg.bg,
             color: cfg.color,
-            border: `1px solid ${cfg.border}`,
+            border: `2px solid ${cfg.border}`,
             textTransform: 'uppercase' as const,
             letterSpacing: '0.05em',
+            fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+            boxShadow: `2px 2px 0 ${cfg.border}`,
         }}>{cfg.label}</span>
     )
 }
@@ -41,12 +43,14 @@ function MethodBadge({ method }: { method: PaymentMethod | null }) {
     if (!method || method === 'None') return null
     return (
         <span style={{
-            fontSize: '11px', fontWeight: 500,
+            fontSize: '10px', fontWeight: 700,
             padding: '3px 8px',
             borderRadius: '20px',
-            background: '#F0ECE4',
-            color: '#6A6560',
-            border: '1px solid #D8D4CC',
+            background: '#ffffff',
+            color: '#323232',
+            border: '2px solid #323232',
+            fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+            boxShadow: '2px 2px 0 #323232',
         }}>
             {method === 'Cashier' ? '🧾 Kasa' : '💳 Online'}
         </span>
@@ -60,6 +64,7 @@ function SessionCard({
     highlight: boolean
     onClick: (id: string) => void
 }) {
+    const [hovered, setHovered] = useState(false)
     const mins = elapsedMinutes(session.openedAt)
     const isCompleted = session.paymentStatus === 'Completed'
     const isPending = session.paymentStatus === 'Pending'
@@ -67,39 +72,45 @@ function SessionCard({
     return (
         <div
             onClick={() => onClick(session.sessionId)}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
             style={{
                 position: 'relative',
-                background: '#FFFFFF',
-                borderRadius: '16px',
+                background: highlight ? '#ffe66d' : '#fff9e6',
+                borderRadius: '12px 4px 12px 4px / 4px 12px 4px 12px',
                 padding: '16px',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
-                border: highlight ? '2px solid #C8853A' : '1px solid #E0DDD6',
-                boxShadow: highlight
-                    ? '0 4px 16px rgba(200,133,58,0.15)'
-                    : '0 2px 8px rgba(95,113,84,0.05)',
+                border: highlight ? '2px solid #323232' : '2px solid #323232',
+                boxShadow: hovered
+                    ? '6px 6px 0 #323232'
+                    : highlight
+                        ? '5px 5px 0 #323232'
+                        : '3px 3px 0 #323232',
                 cursor: 'pointer',
                 opacity: isCompleted ? 0.55 : 1,
-                transition: 'box-shadow 0.2s, transform 0.1s',
-                fontFamily: 'system-ui, sans-serif',
+                transition: 'box-shadow 0.15s, transform 0.15s',
+                transform: hovered ? 'translate(-2px, -2px)' : 'none',
+                fontFamily: '"Comic Sans MS", "Chalkboard SE", cursive',
+                backgroundImage: 'repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px)',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(95,113,84,0.12)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = highlight ? '0 4px 16px rgba(200,133,58,0.15)' : '0 2px 8px rgba(95,113,84,0.05)' }}
         >
             {highlight && (
                 <span style={{
-                    position: 'absolute', top: '12px', right: '12px',
+                    position: 'absolute', top: '10px', right: '10px',
                     width: '10px', height: '10px',
-                    borderRadius: '50%', background: '#C8853A',
-                    animation: 'ping 1s infinite',
+                    borderRadius: '50%', background: '#ff6b6b',
+                    border: '2px solid #323232',
+                    animation: 'cp-ping 1s infinite',
                 }} />
             )}
 
             {isPending && !highlight && (
                 <div style={{
-                    position: 'absolute', top: '-1px', left: '16px', right: '16px',
-                    height: '3px', background: '#C8853A',
+                    position: 'absolute', top: '-2px', left: '12px', right: '12px',
+                    height: '4px', background: '#ffe66d',
+                    border: '1px solid #323232',
                     borderRadius: '0 0 4px 4px',
                 }} />
             )}
@@ -108,15 +119,15 @@ function SessionCard({
                 <div>
                     <span style={{
                         fontFamily: 'monospace',
-                        fontSize: '28px', fontWeight: 800,
-                        color: '#2C3528', letterSpacing: '-0.02em',
+                        fontSize: '32px', fontWeight: 900,
+                        color: '#323232', letterSpacing: '-0.02em',
                         lineHeight: 1,
                     }}>{session.tableNumber}</span>
-                    <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#8A8478' }}>
+                    <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#666', fontStyle: 'italic', fontFamily: 'inherit' }}>
                         {formatTime(session.openedAt)} · {mins}dk
                     </p>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '5px' }}>
                     <PaymentBadge status={session.paymentStatus} />
                     <MethodBadge method={session.paymentMethod} />
                 </div>
@@ -124,16 +135,16 @@ function SessionCard({
 
             <div style={{
                 display: 'flex', alignItems: 'center',
-                borderTop: '1px solid #EDE9E0',
+                borderTop: '2px dashed #32323230',
                 paddingTop: '12px', gap: '16px',
             }}>
                 <div>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#9A8E80' }}>Sipariş</p>
-                    <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: '#4A4840' }}>{session.orderCount}</p>
+                    <p style={{ margin: 0, fontSize: '10px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'inherit' }}>Sipariş</p>
+                    <p style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#323232', fontFamily: 'inherit' }}>{session.orderCount}</p>
                 </div>
                 <div style={{ flex: 1, textAlign: 'right' }}>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#9A8E80' }}>Toplam</p>
-                    <p style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#5F7154' }}>
+                    <p style={{ margin: 0, fontSize: '10px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'inherit' }}>Toplam</p>
+                    <p style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#5F7154', fontFamily: 'inherit' }}>
                         {formatCurrency(session.totalAmount)}
                     </p>
                 </div>
@@ -214,121 +225,166 @@ export default function CashierPage() {
     const waiting = active.filter((s) => s.paymentStatus === 'None')
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: '#F7F5F0',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            display: 'flex',
-            flexDirection: 'column',
-        }}>
-            {/* Header */}
-            <header style={{
-                position: 'sticky', top: 0, zIndex: 10,
-                background: 'rgba(247,245,240,0.95)',
-                backdropFilter: 'blur(8px)',
-                borderBottom: '1px solid #E0DDD6',
-                padding: '14px 20px',
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{
-                            width: '36px', height: '36px',
-                            background: '#5F7154',
-                            borderRadius: '10px',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: '18px',
-                        }}>🧾</div>
+        <>
+            <style>{`
+                .cp-page {
+                    min-height: 100vh;
+                    background: #FFF5F7;
+                    background-image: repeating-linear-gradient(
+                        transparent, transparent 27px,
+                        rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                    );
+                    font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .cp-header {
+                    position: sticky; top: 0; z-index: 10;
+                    background: rgba(255,249,230,0.95);
+                    backdrop-filter: blur(8px);
+                    border-bottom: 2px solid #323232;
+                    padding: 14px 24px;
+                    display: flex; align-items: center; justify-content: space-between;
+                    box-shadow: 0 3px 0 #32323215;
+                }
+                .cp-brand {
+                    display: flex; align-items: center; gap: 12px;
+                }
+                .cp-brand-icon {
+                    width: 40px; height: 40px;
+                    background: #ffe66d;
+                    border: 2px solid #323232;
+                    border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                    box-shadow: 3px 3px 0 #323232;
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 20px;
+                }
+                .cp-brand-title {
+                    margin: 0; font-size: 18px; font-weight: 900;
+                    color: #323232; text-transform: uppercase;
+                    letter-spacing: 0.5px; transform: rotate(-1deg);
+                    display: inline-block;
+                }
+                .cp-brand-sub {
+                    margin: 2px 0 0; font-size: 11px; color: #888;
+                    font-style: italic;
+                }
+                .cp-live-pill {
+                    display: flex; align-items: center; gap: 6px;
+                    background: #fff9e6;
+                    border: 2px solid #323232;
+                    border-radius: 20px;
+                    padding: 6px 14px;
+                    box-shadow: 3px 3px 0 #323232;
+                }
+                .cp-live-dot {
+                    width: 8px; height: 8px;
+                    border-radius: 50%; background: #4ecdc4;
+                    border: 1.5px solid #323232;
+                    display: inline-block;
+                    animation: cp-pulse 2s infinite;
+                }
+                .cp-live-text {
+                    font-size: 11px; font-weight: 700;
+                    color: #323232; text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                }
+                .cp-main {
+                    flex: 1; padding: 24px;
+                    display: flex; flex-direction: column; gap: 28px;
+                }
+                .cp-section-title {
+                    display: flex; align-items: center; gap: 8px;
+                    margin: 0 0 14px;
+                    font-size: 11px; font-weight: 700; color: #888;
+                    text-transform: uppercase; letter-spacing: 0.1em;
+                }
+                .cp-section-dot {
+                    width: 9px; height: 9px;
+                    border-radius: 50%;
+                    border: 2px solid #323232;
+                    display: inline-block;
+                }
+                .cp-empty {
+                    padding: 48px 20px;
+                    border: 2px dashed #ccc;
+                    border-radius: 16px; text-align: center;
+                    color: #aaa; font-size: 14px; font-weight: 700;
+                    background: #fffdf5;
+                }
+                .cp-error {
+                    background: #ffecec;
+                    border: 2px solid #ff6b6b;
+                    border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                    padding: 12px 16px;
+                    font-size: 13px; color: #c0392b; font-weight: 700;
+                    box-shadow: 3px 3px 0 #ff6b6b;
+                }
+                .cp-loading {
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    height: 200px; gap: 12px;
+                }
+                .cp-loading-emoji {
+                    font-size: 36px;
+                    animation: cp-bounce 1s ease-in-out infinite;
+                }
+                .cp-loading-text {
+                    font-size: 14px; color: #888; font-weight: 700; font-style: italic;
+                }
+                @keyframes cp-bounce {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-10px); }
+                }
+                @keyframes cp-pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+                @keyframes cp-ping {
+                    0% { transform: scale(1); opacity: 1; }
+                    75%, 100% { transform: scale(2); opacity: 0; }
+                }
+            `}</style>
+
+            <div className="cp-page">
+                <header className="cp-header">
+                    <div className="cp-brand">
+                        <div className="cp-brand-icon">🧾</div>
                         <div>
-                            <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.01em' }}>
-                                Kasiyer Paneli
-                            </h1>
-                            <p style={{ margin: 0, fontSize: '12px', color: '#8A8478' }}>
+                            <p className="cp-brand-title">Kasiyer Paneli</p>
+                            <p className="cp-brand-sub">
                                 {active.length} aktif masa · {pending.length} ödeme bekliyor
                             </p>
                         </div>
                     </div>
-                    <div style={{
-                        display: 'flex', alignItems: 'center', gap: '6px',
-                        background: '#EFF5EC',
-                        border: '1px solid #82A76B40',
-                        borderRadius: '20px',
-                        padding: '6px 12px',
-                    }}>
-                        <span style={{
-                            width: '7px', height: '7px',
-                            borderRadius: '50%', background: '#5F7154',
-                            display: 'inline-block',
-                            animation: 'pulse 2s infinite',
-                        }} />
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: '#3D5C34' }}>Canlı</span>
+                    <div className="cp-live-pill">
+                        <span className="cp-live-dot" />
+                        <span className="cp-live-text">Canlı</span>
                     </div>
-                </div>
-            </header>
+                </header>
 
-            <main style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                {loading && (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', gap: '12px', flexDirection: 'column' }}>
-                        <div style={{ fontSize: '28px' }}>☕</div>
-                        <p style={{ color: '#8A8478', fontSize: '14px' }}>Yükleniyor…</p>
-                    </div>
-                )}
+                <main className="cp-main">
+                    {loading && (
+                        <div className="cp-loading">
+                            <span className="cp-loading-emoji">☕</span>
+                            <p className="cp-loading-text">Yükleniyor…</p>
+                        </div>
+                    )}
 
-                {error && (
-                    <div style={{
-                        background: '#FEF0EE', border: '1px solid #E0907040',
-                        borderRadius: '12px', padding: '12px 16px',
-                        fontSize: '14px', color: '#7A3530',
-                    }}>{error}</div>
-                )}
+                    {error && (
+                        <div className="cp-error">⚠️ {error}</div>
+                    )}
 
-                {!loading && (
-                    <>
-                        {pending.length > 0 && (
-                            <section>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#C8853A', display: 'inline-block' }} />
-                                    <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#A05C1A', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
+                    {!loading && (
+                        <>
+                            {pending.length > 0 && (
+                                <section>
+                                    <div className="cp-section-title">
+                                        <span className="cp-section-dot" style={{ background: '#ffe66d' }} />
                                         Ödeme Bekleyen · {pending.length}
-                                    </h2>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                                    {pending.map((s) => (
-                                        <SessionCard
-                                            key={s.sessionId}
-                                            session={s}
-                                            highlight={highlightedTables.has(s.tableNumber)}
-                                            onClick={(id) => navigate(`/cashier/sessions/${id}`)}
-                                        />
-                                    ))}
-                                </div>
-                            </section>
-                        )}
-
-                        <section>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#82A76B', display: 'inline-block' }} />
-                                <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#5F7154', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
-                                    Aktif Masalar · {waiting.length}
-                                </h2>
-                            </div>
-                            {waiting.length === 0 ? (
-                                <div style={{
-                                    padding: '48px 20px',
-                                    border: '1.5px dashed #D8D4CC',
-                                    borderRadius: '16px',
-                                    textAlign: 'center',
-                                    color: '#B0AB9E',
-                                    fontSize: '14px',
-                                    background: '#FDFCF9',
-                                }}>
-                                    <div style={{ fontSize: '28px', marginBottom: '8px' }}>🍃</div>
-                                    Aktif masa yok
-                                </div>
-                            ) : (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                                    {waiting
-                                        .sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime())
-                                        .map((s) => (
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
+                                        {pending.map((s) => (
                                             <SessionCard
                                                 key={s.sessionId}
                                                 session={s}
@@ -336,17 +392,39 @@ export default function CashierPage() {
                                                 onClick={(id) => navigate(`/cashier/sessions/${id}`)}
                                             />
                                         ))}
-                                </div>
+                                    </div>
+                                </section>
                             )}
-                        </section>
-                    </>
-                )}
-            </main>
 
-            <style>{`
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-        @keyframes ping { 0%{transform:scale(1);opacity:1} 75%,100%{transform:scale(2);opacity:0} }
-      `}</style>
-        </div>
+                            <section>
+                                <div className="cp-section-title">
+                                    <span className="cp-section-dot" style={{ background: '#4ecdc4' }} />
+                                    Aktif Masalar · {waiting.length}
+                                </div>
+                                {waiting.length === 0 ? (
+                                    <div className="cp-empty">
+                                        <div style={{ fontSize: '32px', marginBottom: '8px' }}>🍃</div>
+                                        Aktif masa yok
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px' }}>
+                                        {waiting
+                                            .sort((a, b) => new Date(a.openedAt).getTime() - new Date(b.openedAt).getTime())
+                                            .map((s) => (
+                                                <SessionCard
+                                                    key={s.sessionId}
+                                                    session={s}
+                                                    highlight={highlightedTables.has(s.tableNumber)}
+                                                    onClick={(id) => navigate(`/cashier/sessions/${id}`)}
+                                                />
+                                            ))}
+                                    </div>
+                                )}
+                            </section>
+                        </>
+                    )}
+                </main>
+            </div>
+        </>
     )
 }

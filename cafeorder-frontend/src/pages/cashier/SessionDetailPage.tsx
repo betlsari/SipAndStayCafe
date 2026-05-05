@@ -3,6 +3,216 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { cashierApi } from '../../api/cashier.api'
 import type { CashierSessionDetailDto, PaymentStatus } from '../../types/index'
 
+
+<style>{`
+    .sd-page {
+        min-height: 100vh;
+        background: #FFF5F7;
+        background-image: repeating-linear-gradient(
+            transparent, transparent 27px,
+            rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+        );
+        font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+        display: flex;
+        flex-direction: column;
+    }
+    .sd-header {
+        position: sticky; top: 0; z-index: 10;
+        background: rgba(255,249,230,0.95);
+        backdrop-filter: blur(8px);
+        border-bottom: 2px solid #323232;
+        padding: 14px 20px;
+        display: flex; align-items: center; gap: 12px;
+        box-shadow: 0 3px 0 #32323215;
+    }
+    .sd-back-btn {
+        width: 36px; height: 36px;
+        background: #ffe66d;
+        border: 2px solid #323232;
+        border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+        cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: #323232; font-size: 16px; font-weight: 900;
+        box-shadow: 3px 3px 0 #323232;
+        transition: all 0.15s;
+        font-family: inherit;
+    }
+    .sd-back-btn:hover {
+        transform: translate(-1px, -1px);
+        box-shadow: 4px 4px 0 #323232;
+    }
+    .sd-header-title {
+        margin: 0; font-size: 17px; font-weight: 900;
+        color: #323232; text-transform: uppercase;
+        letter-spacing: 0.5px; transform: rotate(-1deg);
+        display: inline-block;
+    }
+    .sd-header-sub {
+        margin: 2px 0 0; font-size: 11px; color: #888; font-style: italic;
+    }
+    .sd-status-badge {
+        font-size: 11px; font-weight: 700;
+        padding: 4px 12px; border-radius: 20px;
+        border: 2px solid #323232;
+        box-shadow: 2px 2px 0 #323232;
+        font-family: inherit;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .sd-main {
+        flex: 1; padding: 20px;
+        display: flex; flex-direction: column; gap: 16px;
+    }
+    .sd-summary-card {
+        background: #fff9e6;
+        border: 2px solid #323232;
+        border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+        padding: 18px;
+        display: flex; align-items: center; justify-content: space-between;
+        box-shadow: 4px 4px 0 #323232;
+        background-image: repeating-linear-gradient(
+            transparent, transparent 27px,
+            rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+        );
+    }
+    .sd-summary-label {
+        margin: 0; font-size: 11px; color: #888;
+        text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .sd-summary-value {
+        margin: 4px 0 0; font-size: 30px; font-weight: 900;
+        color: #323232; letter-spacing: -0.02em;
+    }
+    .sd-summary-method {
+        margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #323232;
+    }
+    .sd-warning {
+        background: #fff9e6;
+        border: 2px solid #323232;
+        border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+        padding: 14px 16px;
+        display: flex; align-items: flex-start; gap: 10px;
+        box-shadow: 3px 3px 0 #323232;
+    }
+    .sd-warning-title {
+        margin: 0; font-size: 13px; font-weight: 700; color: #323232;
+    }
+    .sd-warning-desc {
+        margin: 4px 0 0; font-size: 12px; color: #666; line-height: 1.5;
+    }
+    .sd-confirm-btn {
+        width: 100%; padding: 14px;
+        border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+        border: 2px solid #323232;
+        font-size: 14px; font-weight: 900;
+        cursor: pointer; font-family: inherit;
+        transition: all 0.15s;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        box-shadow: 4px 4px 0 #323232;
+    }
+    .sd-confirm-btn.active {
+        background: #ffe66d; color: #323232;
+    }
+    .sd-confirm-btn.active:hover:not(:disabled) {
+        transform: translate(-1px, -1px);
+        box-shadow: 5px 5px 0 #323232;
+        background: #ffd700;
+    }
+    .sd-confirm-btn.blocked {
+        background: #f0ece4; color: #aaa;
+        cursor: not-allowed;
+    }
+    .sd-confirm-btn:disabled { opacity: 0.7; }
+    .sd-error {
+        background: #ffecec;
+        border: 2px solid #ff6b6b;
+        border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+        padding: 12px 16px;
+        font-size: 13px; color: #c0392b; font-weight: 700;
+        text-align: center;
+        box-shadow: 3px 3px 0 #ff6b6b;
+    }
+    .sd-section-title {
+        margin: 0; font-size: 11px; font-weight: 700; color: #888;
+        text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .sd-round-card {
+        background: #fff9e6;
+        border: 2px solid #323232;
+        border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+        overflow: hidden;
+        box-shadow: 3px 3px 0 #323232;
+    }
+    .sd-round-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 2px dashed #32323230;
+        background: #fffdf5;
+    }
+    .sd-round-label {
+        font-size: 12px; color: #888; font-family: monospace;
+    }
+    .sd-round-status {
+        font-size: 10px; font-weight: 700;
+        padding: 2px 9px; border-radius: 20px;
+        border: 2px solid #323232;
+        box-shadow: 1px 1px 0 #323232;
+        font-family: inherit;
+        text-transform: uppercase;
+    }
+    .sd-round-time {
+        font-size: 11px; color: #888; font-style: italic;
+    }
+    .sd-round-total {
+        font-size: 15px; font-weight: 900; color: #323232;
+    }
+    .sd-items-list {
+        margin: 0; padding: 14px 16px;
+        list-style: none;
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .sd-item-row {
+        display: flex; align-items: flex-start; gap: 12px;
+    }
+    .sd-item-qty {
+        font-size: 13px; font-weight: 900; color: #5F7154;
+        width: 24px; flex-shrink: 0;
+    }
+    .sd-item-name {
+        margin: 0; font-size: 13px; color: #323232; font-weight: 600;
+    }
+    .sd-item-mods {
+        margin: 2px 0 0; font-size: 11px; color: #888; font-style: italic;
+    }
+    .sd-item-total {
+        font-size: 13px; font-weight: 700; color: #323232; flex-shrink: 0;
+    }
+    .sd-empty-rounds {
+        padding: 40px 20px;
+        border: 2px dashed #ccc;
+        border-radius: 14px; text-align: center;
+        color: #aaa; font-size: 14px; font-weight: 700;
+        background: #fffdf5;
+    }
+    .sd-loading {
+        min-height: 100vh; background: #FFF5F7;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 12px;
+        font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+    }
+    .sd-loading-emoji {
+        font-size: 32px;
+        animation: sd-bounce 1s ease-in-out infinite;
+    }
+    .sd-loading-text {
+        font-size: 14px; color: #888; font-weight: 700; font-style: italic;
+    }
+    @keyframes sd-bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+`}</style>
+
 const formatCurrency = (n: number) =>
     new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(n)
 
@@ -68,22 +278,18 @@ export default function SessionDetailPage() {
         }
     }
 
+    // Loading state
     if (loading) return (
-        <div style={{
-            minHeight: '100vh', background: '#F7F5F0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: '12px',
-            fontFamily: 'system-ui, sans-serif',
-        }}>
-            <div style={{ fontSize: '28px' }}>☕</div>
-            <p style={{ color: '#8A8478', fontSize: '14px' }}>Yükleniyor…</p>
+        <div className="sd-loading">
+            <span className="sd-loading-emoji">☕</span>
+            <p className="sd-loading-text">Yükleniyor…</p>
         </div>
     )
 
     if (!session) return (
-        <div style={{ minHeight: '100vh', background: '#F7F5F0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', fontFamily: 'system-ui, sans-serif' }}>
-            <p style={{ color: '#7A3530', fontSize: '14px' }}>{error ?? 'Bulunamadı.'}</p>
-            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F7154', textDecoration: 'underline', fontSize: '14px', fontFamily: 'inherit' }}>Geri Dön</button>
+        <div className="sd-loading">
+            <p style={{ color: '#c0392b', fontSize: '14px', fontWeight: 700 }}>{error ?? 'Bulunamadı.'}</p>
+            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5F7154', textDecoration: 'underline', fontSize: '14px', fontFamily: '"Comic Sans MS", cursive' }}>Geri Dön</button>
         </div>
     )
 
@@ -93,198 +299,239 @@ export default function SessionDetailPage() {
     const confirmBlocked = notReadyOrders.length > 0 || session.orderRounds.length === 0
 
     return (
-        <div style={{ minHeight: '100vh', background: '#F7F5F0', fontFamily: 'system-ui, -apple-system, sans-serif', display: 'flex', flexDirection: 'column' }}>
-            {/* Header */}
-            <header style={{
-                position: 'sticky', top: 0, zIndex: 10,
-                background: 'rgba(247,245,240,0.95)',
-                backdropFilter: 'blur(8px)',
-                borderBottom: '1px solid #E0DDD6',
-                padding: '14px 20px',
-                display: 'flex', alignItems: 'center', gap: '12px',
-            }}>
-                <button
-                    onClick={() => navigate(-1)}
-                    style={{
-                        width: '34px', height: '34px',
-                        background: '#FFFFFF',
-                        border: '1px solid #E0DDD6',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#5F7154',
-                        fontSize: '16px',
-                    }}
-                >←</button>
-                <div style={{ flex: 1 }}>
-                    <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#2C3528', letterSpacing: '-0.01em' }}>
-                        Masa {session.tableNumber}
-                    </h1>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#8A8478' }}>
-                        {formatDateTime(session.openedAt)}'den beri açık
-                    </p>
-                </div>
-                <span style={{
-                    fontSize: '12px', fontWeight: 600,
-                    padding: '5px 12px',
-                    borderRadius: '20px',
-                    background: statusCfg.bg,
-                    color: statusCfg.color,
-                    border: `1px solid ${statusCfg.border}`,
-                }}>{statusCfg.label}</span>
-            </header>
+        <>
+            <style>{`
+            .sd-page {
+                min-height: 100vh;
+                background: #FFF5F7;
+                background-image: repeating-linear-gradient(
+                    transparent, transparent 27px,
+                    rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px
+                );
+                font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+                display: flex;
+                flex-direction: column;
+            }
+            .sd-header {
+                position: sticky; top: 0; z-index: 10;
+                background: rgba(255,249,230,0.95);
+                backdrop-filter: blur(8px);
+                border-bottom: 2px solid #323232;
+                padding: 14px 20px;
+                display: flex; align-items: center; gap: 12px;
+                box-shadow: 0 3px 0 #32323215;
+            }
+            .sd-back-btn {
+                width: 36px; height: 36px;
+                background: #ffe66d;
+                border: 2px solid #323232;
+                border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                cursor: pointer;
+                display: flex; align-items: center; justify-content: center;
+                color: #323232; font-size: 16px; font-weight: 900;
+                box-shadow: 3px 3px 0 #323232;
+                transition: all 0.15s;
+                font-family: inherit;
+            }
+            .sd-back-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #323232; }
+            .sd-header-title {
+                margin: 0; font-size: 17px; font-weight: 900;
+                color: #323232; text-transform: uppercase;
+                letter-spacing: 0.5px; transform: rotate(-1deg); display: inline-block;
+            }
+            .sd-header-sub { margin: 2px 0 0; font-size: 11px; color: #888; font-style: italic; }
+            .sd-status-badge {
+                font-size: 11px; font-weight: 700;
+                padding: 4px 12px; border-radius: 20px;
+                border: 2px solid #323232;
+                box-shadow: 2px 2px 0 #323232;
+                font-family: inherit;
+                text-transform: uppercase; letter-spacing: 0.05em;
+            }
+            .sd-main { flex: 1; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+            .sd-summary-card {
+                background: #fff9e6;
+                border: 2px solid #323232;
+                border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                padding: 18px;
+                display: flex; align-items: center; justify-content: space-between;
+                box-shadow: 4px 4px 0 #323232;
+                background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 29px);
+            }
+            .sd-summary-label { margin: 0; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.06em; }
+            .sd-summary-value { margin: 4px 0 0; font-size: 30px; font-weight: 900; color: #323232; letter-spacing: -0.02em; }
+            .sd-summary-method { margin: 4px 0 0; font-size: 15px; font-weight: 700; color: #323232; }
+            .sd-warning {
+                background: #fff9e6; border: 2px solid #323232;
+                border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                padding: 14px 16px; display: flex; align-items: flex-start; gap: 10px;
+                box-shadow: 3px 3px 0 #323232;
+            }
+            .sd-warning-title { margin: 0; font-size: 13px; font-weight: 700; color: #323232; }
+            .sd-warning-desc { margin: 4px 0 0; font-size: 12px; color: #666; line-height: 1.5; }
+            .sd-confirm-btn {
+                width: 100%; padding: 14px;
+                border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                border: 2px solid #323232;
+                font-size: 14px; font-weight: 900;
+                cursor: pointer; font-family: inherit;
+                transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.5px;
+                box-shadow: 4px 4px 0 #323232;
+            }
+            .sd-confirm-btn.active { background: #ffe66d; color: #323232; }
+            .sd-confirm-btn.active:hover:not(:disabled) { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 #323232; background: #ffd700; }
+            .sd-confirm-btn.blocked { background: #f0ece4; color: #aaa; cursor: not-allowed; }
+            .sd-confirm-btn:disabled { opacity: 0.7; }
+            .sd-error {
+                background: #ffecec; border: 2px solid #ff6b6b;
+                border-radius: 10px 4px 10px 4px / 4px 10px 4px 10px;
+                padding: 12px 16px; font-size: 13px; color: #c0392b; font-weight: 700;
+                text-align: center; box-shadow: 3px 3px 0 #ff6b6b;
+            }
+            .sd-section-title { margin: 0; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.1em; }
+            .sd-round-card {
+                background: #fff9e6; border: 2px solid #323232;
+                border-radius: 12px 4px 12px 4px / 4px 12px 4px 12px;
+                overflow: hidden; box-shadow: 3px 3px 0 #323232;
+            }
+            .sd-round-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 10px 16px; border-bottom: 2px dashed #32323230; background: #fffdf5;
+            }
+            .sd-round-label { font-size: 12px; color: #888; font-family: monospace; }
+            .sd-round-status {
+                font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 20px;
+                border: 2px solid #323232; box-shadow: 1px 1px 0 #323232;
+                font-family: inherit; text-transform: uppercase;
+            }
+            .sd-round-time { font-size: 11px; color: #888; font-style: italic; }
+            .sd-round-total { font-size: 15px; font-weight: 900; color: #323232; }
+            .sd-items-list { margin: 0; padding: 14px 16px; list-style: none; display: flex; flex-direction: column; gap: 10px; }
+            .sd-item-row { display: flex; align-items: flex-start; gap: 12px; }
+            .sd-item-qty { font-size: 13px; font-weight: 900; color: #5F7154; width: 24px; flex-shrink: 0; }
+            .sd-item-name { margin: 0; font-size: 13px; color: #323232; font-weight: 600; }
+            .sd-item-mods { margin: 2px 0 0; font-size: 11px; color: #888; font-style: italic; }
+            .sd-item-total { font-size: 13px; font-weight: 700; color: #323232; flex-shrink: 0; }
+            .sd-empty-rounds {
+                padding: 40px 20px; border: 2px dashed #ccc; border-radius: 14px;
+                text-align: center; color: #aaa; font-size: 14px; font-weight: 700; background: #fffdf5;
+            }
+            .sd-loading {
+                min-height: 100vh; background: #FFF5F7;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                gap: 12px; font-family: "Comic Sans MS", "Chalkboard SE", cursive;
+            }
+            .sd-loading-emoji { font-size: 32px; animation: sd-bounce 1s ease-in-out infinite; }
+            .sd-loading-text { font-size: 14px; color: #888; font-weight: 700; font-style: italic; }
+            @keyframes sd-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        `}</style>
 
-            <main style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Summary */}
-                <div style={{
-                    background: '#FFFFFF',
-                    borderRadius: '16px',
-                    border: '1px solid #E8E4DC',
-                    padding: '18px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    boxShadow: '0 2px 8px rgba(95,113,84,0.05)',
-                }}>
-                    <div>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80' }}>Genel Toplam</p>
-                        <p style={{ margin: '4px 0 0', fontSize: '28px', fontWeight: 800, color: '#2C3528', letterSpacing: '-0.02em' }}>
-                            {formatCurrency(session.grandTotal)}
-                        </p>
+            <div className="sd-page">
+                <header className="sd-header">
+                    <button className="sd-back-btn" onClick={() => navigate(-1)}>←</button>
+                    <div style={{ flex: 1 }}>
+                        <p className="sd-header-title">Masa {session.tableNumber}</p>
+                        <p className="sd-header-sub">{formatDateTime(session.openedAt)}'den beri açık</p>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <p style={{ margin: 0, fontSize: '12px', color: '#9A8E80' }}>Ödeme Yöntemi</p>
-                        <p style={{ margin: '4px 0 0', fontSize: '15px', fontWeight: 500, color: '#4A4840' }}>
-                            {!session.paymentMethod || session.paymentMethod === 'None'
-                                ? '—'
-                                : session.paymentMethod === 'Cashier' ? '🧾 Kasa' : '💳 Online'}
-                        </p>
-                    </div>
-                </div>
+                    <span
+                        className="sd-status-badge"
+                        style={{ background: statusCfg.bg, color: statusCfg.color }}
+                    >
+                        {statusCfg.label}
+                    </span>
+                </header>
 
-                {/* Warning */}
-                {canConfirm && confirmBlocked && session.orderRounds.length > 0 && (
-                    <div style={{
-                        background: '#FEF6EE',
-                        border: '1px solid #F0C880',
-                        borderRadius: '12px',
-                        padding: '14px 16px',
-                        display: 'flex', alignItems: 'flex-start', gap: '10px',
-                    }}>
-                        <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
+                <main className="sd-main">
+                    <div className="sd-summary-card">
                         <div>
-                            <p style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#7A5C1A' }}>Hazırlanmamış sipariş var</p>
-                            <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#9A7040', lineHeight: 1.5 }}>
-                                {notReadyOrders.length} sipariş turu henüz hazır değil. Tüm siparişler hazır olmadan ödeme onaylanamaz.
+                            <p className="sd-summary-label">Genel Toplam</p>
+                            <p className="sd-summary-value">{formatCurrency(session.grandTotal)}</p>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <p className="sd-summary-label">Ödeme Yöntemi</p>
+                            <p className="sd-summary-method">
+                                {!session.paymentMethod || session.paymentMethod === 'None'
+                                    ? '—'
+                                    : session.paymentMethod === 'Cashier' ? '🧾 Kasa' : '💳 Online'}
                             </p>
                         </div>
                     </div>
-                )}
 
-                {/* Confirm Button */}
-                {canConfirm && (
-                    <button
-                        disabled={confirming || confirmBlocked}
-                        onClick={handleConfirm}
-                        style={{
-                            width: '100%',
-                            padding: '14px',
-                            borderRadius: '14px',
-                            border: 'none',
-                            background: confirmBlocked ? '#E8E4DC' : '#5F7154',
-                            color: confirmBlocked ? '#9A8E80' : '#FFFFFF',
-                            fontSize: '15px',
-                            fontWeight: 600,
-                            cursor: confirmBlocked ? 'not-allowed' : 'pointer',
-                            fontFamily: 'inherit',
-                            transition: 'background 0.15s',
-                            opacity: confirming ? 0.7 : 1,
-                        }}
-                    >
-                        {confirming ? 'İşleniyor…' : confirmBlocked ? '🔒 Siparişler Hazır Değil' : '✓ Ödemeyi Onayla ve Masayı Kapat'}
-                    </button>
-                )}
-
-                {error && (
-                    <div style={{
-                        background: '#FEF0EE', border: '1px solid #E0907040',
-                        borderRadius: '12px', padding: '12px 16px',
-                        fontSize: '14px', color: '#7A3530', textAlign: 'center',
-                    }}>{error}</div>
-                )}
-
-                {/* Order Rounds */}
-                <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#8A8478', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }}>
-                        Sipariş Geçmişi · {session.orderRounds.length}
-                    </h2>
-
-                    {session.orderRounds.length === 0 && (
-                        <div style={{
-                            padding: '40px 20px',
-                            border: '1.5px dashed #D8D4CC',
-                            borderRadius: '14px',
-                            textAlign: 'center',
-                            color: '#B0AB9E',
-                            fontSize: '14px',
-                            background: '#FDFCF9',
-                        }}>Sipariş yok</div>
+                    {canConfirm && confirmBlocked && session.orderRounds.length > 0 && (
+                        <div className="sd-warning">
+                            <span style={{ fontSize: '18px', flexShrink: 0 }}>⚠️</span>
+                            <div>
+                                <p className="sd-warning-title">Hazırlanmamış sipariş var</p>
+                                <p className="sd-warning-desc">
+                                    {notReadyOrders.length} sipariş turu henüz hazır değil. Tüm siparişler hazır olmadan ödeme onaylanamaz.
+                                </p>
+                            </div>
+                        </div>
                     )}
 
-                    {session.orderRounds.map((round, idx) => {
-                        const orderStatus = ORDER_STATUS_CONFIG[round.status] ?? ORDER_STATUS_CONFIG.Received
-                        return (
-                            <div key={round.orderId} style={{
-                                background: '#FFFFFF',
-                                borderRadius: '14px',
-                                border: '1px solid #E8E4DC',
-                                overflow: 'hidden',
-                                boxShadow: '0 1px 4px rgba(95,113,84,0.05)',
-                            }}>
-                                {/* Round header */}
-                                <div style={{
-                                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                    padding: '10px 16px',
-                                    borderBottom: '1px solid #EDE9E0',
-                                    background: '#FDFCF9',
-                                }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ fontSize: '12px', color: '#9A8E80', fontFamily: 'monospace' }}>
-                                            #{session.orderRounds.length - idx}. Tur
-                                        </span>
-                                        <span style={{
-                                            fontSize: '11px', fontWeight: 600,
-                                            padding: '2px 8px', borderRadius: '20px',
-                                            background: orderStatus.bg,
-                                            color: orderStatus.color,
-                                        }}>{orderStatus.label}</span>
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{ fontSize: '12px', color: '#9A8E80' }}>{formatDateTime(round.createdAt)}</span>
-                                        <span style={{ fontSize: '15px', fontWeight: 700, color: '#2C3528' }}>{formatCurrency(round.roundTotal)}</span>
-                                    </div>
-                                </div>
+                    {canConfirm && (
+                        <button
+                            disabled={confirming || confirmBlocked}
+                            onClick={handleConfirm}
+                            className={`sd-confirm-btn ${confirmBlocked ? 'blocked' : 'active'}`}
+                        >
+                            {confirming ? 'İşleniyor…' : confirmBlocked ? '🔒 Siparişler Hazır Değil' : '✓ Ödemeyi Onayla ve Masayı Kapat'}
+                        </button>
+                    )}
 
-                                {/* Items */}
-                                <ul style={{ margin: 0, padding: '14px 16px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {round.items.map((item, i) => (
-                                        <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                            <span style={{ fontSize: '13px', fontWeight: 700, color: '#82A76B', width: '24px', flexShrink: 0 }}>{item.quantity}×</span>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <p style={{ margin: 0, fontSize: '14px', color: '#2C3528', fontWeight: 500 }}>{item.productName}</p>
-                                                {item.modifierSnapshots.length > 0 && (
-                                                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#9A8E80' }}>
-                                                        {item.modifierSnapshots.join(' · ')}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            <span style={{ fontSize: '14px', color: '#4A4840', fontWeight: 500, flexShrink: 0 }}>{formatCurrency(item.itemTotal)}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )
-                    })}
-                </section>
-            </main>
-        </div>
+                    {error && <div className="sd-error">{error}</div>}
+
+                    <section style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <h2 className="sd-section-title">
+                            Sipariş Geçmişi · {session.orderRounds.length}
+                        </h2>
+
+                        {session.orderRounds.length === 0 && (
+                            <div className="sd-empty-rounds">Sipariş yok</div>
+                        )}
+
+                        {session.orderRounds.map((round, idx) => {
+                            const orderStatus = ORDER_STATUS_CONFIG[round.status] ?? ORDER_STATUS_CONFIG.Received
+                            return (
+                                <div key={round.orderId} className="sd-round-card">
+                                    <div className="sd-round-header">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <span className="sd-round-label">
+                                                #{session.orderRounds.length - idx}. Tur
+                                            </span>
+                                            <span
+                                                className="sd-round-status"
+                                                style={{ background: orderStatus.bg, color: orderStatus.color }}
+                                            >
+                                                {orderStatus.label}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <span className="sd-round-time">{formatDateTime(round.createdAt)}</span>
+                                            <span className="sd-round-total">{formatCurrency(round.roundTotal)}</span>
+                                        </div>
+                                    </div>
+
+                                    <ul className="sd-items-list">
+                                        {round.items.map((item, i) => (
+                                            <li key={i} className="sd-item-row">
+                                                <span className="sd-item-qty">{item.quantity}×</span>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <p className="sd-item-name">{item.productName}</p>
+                                                    {item.modifierSnapshots.length > 0 && (
+                                                        <p className="sd-item-mods">{item.modifierSnapshots.join(' · ')}</p>
+                                                    )}
+                                                </div>
+                                                <span className="sd-item-total">{formatCurrency(item.itemTotal)}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )
+                        })}
+                    </section>
+                </main>
+            </div>
+        </>
     )
-}
+};
