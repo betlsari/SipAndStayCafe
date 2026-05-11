@@ -178,7 +178,7 @@ public static class DependencyInjection
         // ──────────────────────────────────────────────────────────────────
         // 7. Hangfire
         // ──────────────────────────────────────────────────────────────────
-        services.AddHangfire(cfg => cfg
+        /*services.AddHangfire(cfg => cfg
             .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
             .UseSimpleAssemblyNameTypeSerializer()
             .UseRecommendedSerializerSettings()
@@ -187,7 +187,7 @@ public static class DependencyInjection
 
         services.AddHangfireServer();
         services.AddScoped<StockResetJob>();
-
+        */
         return services;
     }
 }

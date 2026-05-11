@@ -9,6 +9,7 @@ using SipAndStayCafe.Infrastructure.Jobs;
 using SipAndStayCafe.Infrastructure.Persistence;
 using SipAndStayCafe.Infrastructure.Persistence.Repositories;
 using SipAndStayCafe.Infrastructure.Services;
+using SipAndStayCafe.Infrastructure.Seed;
 
 using SipAndStayCafe.WebAPI.Adapters;
 using SipAndStayCafe.WebAPI.Hubs;
@@ -97,8 +98,8 @@ builder.Services.AddCors(opts =>
 
 var app = builder.Build();
 
-// ❌ BURAYI SİLDİK (çünkü sende yoktu)
-// await RoleSeeder.SeedAsync(app);
+// ── Seed Database ──────────────────────────────────────────────
+await RoleSeeder.SeedAsync(app);
 
 // ── Middleware ─────────────────────────────────────────────────
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -124,10 +125,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // ── Hangfire ───────────────────────────────────────────────────
-app.UseHangfireDashboard("/hangfire", new DashboardOptions
+ /*app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
     Authorization = [new OwnerHangfireAuthFilter()]
-});
+});*/ 
+ /*
 
 RecurringJob.AddOrUpdate<StockResetJob>(
     "nightly-stock-reset",
@@ -139,7 +141,7 @@ RecurringJob.AddOrUpdate<WeeklyReportJob>(
     "weekly-sales-report",
     job => job.ExecuteAsync(CancellationToken.None),
     "0 0 * * 1",
-    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+    new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });*/
 
 // ── Endpoints ──────────────────────────────────────────────────
 app.MapControllers();
